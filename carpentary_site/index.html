@@ -1,19 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-    	<meta charset="utf-8">
-    	<meta name="description" content="This is where your description goes">
-    	<meta name="keywords" content="one, two, three">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Expert carpentry services - custom chairs, house roofing, and African-inspired designs">
+    <meta name="keywords" content="carpentry, chairs, roofing, African design, custom furniture">
+    <title>TimberCraft - Expert Carpentry & Design</title>
+    
+    <!-- CSS Links -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-hammer"></i>
+                <span>TimberCraft</span>
+            </div>
+            
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
+                <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <button class="btn-quote" onclick="scrollToSection('contact')">Get Quote</button>
+        </div>
+    </nav>
 
-		<title>Title in the tab</title>
+    <!-- HERO SECTION -->
+    <section id="home" class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Masterful Woodwork<span class="highlight">.</span></h1>
+            <p class="hero-subtitle">Timeless Designs from African Heritage</p>
+            <p class="hero-description">Expert carpentry, custom chairs, stunning roofing, and bespoke furniture crafted with passion</p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="scrollToSection('portfolio')">
+                    <i class="fas fa-images"></i> Explore Portfolio
+                </button>
+                <button class="btn-secondary" onclick="scrollToSection('contact')">
+                    <i class="fas fa-phone"></i> Get Quote
+                </button>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
 
-		<!-- external CSS link -->
-		<link rel="stylesheet" href="css/normalize.css">
-		<link rel="stylesheet" href="css/style.css">
-	</head>
-	<body>
-		
+    <!-- SERVICES SECTION -->
+    <section id="services" class="services">
+        <div class="section-header">
+            <h2>Our Services</h2>
+            <p>Comprehensive carpentry solutions tailored to your needs</p>
+        </div>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-chair"></i>
+                </div>
+                <h3>Custom Chairs & Seating</h3>
+                <p>Handcrafted chairs with traditional African designs and modern comfort. Each piece is unique and built to last generations.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-house"></i>
+                </div>
+                <h3>House Roofing</h3>
+                <p>Professional roofing solutions using premium materials and traditional African architectural styles. Weather-resistant and stunning.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-couch"></i>
+                </div>
+                <h3>Interior Furniture</h3>
+                <p>Complete interior design with custom-made furniture. Blend traditional African aesthetics with contemporary living.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <h3>Doors & Frames</h3>
+                <p>Intricate wooden doors and frames with traditional African patterns. Each design tells a story of craftsmanship.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-hammer-head"></i>
+                </div>
+                <h3>Custom Carpentry</h3>
+                <p>Bespoke carpentry work for any project. From design consultation to final installation, we handle it all.</p>
+            </div>
+            
+            <div class="service-card">
+                <div class="service-icon">
+                    <i class="fas fa-paint-brush"></i>
+                </div>
+                <h3>Restoration & Refinishing</h3>
+                <p>Restore and refinish your precious wooden pieces. We preserve the beauty of heritage furniture.</p>
+            </div>
+        </div>
+    </section>
 
-		<script type="text/javascript" src="js/main.js"></script>
-	</body>
+    <!-- PORTFOLIO SECTION -->
+    <section id="portfolio" class="portfolio">
+        <div class="section-header">
+            <h2>Our Portfolio</h2>
+            <p>Showcase of our finest carpentry work</p>
+        </div>
+        
+        <div class="portfolio-tabs">
+            <button class="tab-btn active" onclick="filterPortfolio('all')">All Works</button>
+            <button class="tab-btn" onclick="filterPortfolio('chairs')">Chairs</button>
+            <button class="tab-btn" onclick="filterPortfolio('roofing')">Roofing</button>
+            <button class="tab-btn" onclick="filterPortfolio('furniture')">Furniture</button>
+        </div>
+        
+        <div class="portfolio-grid">
+            <!-- Chairs Category -->
+            <div class="portfolio-item chairs" data-category="chairs">
+                <img src="img/chair1.jpg" alt="Traditional African Chair">
+                <div class="portfolio-info">
+                    <h4>Traditional African Chair</h4>
+                    <p>Hand-carved wooden chair with traditional patterns</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item chairs" data-category="chairs">
+                <img src="img/chair2.jpg" alt="Modern Comfort Chair">
+                <div class="portfolio-info">
+                    <h4>Modern Comfort Chair</h4>
+                    <p>Contemporary design with African heritage touches</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item chairs" data-category="chairs">
+                <img src="img/chair3.jpg" alt="Ceremonial Chair Set">
+                <div class="portfolio-info">
+                    <h4>Ceremonial Chair Set</h4>
+                    <p>Elegant set piece with intricate carvings</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item chairs" data-category="chairs">
+                <img src="img/chair4.jpg" alt="Executive Office Chair">
+                <div class="portfolio-info">
+                    <h4>Executive Office Chair</h4>
+                    <p>Premium wooden chair for modern offices</p>
+                </div>
+            </div>
+            
+            <!-- Roofing Category -->
+            <div class="portfolio-item roofing" data-category="roofing">
+                <img src="img/roof1.jpg" alt="Traditional Thatched Roof">
+                <div class="portfolio-info">
+                    <h4>Traditional Thatched Roof</h4>
+                    <p>Authentic African roofing with thatch materials</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item roofing" data-category="roofing">
+                <img src="img/roof2.jpg" alt="Wooden Beam Roof Structure">
+                <div class="portfolio-info">
+                    <h4>Wooden Beam Roof</h4>
+                    <p>Strong architectural roof with visible beams</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item roofing" data-category="roofing">
+                <img src="img/roof3.jpg" alt="Modern African Roofing">
+                <div class="portfolio-info">
+                    <h4>Modern African Roofing</h4>
+                    <p>Hybrid design combining tradition and modernity</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item roofing" data-category="roofing">
+                <img src="img/roof4.jpg" alt="Village Compound Roof">
+                <div class="portfolio-info">
+                    <h4>Village Compound Roof</h4>
+                    <p>Large-scale roofing for compound structures</p>
+                </div>
+            </div>
+            
+            <!-- Furniture Category -->
+            <div class="portfolio-item furniture" data-category="furniture">
+                <img src="img/furniture1.jpg" alt="Dining Set">
+                <div class="portfolio-info">
+                    <h4>African Dining Set</h4>
+                    <p>Complete wooden dining furniture with seating</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item furniture" data-category="furniture">
+                <img src="img/furniture2.jpg" alt="Coffee Table">
+                <div class="portfolio-info">
+                    <h4>Artisan Coffee Table</h4>
+                    <p>Decorative table with traditional carvings</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item furniture" data-category="furniture">
+                <img src="img/furniture3.jpg" alt="Bedroom Suite">
+                <div class="portfolio-info">
+                    <h4>Wooden Bedroom Suite</h4>
+                    <p>Complete bedroom furniture set</p>
+                </div>
+            </div>
+            
+            <div class="portfolio-item furniture" data-category="furniture">
+                <img src="img/furniture4.jpg" alt="Storage Cabinet">
+                <div class="portfolio-info">
+                    <h4>Traditional Storage Cabinet</h4>
+                    <p>Handcrafted storage with decorative doors</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="about">
+        <div class="about-container">
+            <div class="about-image">
+                <img src="img/about-image.jpg" alt="Carpentry Workshop">
+            </div>
+            
+            <div class="about-content">
+                <h2>About TimberCraft</h2>
+                <p>With over 20 years of experience in traditional African carpentry, we bring heritage and innovation together. Our artisans are trained in time-honored techniques while embracing modern design principles.</p>
+                
+                <div class="about-features">
+                    <div class="feature">
+                        <i class="fas fa-star"></i>
+                        <h4>Quality Craftsmanship</h4>
+                        <p>Every piece is handcrafted with attention to detail</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-leaf"></i>
+                        <h4>Sustainable Materials</h4>
+                        <p>We use responsibly sourced African timber</p>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-palette"></i>
+                        <h4>Custom Designs</h4>
+                        <p>Unique pieces tailored to your vision</p>
+                    </div>
+                </div>
+                
+                <div class="about-stats">
+                    <div class="stat">
+                        <h3>500+</h3>
+                        <p>Projects Completed</p>
+                    </div>
+                    <div class="stat">
+                        <h3>20+</h3>
+                        <p>Years Experience</p>
+                    </div>
+                    <div class="stat">
+                        <h3>100%</h3>
+                        <p>Client Satisfaction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section class="testimonials">
+        <div class="section-header">
+            <h2>What Our Clients Say</h2>
+            <p>Hear from satisfied customers about their experience with TimberCraft</p>
+        </div>
+        
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"The chairs we ordered are absolutely stunning! The craftsmanship is impeccable and the attention to detail is remarkable. Highly recommended!"</p>
+                <p class="testimonial-author">- Sarah Okonkwo</p>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"Our roof renovation was handled with professionalism. The team understood our vision and delivered beyond expectations. Worth every penny!"</p>
+                <p class="testimonial-author">- Kofi Mensah</p>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-text">"TimberCraft transformed our home with beautiful furniture and doors. The team's expertise in African design is evident in every piece."</p>
+                <p class="testimonial-author">- Amara Diop</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="contact">
+        <div class="section-header">
+            <h2>Get In Touch</h2>
+            <p>Ready to start your carpentry project? Contact us today!</p>
+        </div>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h4>Address</h4>
+                        <p>123 Timber Lane, Kampala, Uganda</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <h4>Phone</h4>
+                        <p>+256 700 123 456</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <h4>Email</h4>
+                        <p>info@timbercraft.com</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <div>
+                        <h4>Hours</h4>
+                        <p>Mon - Fri: 8:00 AM - 6:00 PM<br>Sat: 9:00 AM - 4:00 PM</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form class="contact-form" id="contactForm">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <input type="tel" placeholder="Your Phone">
+                <textarea placeholder="Tell us about your project" rows="6" required></textarea>
+                <button type="submit" class="btn-primary">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>TimberCraft</h4>
+                <p>Expert carpentry and African-inspired design for over 20 years.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#portfolio">Portfolio</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Services</h4>
+                <ul>
+                    <li><a href="#services">Custom Chairs</a></li>
+                    <li><a href="#services">House Roofing</a></li>
+                    <li><a href="#services">Furniture Design</a></li>
+                    <li><a href="#services">Restoration</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Newsletter</h4>
+                <p>Subscribe to get updates on new projects</p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Your email" required>
+                    <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 TimberCraft. All rights reserved. | Crafted with passion in Africa</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="js/main.js"></script>
+</body>
 </html>
