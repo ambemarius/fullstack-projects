@@ -1,0 +1,48 @@
+# ===========================
+#  Dependencies (large, generated)
+# ===========================
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# ===========================
+#  Environment variables / secrets
+# ===========================
+.env
+.env.*
+!.env.example
+
+# ===========================
+#  Build / output folders
+# ===========================
+dist/
+build/
+out/
+.next/
+.cache/
+coverage/
+
+# ===========================
+#  Logs
+# ===========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ===========================
+#  OS / editor files
+# ===========================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ===========================
+#  Large media / archives (uncomment if not needed in repo)
+# ===========================
+# *.mp4
+# *.zip
+# *.psd

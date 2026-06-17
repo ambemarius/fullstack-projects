@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Expert carpentry services - custom chairs, house roofing, and African-inspired designs">
     <meta name="keywords" content="carpentry, chairs, roofing, African design, custom furniture">
-    <title>TimberCraft - Expert Carpentry & Design</title>
+    <title>LouisBudgetDesign - Expert Carpentry & Design</title>
     
     <!-- CSS Links -->
     <link rel="stylesheet" href="css/normalize.css">
@@ -19,7 +19,7 @@
         <div class="nav-container">
             <div class="nav-logo">
                 <i class="fas fa-hammer"></i>
-                <span>TimberCraft</span>
+                <span>LouisBudgetDesign</span>
             </div>
             
             <div class="hamburger" id="hamburger">
@@ -29,14 +29,21 @@
             </div>
             
             <ul class="nav-links" id="navLinks">
-                <li><a href="#home" class="nav-link">Home</a></li>
-                <li><a href="#services" class="nav-link">Services</a></li>
-                <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li><a href="#home" class="nav-link" data-i18n="nav.home">Home</a></li>
+                <li><a href="#services" class="nav-link" data-i18n="nav.services">Services</a></li>
+                <li><a href="#portfolio" class="nav-link" data-i18n="nav.portfolio">Portfolio</a></li>
+                <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
+                <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
             </ul>
-            
-            <button class="btn-quote" onclick="scrollToSection('contact')">Get Quote</button>
+
+            <div class="nav-actions">
+                <div class="lang-switch" id="langSwitch">
+                    <button type="button" class="lang-btn active" data-lang="en">EN</button>
+                    <span class="lang-divider">|</span>
+                    <button type="button" class="lang-btn" data-lang="fr">FR</button>
+                </div>
+                <button class="btn-quote" onclick="scrollToSection('contact')" data-i18n="nav.quote">Get Intouch</button>
+            </div>
         </div>
     </nav>
 
@@ -44,15 +51,15 @@
     <section id="home" class="hero">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">Masterful Woodwork<span class="highlight">.</span></h1>
-            <p class="hero-subtitle">Timeless Designs from African Heritage</p>
-            <p class="hero-description">Expert carpentry, custom chairs, stunning roofing, and bespoke furniture crafted with passion</p>
+            <h1 class="hero-title"><span data-i18n="hero.title">Masterful Woodwork</span><span class="highlight">.</span></h1>
+            <p class="hero-subtitle" data-i18n="hero.subtitle">Timeless Designs from African Heritage</p>
+            <p class="hero-description" data-i18n="hero.description">Expert carpentry, custom chairs, stunning roofing, and bespoke furniture crafted with passion</p>
             <div class="hero-buttons">
                 <button class="btn-primary" onclick="scrollToSection('portfolio')">
-                    <i class="fas fa-images"></i> Explore Portfolio
+                    <i class="fas fa-images"></i> <span data-i18n="hero.btnPortfolio">Explore Portfolio</span>
                 </button>
                 <button class="btn-secondary" onclick="scrollToSection('contact')">
-                    <i class="fas fa-phone"></i> Get Quote
+                    <i class="fas fa-phone"></i> <span data-i18n="hero.btnQuote">Get Quote</span>
                 </button>
             </div>
         </div>
@@ -64,57 +71,57 @@
     <!-- SERVICES SECTION -->
     <section id="services" class="services">
         <div class="section-header">
-            <h2>Our Services</h2>
-            <p>Comprehensive carpentry solutions tailored to your needs</p>
+            <h2 data-i18n="services.title">Our Services</h2>
+            <p data-i18n="services.subtitle">Comprehensive carpentry solutions tailored to your needs</p>
         </div>
-        
+
         <div class="services-grid">
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-chair"></i>
                 </div>
-                <h3>Custom Chairs & Seating</h3>
-                <p>Handcrafted chairs with traditional African designs and modern comfort. Each piece is unique and built to last generations.</p>
+                <h3 data-i18n="service.chairs.title">Custom Chairs & Seating</h3>
+                <p data-i18n="service.chairs.desc">Handcrafted chairs with traditional African designs and modern comfort. Each piece is unique and built to last generations.</p>
             </div>
-            
+
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-house"></i>
                 </div>
-                <h3>House Roofing</h3>
-                <p>Professional roofing solutions using premium materials and traditional African architectural styles. Weather-resistant and stunning.</p>
+                <h3 data-i18n="service.roofing.title">House Roofing</h3>
+                <p data-i18n="service.roofing.desc">Professional roofing solutions using premium materials and traditional African architectural styles. Weather-resistant and stunning.</p>
             </div>
-            
+
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-couch"></i>
                 </div>
-                <h3>Interior Furniture</h3>
-                <p>Complete interior design with custom-made furniture. Blend traditional African aesthetics with contemporary living.</p>
+                <h3 data-i18n="service.interior.title">Interior Furniture</h3>
+                <p data-i18n="service.interior.desc">Complete interior design with custom-made furniture. Blend traditional African aesthetics with contemporary living.</p>
             </div>
-            
+
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-door-open"></i>
                 </div>
-                <h3>Doors & Frames</h3>
-                <p>Intricate wooden doors and frames with traditional African patterns. Each design tells a story of craftsmanship.</p>
+                <h3 data-i18n="service.doors.title">Doors & Frames</h3>
+                <p data-i18n="service.doors.desc">Intricate wooden doors and frames with traditional African patterns. Each design tells a story of craftsmanship.</p>
             </div>
-            
+
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-hammer-head"></i>
                 </div>
-                <h3>Custom Carpentry</h3>
-                <p>Bespoke carpentry work for any project. From design consultation to final installation, we handle it all.</p>
+                <h3 data-i18n="service.custom.title">Custom Carpentry</h3>
+                <p data-i18n="service.custom.desc">Bespoke carpentry work for any project. From design consultation to final installation, we handle it all.</p>
             </div>
-            
+
             <div class="service-card">
                 <div class="service-icon">
                     <i class="fas fa-paint-brush"></i>
                 </div>
-                <h3>Restoration & Refinishing</h3>
-                <p>Restore and refinish your precious wooden pieces. We preserve the beauty of heritage furniture.</p>
+                <h3 data-i18n="service.restoration.title">Restoration & Refinishing</h3>
+                <p data-i18n="service.restoration.desc">Restore and refinish your precious wooden pieces. We preserve the beauty of heritage furniture.</p>
             </div>
         </div>
     </section>
@@ -122,114 +129,107 @@
     <!-- PORTFOLIO SECTION -->
     <section id="portfolio" class="portfolio">
         <div class="section-header">
-            <h2>Our Portfolio</h2>
-            <p>Showcase of our finest carpentry work</p>
+            <h2 data-i18n="portfolio.title">Our Portfolio</h2>
+            <p data-i18n="portfolio.subtitle">Showcase of our finest carpentry work</p>
         </div>
-        
+
         <div class="portfolio-tabs">
-            <button class="tab-btn active" onclick="filterPortfolio('all')">All Works</button>
-            <button class="tab-btn" onclick="filterPortfolio('chairs')">Chairs</button>
-            <button class="tab-btn" onclick="filterPortfolio('roofing')">Roofing</button>
-            <button class="tab-btn" onclick="filterPortfolio('furniture')">Furniture</button>
+            <button class="tab-btn active" onclick="filterPortfolio('all')" data-i18n="portfolio.tab.all">All Works</button>
+            <button class="tab-btn" onclick="filterPortfolio('chairs')" data-i18n="portfolio.tab.chairs">Chairs</button>
+            <button class="tab-btn" onclick="filterPortfolio('roofing')" data-i18n="portfolio.tab.roofing">Roofing</button>
+            <button class="tab-btn" onclick="filterPortfolio('furniture')" data-i18n="portfolio.tab.furniture">Furniture</button>
         </div>
         
         <div class="portfolio-grid">
             <!-- Chairs Category -->
             <div class="portfolio-item chairs" data-category="chairs">
-                <img src="img/chair1.jpg" alt="Traditional African Chair">
+                <img src="img/chair1.jpg" alt="Mid-century walnut dining set with upholstered chairs">
                 <div class="portfolio-info">
-                    <h4>Traditional African Chair</h4>
-                    <p>Hand-carved wooden chair with traditional patterns</p>
+                    <h4 data-i18n="pf.chair1.title">Savanna Walnut Dining Set</h4>
+                    <p data-i18n="pf.chair1.desc">Solid-walnut four-seater with cushioned linen seats and tapered legs</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item chairs" data-category="chairs">
-                <img src="img/chair2.jpg" alt="Modern Comfort Chair">
+                <img src="img/chair2.jpg" alt="Modern walnut lounge chair with upholstered seat">
                 <div class="portfolio-info">
-                    <h4>Modern Comfort Chair</h4>
-                    <p>Contemporary design with African heritage touches</p>
+                    <h4 data-i18n="pf.chair2.title">Modern Comfort Lounge Chair</h4>
+                    <p data-i18n="pf.chair2.desc">Sculpted walnut frame with a deep upholstered seat for all-day comfort</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item chairs" data-category="chairs">
-                <img src="img/chair3.jpg" alt="Ceremonial Chair Set">
+                <img src="img/chair3.jpg" alt="Hand-carved ceremonial chair set">
                 <div class="portfolio-info">
-                    <h4>Ceremonial Chair Set</h4>
-                    <p>Elegant set piece with intricate carvings</p>
+                    <h4 data-i18n="pf.chair3.title">Black leather furniture set</h4>
+                    <p data-i18n="pf.chair3.desc">Hand-carved statement seating with intricate traditional motifs</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item chairs" data-category="chairs">
-                <img src="img/chair4.jpg" alt="Executive Office Chair">
+                <img src="img/chair4.jpg" alt="Executive walnut office chair">
                 <div class="portfolio-info">
-                    <h4>Executive Office Chair</h4>
-                    <p>Premium wooden chair for modern offices</p>
+                    <h4 data-i18n="pf.chair4.title">A modern chaise lounge</h4>
+                    <p data-i18n="pf.chair4.desc">A sleek beige chaise lounge with natural wooden legs, blending modern comfort and timeless elegance in one inviting piece</p>
                 </div>
             </div>
-            
+
             <!-- Roofing Category -->
             <div class="portfolio-item roofing" data-category="roofing">
-                <img src="img/roof1.jpg" alt="Traditional Thatched Roof">
+                <img src="img/roof1.jpg" alt="Traditional hand-laid thatched roof">
                 <div class="portfolio-info">
-                    <h4>Traditional Thatched Roof</h4>
-                    <p>Authentic African roofing with thatch materials</p>
+                    <h4 data-i18n="pf.roof1.title">Timber Truss / Wooden Rafter Structure</h4>
+                    <p data-i18n="pf.roof1.desc">This roofing project demonstrates the full progression of a two‑story building’s roof installation</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item roofing" data-category="roofing">
-                <img src="img/roof2.jpg" alt="Wooden Beam Roof Structure">
+                <img src="img/roof2.jpg" alt="Exposed wooden beam roof structure">
                 <div class="portfolio-info">
-                    <h4>Wooden Beam Roof</h4>
-                    <p>Strong architectural roof with visible beams</p>
+                    <h4 data-i18n="pf.roof2.title">Pitched Gable Roof</h4>
+                    <p data-i18n="pf.roof2.desc">This roof features a single‑floor pitched gable design built with timber trusses and finished with durable zinc sheets for strength, ventilation, and weather resistance.</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item roofing" data-category="roofing">
-                <img src="img/roof3.jpg" alt="Modern African Roofing">
+                <img src="img/roof3.jpg" alt="Modern African roofing design">
                 <div class="portfolio-info">
-                    <h4>Modern African Roofing</h4>
-                    <p>Hybrid design combining tradition and modernity</p>
+                    <h4 data-i18n="pf.roof3.title">Modern African Roofing</h4>
+                    <p data-i18n="pf.roof3.desc">Hybrid design blending heritage form with contemporary materials</p>
                 </div>
             </div>
-            
-            <div class="portfolio-item roofing" data-category="roofing">
-                <img src="img/roof4.jpg" alt="Village Compound Roof">
-                <div class="portfolio-info">
-                    <h4>Village Compound Roof</h4>
-                    <p>Large-scale roofing for compound structures</p>
-                </div>
-            </div>
-            
+
+
             <!-- Furniture Category -->
             <div class="portfolio-item furniture" data-category="furniture">
-                <img src="img/furniture1.jpg" alt="Dining Set">
+                <img src="img/furniture1.jpg" alt="African walnut dining set with seating">
                 <div class="portfolio-info">
-                    <h4>African Dining Set</h4>
-                    <p>Complete wooden dining furniture with seating</p>
+                    <h4 data-i18n="pf.furn1.title">African Dining Set</h4>
+                    <p data-i18n="pf.furn1.desc">Complete walnut dining table with matching upholstered seating</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item furniture" data-category="furniture">
-                <img src="img/furniture2.jpg" alt="Coffee Table">
+                <img src="img/furniture2.jpg" alt="Artisan hand-carved coffee table">
                 <div class="portfolio-info">
-                    <h4>Artisan Coffee Table</h4>
-                    <p>Decorative table with traditional carvings</p>
+                    <h4 data-i18n="pf.furn2.title">Artisan Coffee Table</h4>
+                    <p data-i18n="pf.furn2.desc">Decorative low table with hand-carved traditional detailing</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item furniture" data-category="furniture">
-                <img src="img/furniture3.jpg" alt="Bedroom Suite">
+                <img src="img/furniture3.jpg" alt="Walnut bedroom suite">
                 <div class="portfolio-info">
-                    <h4>Wooden Bedroom Suite</h4>
-                    <p>Complete bedroom furniture set</p>
+                    <h4 data-i18n="pf.furn3.title">Bedroom Suite</h4>
+                    <p data-i18n="pf.furn3.desc">Coordinated bedroom collection in warm solid hardwood</p>
                 </div>
             </div>
-            
+
             <div class="portfolio-item furniture" data-category="furniture">
-                <img src="img/furniture4.jpg" alt="Storage Cabinet">
+                <img src="img/furniture4.jpg" alt="Heritage storage cabinet with carved doors">
                 <div class="portfolio-info">
-                    <h4>Traditional Storage Cabinet</h4>
-                    <p>Handcrafted storage with decorative doors</p>
+                    <h4 data-i18n="pf.furn4.title">Heritage Storage Cabinet</h4>
+                    <p data-i18n="pf.furn4.desc">Handcrafted cabinet with carved decorative door panels</p>
                 </div>
             </div>
         </div>
@@ -243,39 +243,40 @@
             </div>
             
             <div class="about-content">
-                <h2>About TimberCraft</h2>
-                <p>With over 20 years of experience in traditional African carpentry, we bring heritage and innovation together. Our artisans are trained in time-honored techniques while embracing modern design principles.</p>
-                
+                <h2 data-i18n="about.title">About LouisBudgetDesign</h2>
+                <p data-i18n="about.welcome">Welcome to LouisBudgetDesign</p>
+                <p data-i18n="about.intro">With over 20 years of experience in traditional African carpentry, we bring heritage and innovation together. Our artisans are trained in time-honored techniques while embracing modern design principles.</p>
+
                 <div class="about-features">
                     <div class="feature">
                         <i class="fas fa-star"></i>
-                        <h4>Quality Craftsmanship</h4>
-                        <p>Every piece is handcrafted with attention to detail</p>
+                        <h4 data-i18n="about.feature.quality.title">Quality Craftsmanship</h4>
+                        <p data-i18n="about.feature.quality.desc">Every piece is handcrafted with attention to detail</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-leaf"></i>
-                        <h4>Sustainable Materials</h4>
-                        <p>We use responsibly sourced African timber</p>
+                        <h4 data-i18n="about.feature.materials.title">Sustainable Materials</h4>
+                        <p data-i18n="about.feature.materials.desc">We use responsibly sourced African timber</p>
                     </div>
                     <div class="feature">
                         <i class="fas fa-palette"></i>
-                        <h4>Custom Designs</h4>
-                        <p>Unique pieces tailored to your vision</p>
+                        <h4 data-i18n="about.feature.custom.title">Custom Designs</h4>
+                        <p data-i18n="about.feature.custom.desc">Unique pieces tailored to your vision</p>
                     </div>
                 </div>
-                
+
                 <div class="about-stats">
                     <div class="stat">
                         <h3>500+</h3>
-                        <p>Projects Completed</p>
+                        <p data-i18n="about.stat.projects">Projects Completed</p>
                     </div>
                     <div class="stat">
                         <h3>20+</h3>
-                        <p>Years Experience</p>
+                        <p data-i18n="about.stat.years">Years Experience</p>
                     </div>
                     <div class="stat">
                         <h3>100%</h3>
-                        <p>Client Satisfaction</p>
+                        <p data-i18n="about.stat.satisfaction">Client Satisfaction</p>
                     </div>
                 </div>
             </div>
@@ -285,8 +286,8 @@
     <!-- TESTIMONIALS SECTION -->
     <section class="testimonials">
         <div class="section-header">
-            <h2>What Our Clients Say</h2>
-            <p>Hear from satisfied customers about their experience with TimberCraft</p>
+            <h2 data-i18n="testimonials.title">What Our Clients Say</h2>
+            <p data-i18n="testimonials.subtitle">Hear from satisfied customers about their experience with TimberCraft</p>
         </div>
         
         <div class="testimonials-grid">
@@ -298,8 +299,8 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                 </div>
-                <p class="testimonial-text">"The chairs we ordered are absolutely stunning! The craftsmanship is impeccable and the attention to detail is remarkable. Highly recommended!"</p>
-                <p class="testimonial-author">- Sarah Okonkwo</p>
+                <p class="testimonial-text" data-i18n="testimonial.1.text">"The chairs we ordered are absolutely stunning! The craftsmanship is impeccable and the attention to detail is remarkable. Highly recommended!"</p>
+                <p class="testimonial-author">- Sarah D</p>
             </div>
             
             <div class="testimonial-card">
@@ -310,8 +311,8 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                 </div>
-                <p class="testimonial-text">"Our roof renovation was handled with professionalism. The team understood our vision and delivered beyond expectations. Worth every penny!"</p>
-                <p class="testimonial-author">- Kofi Mensah</p>
+                <p class="testimonial-text" data-i18n="testimonial.2.text">"Our roof renovation was handled with professionalism. The team understood our vision and delivered beyond expectations. Worth every penny!"</p>
+                <p class="testimonial-author">- Piere Ona</p>
             </div>
             
             <div class="testimonial-card">
@@ -322,8 +323,8 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
                 </div>
-                <p class="testimonial-text">"TimberCraft transformed our home with beautiful furniture and doors. The team's expertise in African design is evident in every piece."</p>
-                <p class="testimonial-author">- Amara Diop</p>
+                <p class="testimonial-text" data-i18n="testimonial.3.text">"TimberCraft transformed our home with beautiful furniture and doors. The team's expertise in African design is evident in every piece."</p>
+                <p class="testimonial-author">- Jeanette M</p>
             </div>
         </div>
     </section>
@@ -331,51 +332,51 @@
     <!-- CONTACT SECTION -->
     <section id="contact" class="contact">
         <div class="section-header">
-            <h2>Get In Touch</h2>
-            <p>Ready to start your carpentry project? Contact us today!</p>
+            <h2 data-i18n="contact.title">Get In Touch</h2>
+            <p data-i18n="contact.subtitle">Ready to start your carpentry project? Contact us today!</p>
         </div>
-        
+
         <div class="contact-container">
             <div class="contact-info">
                 <div class="info-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <div>
-                        <h4>Address</h4>
-                        <p>123 Timber Lane, Kampala, Uganda</p>
+                        <h4 data-i18n="contact.address">Address</h4>
+                        <p>Cameroon, Douala Yasa Planet Njeka</p>
                     </div>
                 </div>
-                
+
                 <div class="info-item">
                     <i class="fas fa-phone"></i>
                     <div>
-                        <h4>Phone</h4>
-                        <p>+256 700 123 456</p>
+                        <h4 data-i18n="contact.phone">Phone</h4>
+                        <p>+237 656 558 729</p>
                     </div>
                 </div>
-                
+
                 <div class="info-item">
                     <i class="fas fa-envelope"></i>
                     <div>
-                        <h4>Email</h4>
-                        <p>info@timbercraft.com</p>
+                        <h4 data-i18n="contact.email">Email</h4>
+                        <p>info@louisbudgetdesign.com</p>
                     </div>
                 </div>
-                
+
                 <div class="info-item">
                     <i class="fas fa-clock"></i>
                     <div>
-                        <h4>Hours</h4>
-                        <p>Mon - Fri: 8:00 AM - 6:00 PM<br>Sat: 9:00 AM - 4:00 PM</p>
+                        <h4 data-i18n="contact.hours">Hours</h4>
+                        <p data-i18n-html="contact.hours.value">Mon - Fri: 8:00 AM - 6:00 PM<br>Sat: 9:00 AM - 4:00 PM</p>
                     </div>
                 </div>
             </div>
-            
+
             <form class="contact-form" id="contactForm">
-                <input type="text" placeholder="Your Name" required>
-                <input type="email" placeholder="Your Email" required>
-                <input type="tel" placeholder="Your Phone">
-                <textarea placeholder="Tell us about your project" rows="6" required></textarea>
-                <button type="submit" class="btn-primary">Send Message</button>
+                <input type="text" placeholder="Your Name" data-i18n-placeholder="form.name" required>
+                <input type="email" placeholder="Your Email" data-i18n-placeholder="form.email" required>
+                <input type="tel" placeholder="Your Phone" data-i18n-placeholder="form.phone">
+                <textarea placeholder="Tell us about your project" data-i18n-placeholder="form.message" rows="6" required></textarea>
+                <button type="submit" class="btn-primary" data-i18n="form.send">Send Message</button>
             </form>
         </div>
     </section>
@@ -384,8 +385,8 @@
     <footer class="footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h4>TimberCraft</h4>
-                <p>Expert carpentry and African-inspired design for over 20 years.</p>
+                <h4>LouisBudgetDesign</h4>
+                <p data-i18n="footer.about">Expert carpentry and African-inspired design for over 20 years.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook"></i></a>
                     <a href="#"><i class="fab fa-instagram"></i></a>
@@ -395,41 +396,53 @@
             </div>
             
             <div class="footer-section">
-                <h4>Quick Links</h4>
+                <h4 data-i18n="footer.quicklinks">Quick Links</h4>
                 <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#services">Services</a></li>
-                    <li><a href="#portfolio">Portfolio</a></li>
-                    <li><a href="#about">About</a></li>
+                    <li><a href="#home" data-i18n="nav.home">Home</a></li>
+                    <li><a href="#services" data-i18n="nav.services">Services</a></li>
+                    <li><a href="#portfolio" data-i18n="nav.portfolio">Portfolio</a></li>
+                    <li><a href="#about" data-i18n="nav.about">About</a></li>
                 </ul>
             </div>
-            
+
             <div class="footer-section">
-                <h4>Services</h4>
+                <h4 data-i18n="footer.services">Services</h4>
                 <ul>
-                    <li><a href="#services">Custom Chairs</a></li>
-                    <li><a href="#services">House Roofing</a></li>
-                    <li><a href="#services">Furniture Design</a></li>
-                    <li><a href="#services">Restoration</a></li>
+                    <li><a href="#services" data-i18n="footer.svc.chairs">Custom Chairs</a></li>
+                    <li><a href="#services" data-i18n="footer.svc.roofing">House Roofing</a></li>
+                    <li><a href="#services" data-i18n="footer.svc.furniture">Furniture Design</a></li>
+                    <li><a href="#services" data-i18n="footer.svc.restoration">Restoration</a></li>
                 </ul>
             </div>
-            
+
             <div class="footer-section">
-                <h4>Newsletter</h4>
-                <p>Subscribe to get updates on new projects</p>
+                <h4 data-i18n="footer.newsletter">Newsletter</h4>
+                <p data-i18n="footer.newsletter.desc">Subscribe to get updates on new projects</p>
                 <form class="newsletter-form">
-                    <input type="email" placeholder="Your email" required>
+                    <input type="email" placeholder="Your email" data-i18n-placeholder="footer.newsletter.placeholder" required>
                     <button type="submit"><i class="fas fa-paper-plane"></i></button>
                 </form>
             </div>
         </div>
-        
+
         <div class="footer-bottom">
-            <p>&copy; 2024 TimberCraft. All rights reserved. | Crafted with passion in Africa</p>
+            <p data-i18n="footer.copyright">&copy; 2024 LouisCraft. All rights reserved. | Crafted with passion in Africa</p>
         </div>
     </footer>
 
+    <!-- LIGHTBOX / FULLSCREEN IMAGE VIEWER -->
+    <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-label="Image viewer">
+        <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous image">&#10094;</button>
+        <figure class="lightbox-figure">
+            <img class="lightbox-img" id="lightboxImg" src="" alt="">
+            <figcaption class="lightbox-caption" id="lightboxCaption"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next image">&#10095;</button>
+    </div>
+
     <!-- JavaScript Files -->
     <script src="js/main.js"></script>
+    <script src="js/i18n.js"></script>
 </body>
 </html>

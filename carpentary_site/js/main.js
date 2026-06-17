@@ -72,10 +72,10 @@ if (contactForm) {
         const message = this.querySelector('textarea').value;
 
         if (name && email && message) {
-            alert(`Thank you, ${name}! Your message has been received. We'll contact you soon at ${email}`);
+            alert(t('alert.contact.success').replace('{name}', name).replace('{email}', email));
             this.reset();
         } else {
-            alert('Please fill in all required fields.');
+            alert(t('alert.contact.incomplete'));
         }
     });
 }
@@ -92,7 +92,7 @@ if (newsletterForm) {
         const email = this.querySelector('input[type="email"]').value;
         
         if (email) {
-            alert(`Thank you for subscribing with ${email}!`);
+            alert(t('alert.newsletter.success').replace('{email}', email));
             this.reset();
         }
     });
@@ -202,6 +202,98 @@ window.addEventListener('scroll', () => {
             link.classList.add('active');
         }
     });
+});
+
+/* ===========================
+   LIGHTBOX / FULLSCREEN VIEWER
+   =========================== */
+
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxPrev = document.getElementById('lightboxPrev');
+const lightboxNext = document.getElementById('lightboxNext');
+
+let currentIndex = 0;
+
+// Only cycle through items currently visible (respects portfolio filtering)
+function getVisibleItems() {
+    return Array.from(document.querySelectorAll('.portfolio-item'))
+        .filter(item => !item.classList.contains('hidden'));
+}
+
+function renderLightboxImage(item) {
+    const img = item.querySelector('img');
+    const info = item.querySelector('.portfolio-info');
+    if (!img) return;
+
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+
+    const title = info && info.querySelector('h4') ? info.querySelector('h4').textContent : '';
+    const desc = info && info.querySelector('p') ? info.querySelector('p').textContent : '';
+    lightboxCaption.innerHTML = title ? `<h4>${title}</h4><p>${desc}</p>` : '';
+}
+
+function openLightbox(item) {
+    if (!lightbox) return;
+    const items = getVisibleItems();
+    currentIndex = items.indexOf(item);
+    renderLightboxImage(item);
+    lightbox.classList.add('active');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove('active');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
+
+function navigateLightbox(direction) {
+    const items = getVisibleItems();
+    if (!items.length) return;
+    currentIndex = (currentIndex + direction + items.length) % items.length;
+    renderLightboxImage(items[currentIndex]);
+}
+
+document.querySelectorAll('.portfolio-item').forEach(item => {
+    item.addEventListener('click', () => openLightbox(item));
+});
+
+if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+
+if (lightboxPrev) {
+    lightboxPrev.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateLightbox(-1);
+    });
+}
+
+if (lightboxNext) {
+    lightboxNext.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigateLightbox(1);
+    });
+}
+
+// Click on the dark backdrop (not the image) closes the viewer
+if (lightbox) {
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox || e.target.classList.contains('lightbox-figure')) {
+            closeLightbox();
+        }
+    });
+}
+
+document.addEventListener('keydown', (e) => {
+    if (!lightbox || !lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') navigateLightbox(-1);
+    if (e.key === 'ArrowRight') navigateLightbox(1);
 });
 
 /* ===========================
