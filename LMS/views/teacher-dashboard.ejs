@@ -1,0 +1,64 @@
+<%- include('partials/header', { title: 'Teacher Dashboard' }) %>
+
+<div class="card">
+  <div class="page-head">
+    <h1>Teacher Dashboard</h1>
+    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+  </div>
+  <p id="welcome" class="welcome">Loading&hellip;</p>
+  <div id="profile"></div>
+</div>
+
+<div class="card">
+  <h3>My subjects</h3>
+  <table>
+    <thead><tr><th>Class</th><th>Subject</th><th>Code</th><th>Term</th></tr></thead>
+    <tbody id="subjectRows"><tr><td colspan="4" class="muted">Loading&hellip;</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h3>My students <span class="muted" id="studentCount"></span></h3>
+  <table>
+    <thead><tr><th>Name</th><th>Matricule</th><th>Section</th></tr></thead>
+    <tbody id="studentRows"><tr><td colspan="3" class="muted">Loading&hellip;</td></tr></tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Enter marks</h3>
+  <div class="marks-controls">
+    <select id="msSubject"><option value="">Subject&hellip;</option></select>
+    <select id="msTerm">
+      <option value="">Term&hellip;</option>
+      <option>First</option><option>Second</option><option>Third</option>
+    </select>
+    <button id="msLoadBtn" class="btn">Load students</button>
+  </div>
+  <div id="marksArea" style="margin-top:12px;display:none;">
+    <p class="muted" id="msClassInfo"></p>
+    <div class="marks-table-wrap">
+      <table class="marks-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Student</th>
+            <th>Matricule</th>
+            <th>Seq1 <span class="muted">(0-50)</span></th>
+            <th>Seq2 <span class="muted">(0-50)</span></th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="marksRows"></tbody>
+      </table>
+    </div>
+    <div class="marks-actions">
+      <button id="msSaveBtn" class="btn">Save all scores</button>
+      <span id="msMsg" class="msg"></span>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/teacher-dashboard.js"></script>
+<%- include('partials/footer') %>

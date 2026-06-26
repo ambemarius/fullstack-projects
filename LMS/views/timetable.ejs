@@ -1,0 +1,73 @@
+<%- include('partials/header', { title: 'Timetable Management' }) %>
+<div class="page-head"><h1>Timetable Management</h1></div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Add Entry</h2>
+    <form id="ttForm">
+      <label>Class
+        <select id="ttClass" required><option value="">-- Select --</option></select>
+      </label>
+      <label>Subject
+        <select id="ttSubject" required><option value="">-- Select --</option></select>
+      </label>
+      <label>Teacher
+        <select id="ttTeacher" required><option value="">-- Select --</option></select>
+      </label>
+      <label>Day
+        <select id="ttDay" required><option value="">-- Select --</option></select>
+      </label>
+      <label>Time Slot
+        <select id="ttSlot" required><option value="">-- Select --</option></select>
+      </label>
+      <label>Room <input type="text" id="ttRoom" placeholder="e.g. Room 12"></label>
+      <label>Term
+        <select id="ttTerm" required>
+          <option value="First">First</option>
+          <option value="Second">Second</option>
+          <option value="Third">Third</option>
+        </select>
+      </label>
+      <label>Academic Year
+        <select id="ttYear" required><option value="">-- Select --</option></select>
+      </label>
+      <button type="submit" class="btn">Add Entry</button>
+    </form>
+    <div id="ttMsg" class="msg"></div>
+  </div>
+
+  <div class="card" style="overflow-x:auto">
+    <h2>Timetable Grid</h2>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+      <label>Section
+        <select id="filterSection">
+          <option value="">All Sections</option>
+          <option value="Anglophone">Anglophone</option>
+          <option value="Francophone">Francophone</option>
+        </select>
+      </label>
+      <label>Class
+        <select id="filterClass"><option value="">-- Select section first --</option></select>
+      </label>
+      <label>Term
+        <select id="filterTerm">
+          <option value="First">First</option>
+          <option value="Second">Second</option>
+          <option value="Third">Third</option>
+        </select>
+      </label>
+      <label>Year
+        <select id="filterYear"><option value="">-- Select --</option></select>
+      </label>
+      <button class="btn btn-secondary" id="refreshBtn">Load</button>
+      <button class="btn" id="generateBtn" title="Auto-build this class's timetable from its subject allocations">Generate</button>
+    </div>
+    <div id="genMsg" class="msg"></div>
+    <div id="periodSummary" class="muted" style="margin-bottom:12px"></div>
+    <div id="ttGrid"></div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
+<script src="/js/app.js"></script>
+<script src="/js/timetable.js"></script>

@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — LMS</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">LYCEE BATOURI
+        
+      </span>
+      <span class="sidebar-sub">Admin Panel</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-tab" data-tab="home">
+        <span class="tab-icon">&#x1F3E0;</span> Home
+      </button>
+      <button class="sidebar-tab" data-tab="registration">
+        <span class="tab-icon">&#x1F4CB;</span> Registration
+      </button>
+      <button class="sidebar-tab" data-tab="finance">
+        <span class="tab-icon">&#x1F4B0;</span> Finance
+      </button>
+      <button class="sidebar-tab" data-tab="evaluation">
+        <span class="tab-icon">&#x1F4CA;</span> Evaluation
+      </button>
+      <button class="sidebar-tab" data-tab="personnel">
+        <span class="tab-icon">&#x1F465;</span> Personnel
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="sidebarLogout" class="sidebar-logout">&#x1F6AA; Logout</button>
+    </div>
+  </aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button id="menuToggle" class="menu-toggle">&#x2630;</button>
+        <h2 id="panelTitle" class="panel-title">Home</h2>
+      </div>
+      <div class="admin-topbar-right">
+        <span id="adminInfo" class="admin-info">Loading&hellip;</span>
+        <button id="topLogout" class="btn btn-secondary btn-sm">Logout</button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <!-- ===== HOME TAB ===== -->
+      <section class="tab-panel active" id="tab-home">
+        <div class="welcome-row">
+          <div class="card welcome-card">
+            <h1 id="welcomeMsg">Welcome!</h1>
+            <p class="welcome-text">School Management System — manage classes, teachers, students, and more from one place.</p>
+          </div>
+          <div class="card school-img-card">
+            <div class="school-img-placeholder">
+              <span class="school-img-icon">&#x1F3EB;</span>
+              <span class="school-img-label">School Photo</span>
+            </div>
+          </div>
+        </div>
+        <div class="stats-row" id="statsRow">
+          <div class="stat-card"><div class="stat-num" id="statTeachers">0</div><div class="stat-label">Teachers</div></div>
+          <div class="stat-card"><div class="stat-num" id="statStudents">0</div><div class="stat-label">Students</div></div>
+          <div class="stat-card"><div class="stat-num" id="statSubjects">0</div><div class="stat-label">Subjects</div></div>
+          <div class="stat-card"><div class="stat-num" id="statClasses">0</div><div class="stat-label">Classes</div></div>
+        </div>
+      </section>
+
+      <!-- ===== REGISTRATION TAB ===== -->
+      <section class="tab-panel" id="tab-registration">
+        <!-- Sub-tabs -->
+        <div class="reg-subtabs">
+          <button class="reg-subtab active" data-sub="student">Student</button>
+          <button class="reg-subtab" data-sub="teacher">Teacher</button>
+          <button class="reg-subtab" data-sub="subject">Subject</button>
+          <button class="reg-subtab" data-sub="classes">Classes</button>
+          <button class="reg-subtab" data-sub="auxiliary">Auxiliary Staff</button>
+          <button class="reg-subtab" data-sub="academic-years">Academic Years</button>
+        </div>
+
+        <!-- ===== STUDENT SUB-TAB ===== -->
+        <div class="reg-subpanel active" id="sub-student">
+          <div class="reg-header-bar" id="studentHeaderBar">Register New Student</div>
+          <form id="studentForm" class="reg-student-form">
+            <input type="hidden" id="studentEditId" value="" />
+            <div class="reg-student-layout">
+              <div class="reg-student-fields">
+                <!-- Row: names -->
+                <div class="reg-row-3">
+                  <label>First Name <input id="sFirstName" required /></label>
+                  <label>Middle Name <input id="sMiddleName" /></label>
+                  <label>Last Name <input id="sLastName" required /></label>
+                </div>
+                <!-- Row: gender, dob, place of birth -->
+                <div class="reg-row-3">
+                  <label>Gender
+                    <select id="sSex" required>
+                      <option value="">--</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                    </select>
+                  </label>
+                  <label>Date of Birth <input id="sDob" type="date" /></label>
+                  <label>Place of Birth <input id="sPlaceOfBirth" /></label>
+                </div>
+                <!-- Row: region, division -->
+                <div class="reg-row-3">
+                  <label>Region of Origin
+                    <select id="sRegion"><option value="">-- select region --</option></select>
+                  </label>
+                  <label>Division
+                    <select id="sDivision"><option value="">-- select region first --</option></select>
+                  </label>
+                  <label>Address <input id="sAddress" /></label>
+                </div>
+                <!-- Row: acc year, class, section -->
+                <div class="reg-row-3">
+                  <label>Academic Year <select id="sAcademicYear"><option value="">-- select --</option></select></label>
+                  <label>Class <select id="sClass"><option value="">-- select --</option></select></label>
+                  <label>Section
+                    <select id="sSection">
+                      <option>Anglophone</option>
+                      <option>Francophone</option>
+                    </select>
+                  </label>
+                </div>
+                <!-- Row: matricule, password -->
+                <div class="reg-row-3">
+                  <label >Matricule <input id="sMatricule" placeholder="e.g. STU-OO1-OO1" required /></label>
+                  <label>Password <input id="sPassword" type="password" required /></label>
+                  <label>&nbsp;</label>
+                </div>
+                <!-- Parent / Guardian section -->
+                <div class="reg-section-divider">Parent / Guardian Information</div>
+                <div class="reg-row-3">
+                  <label>Full Name <input id="sParentName" /></label>
+                  <label>Telephone <input id="sParentPhone" type="tel" /></label>
+                  <label>Telephone 2 <input id="sParentPhone2" type="tel" /></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Medical Status <input id="sMedicalStatus" placeholder="Allergies, conditions..." /></label>
+                  <label>&nbsp;</label>
+                  <label>&nbsp;</label>
+                </div>
+              </div>
+
+              <!-- Right: Fees section -->
+              <div class="reg-student-fees">
+                <div class="reg-fees-header">Fees Details</div>
+                <div class="reg-fees-body" id="studentFeesBody">
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Registration" /> <span>Registration</span><input type="number" class="sf-amt" data-fee="Registration" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IDCard" /> <span>ID Card</span><input type="number" class="sf-amt" data-fee="IDCard" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Tuition" /> <span>Tuition</span><input type="number" class="sf-amt" data-fee="Tuition" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="PTA" /> <span>PTA</span><input type="number" class="sf-amt" data-fee="PTA" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Sportware" /> <span>Sportware</span><input type="number" class="sf-amt" data-fee="Sportware" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Practicals" /> <span>Practicals</span><input type="number" class="sf-amt" data-fee="Practicals" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IT" /> <span>IT</span><input type="number" class="sf-amt" data-fee="IT" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Examination" /> <span>Examination</span><input type="number" class="sf-amt" data-fee="Examination" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Textbook" /> <span>Textbook</span><input type="number" class="sf-amt" data-fee="Textbook" value="0" /></div>
+                </div>
+                <div class="reg-fees-total">
+                  <span>Total Fees</span>
+                  <span id="studentFeesTotal">0 XAF</span>
+                </div>
+              </div>
+            </div>
+            <div class="student-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="studentSubmitBtn">Register Student</button>
+            </div>
+            <p id="studentFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar -->
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Global Search:</label>
+              <input type="text" id="studentSearch" placeholder="Search by matricule, name or class..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="studentResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="studentEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="studentSaveBtn" class="reg-btn reg-btn-green"><i class="fas fa-check"></i></button>
+              <button type="button" id="studentDeleteBtn" class="reg-btn reg-btn-red"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+
+          <!-- Student table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Matricule</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Address</th>
+                    <th>Date of Birth</th>
+                    <th>Region</th>
+                    <th>Division</th>
+                    <th>Place of Birth</th>
+                    <th>Class</th>
+                    <th>Acc Year</th>
+                    <th>Parent/Guardian</th>
+                    <th>Tel</th>
+                    <th>Medical</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                  <tr><td colspan="14" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Students:</span>
+              <span id="studentCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== TEACHER SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-teacher">
+          <div class="reg-header-bar" id="teacherHeaderBar">Register New Teacher</div>
+          <form id="teacherForm" class="teacher-split-form">
+            <input type="hidden" id="teacherEditId" value="" />
+
+            <div class="reg-form-split">
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Personal &amp; Contact Details</div>
+                <div class="reg-row-3">
+                  <label>First Name <input id="tFirstName" required /></label>
+                  <label>Middle Name <input id="tMiddleName" /></label>
+                  <label>Last Name <input id="tLastName" required /></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Email <input id="tEmail" type="email" required /></label>
+                  <label>Phone Number <input id="tPhone" type="tel" /></label>
+                  <label>Gender
+                    <select id="tGender">
+                      <option value="">-- select --</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Civil Status
+                    <select id="tCivilStatus">
+                      <option value="">-- select --</option>
+                      <option>Single</option>
+                      <option>Married</option>
+                      <option>Divorced</option>
+                      <option>Widowed</option>
+                    </select>
+                  </label>
+                  <label>Number of Children <input id="tNoOfChildren" type="number" min="0" value="0" /></label>
+                  <label>Address <input id="tAddress" /></label>
+                </div>
+              </div>
+
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Employment &amp; Identity Details</div>
+                <div class="reg-row-3">
+                  <label>Section
+                    <select id="tSection" required>
+                      <option value="">-- select --</option>
+                      <option>Anglophone</option>
+                      <option>Francophone</option>
+                    </select>
+                  </label>
+                  <label>Employment Type
+                    <select id="tEmpType" required>
+                      <option value="">-- select --</option>
+                      <option>Government</option>
+                      <option>Part-time</option>
+                    </select>
+                  </label>
+                  <label>Status
+                    <select id="tStatus" required>
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                      <option value="withdrawn">Withdrawn</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="reg-row-3">
+                  <label>ID Card Number <input id="tIdCard" /></label>
+                  <label>Date of Issue <input id="tDateOfIssue" type="date" /></label>
+                  <label>Matricule <input id="tMatriculeFile" placeholder="e.g. 100007f" /></label>
+                </div>
+                <div class="reg-row-2">
+                  <label>Password <input id="tPassword" type="password" required /></label>
+                  <label>Telephone (Alternate) <input id="tTelephone" type="tel" /></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="reg-section-divider">Emergency / Secondary Contact</div>
+            <div class="reg-row-2">
+              <label>Secondary Contact Name <input id="tSecContactName" /></label>
+              <label>Secondary Contact Phone <input id="tSecContactPhone" type="tel" maxlength="10" /></label>
+            </div>
+
+            <div class="teacher-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="teacherSubmitBtn">Create Teacher</button>
+            </div>
+            <p id="teacherFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar for Teacher -->
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Search Teacher:</label>
+              <input type="text" id="teacherSearch" placeholder="Search by name or email..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="teacherResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="teacherEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="teacherSaveBtn" class="reg-btn reg-btn-green"><i class="fas fa-check"></i></button>
+              <button type="button" id="teacherDeleteBtn" class="reg-btn reg-btn-red"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+
+          <!-- Teacher table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Section</th>
+                    <th>Employment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherTableBody">
+                  <tr><td colspan="7" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Teachers:</span>
+              <span id="teacherCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SUBJECT SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-subject">
+          <div class="reg-header-bar" id="subjectHeaderBar">Register New Subject</div>
+          <form id="subjectForm" class="teacher-split-form">
+            <input type="hidden" id="subjectEditId" value="" />
+            
+            <div class="reg-form-split">
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Subject Details</div>
+                <div class="reg-row-3">
+                  <label>Code <input id="subCode" required /></label>
+                  <label>Name <input id="subName" required /></label>
+                  <label>Coefficient <input id="subCoefficient" type="number" value="1" min="1" max="5" /></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Hours per Week <input id="subHoursPerWeek" type="number" value="4" min="1" max="10" /></label>
+                  <label>Categories
+                    <select id="subCategories" required>
+                      <option value="">-- Select Category --</option>
+                      <option value="Science">Science</option>
+                      <option value="Arts">Arts</option>
+                      <option value="Compulsory">Compulsory</option>
+                    </select>
+                  </label>
+                  <label>Has Lab
+                    <select id="subHasLab">
+                      <option value="">-- Select --</option>
+                      <option value="true">Yes</option>
+                      <option value="false">No</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Assignment & Description</div>
+                <div class="reg-row-3">
+                  <label>Subject Master
+                    <select id="subSubjectMaster">
+                      <option value="">-- Select Teacher --</option>
+                    </select>
+                  </label>
+                  <label>Class
+                    <select id="subClassId">
+                      <option value="">-- Select Class --</option>
+                    </select>
+                  </label>
+                  <label>Description <input id="subDesc" /></label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="teacher-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="subjectSubmitBtn">Create Subject</button>
+            </div>
+            <p id="subjectFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar for Subject -->
+          <div class="reg-action-bar" style="margin-top: 24px;">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Search Subject:</label>
+              <input type="text" id="subjectSearch" placeholder="Search by name or code..." class="reg-search-input" />
+            </div>
+          </div>
+
+          <!-- Subject table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Coefficient</th>
+                    <th>Subject Master</th>
+                    <th>Class</th>
+                    <th>Hours/Week</th>
+                    <th>Has Lab</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="subjectTableBody">
+                  <tr><td colspan="8" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Subjects:</span>
+              <span id="subjectCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== CLASSES SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-classes">
+          <div class="reg-header-bar">Add or Edit New Classes</div>
+          <form id="classConfigForm" class="reg-form-grid">
+            <div class="reg-form-fields">
+              <div class="reg-field-row">
+                <label class="reg-label">Class Code:**</label>
+                <select id="regSection" class="reg-input">
+                  <option value="">-- Choose Section --</option>
+                  <option>Anglophone</option>
+                  <option>Francophone</option>
+                </select>
+              </div>
+              <div class="reg-field-row">
+                <label class="reg-label">Class Name:*</label>
+                <select id="regClassName" class="reg-input">
+                  <option value="">-- Choose Class --</option>
+                </select>
+              </div>
+              <div class="reg-field-row">
+                <label class="reg-label">Select Option:**</label>
+                <select id="regStream" class="reg-input">
+                  <option value="">-- Choose Option --</option>
+                  <option value="Normal">Normal</option>
+                  <option value="Bilingual">Bilingual</option>
+                </select>
+              </div>
+              <div class="reg-field-row">
+                <label class="reg-label">Select Class Master:*</label>
+                <select id="regMaster" class="reg-input">
+                  <option value="">-- Choose Staff --</option>
+                </select>
+              </div>
+              <input type="hidden" id="regClassId" value="" />
+            </div>
+            <div class="reg-fees-panel">
+              <div class="reg-fees-header">Other Fees</div>
+              <div class="reg-fees-body">
+                <div class="reg-fee-row">
+                  <label class="reg-fee-label">Registration:*</label>
+                  <input type="number" id="regFeeReg" value="0" class="reg-fee-input" />
+                </div>
+                <div class="reg-fee-row">
+                  <label class="reg-fee-label">Tuition:*</label>
+                  <input type="number" id="regFeeTuition" value="0" class="reg-fee-input" />
+                </div>
+                <div class="reg-fee-row">
+                  <label class="reg-fee-label">PTA:*</label>
+                  <input type="number" id="regFeePta" value="0" class="reg-fee-input" />
+                </div>
+                <div class="reg-fee-row">
+                  <label class="reg-fee-label">Caution:</label>
+                  <input type="number" id="regFeeCaution" value="0" class="reg-fee-input" />
+                </div>
+                <div class="reg-fee-row">
+                  <label class="reg-fee-label">Practicals:</label>
+                  <input type="number" id="regFeePracticals" value="0" class="reg-fee-input" />
+                </div>
+              </div>
+              <div class="reg-fees-total">
+                <span>Total Fees</span>
+                <span id="regFeesTotal">0 XAF</span>
+              </div>
+            </div>
+          </form>
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Global Search:</label>
+              <input type="text" id="regSearchInput" placeholder="Search..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button id="regResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button id="regEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button id="regSaveBtn" class="reg-btn reg-btn-green"><i class="fas fa-check"></i></button>
+              <button id="regDeleteBtn" class="reg-btn reg-btn-red"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Class Code</th>
+                    <th>Class Name</th>
+                    <th>Class Master</th>
+                    <th>Option Name</th>
+                    <th>Registration</th>
+                    <th>Tuition</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="regTableBody">
+                  <tr><td colspan="7" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Classes:</span>
+              <span id="regClassCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== AUXILIARY STAFF SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-auxiliary">
+          <div class="reg-header-bar" id="auxiliaryHeaderBar">Register Auxiliary Staff</div>
+          <form id="auxiliaryForm" style="max-width:600px">
+            <input type="hidden" id="auxiliaryEditId" value="" />
+            <div class="reg-row-3">
+              <label>First name <input id="auxFirstName" required /></label>
+              <label>Middle name <input id="auxMiddleName" /></label>
+              <label>Last name <input id="auxLastName" required /></label>
+            </div>
+            <div class="reg-row-3">
+              <label>Email <input id="auxEmail" type="email" required /></label>
+              <label>Phone <input id="auxPhone" type="tel" /></label>
+              <label>Role
+                <select id="auxRole" required>
+                  <option value="">-- Choose Role --</option>
+                  <option>Accountant</option>
+                  <option>Librarian</option>
+                  <option>Security</option>
+                  <option>Cleaner</option>
+                  <option>Driver</option>
+                  <option>Secretary</option>
+                  <option>IT Support</option>
+                </select>
+              </label>
+            </div>
+            <div class="reg-row-3">
+              <label>Status
+                <select id="auxStatus">
+                  <option value="pending">Pending</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                </select>
+              </label>
+              <label>&nbsp;</label>
+              <label>&nbsp;</label>
+            </div>
+            <button class="reg-btn reg-btn-blue" type="submit" id="auxSubmitBtn" style="padding:10px 24px;font-size:14px;margin-top:12px">Register Staff</button>
+            <p id="auxiliaryFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar for Auxiliary Staff -->
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Search Staff:</label>
+              <input type="text" id="auxiliarySearch" placeholder="Search by name or email or role..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="auxiliaryResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="auxiliaryEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="auxiliarySaveBtn" class="reg-btn reg-btn-green"><i class="fas fa-check"></i></button>
+              <button type="button" id="auxiliaryDeleteBtn" class="reg-btn reg-btn-red"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+
+          <!-- Auxiliary Staff table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="auxiliaryTableBody">
+                  <tr><td colspan="6" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Staff:</span>
+              <span id="auxiliaryCount">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== ACADEMIC YEARS SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-academic-years">
+          <div class="reg-header-bar" id="academicYearHeaderBar">Academic Years</div>
+          <form id="academicYearForm" style="max-width: 500px">
+            <input type="hidden" id="academicYearEditId" value="" />
+            <div class="reg-row-3">
+              <label>From Year <input id="ayFromYear" type="number" placeholder="e.g. 2025" required /></label>
+              <label>To Year <input id="ayToYear" type="number" placeholder="e.g. 2026" required /></label>
+              <label>Current Year
+                <select id="ayIsCurrent">
+                  <option value="0">No</option>
+                  <option value="1">Yes</option>
+                </select>
+              </label>
+            </div>
+            <div class="teacher-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="aySubmitBtn">Create Year</button>
+            </div>
+            <p id="ayFormMsg" class="msg"></p>
+          </form>
+
+          <div class="reg-action-bar" style="margin-top: 16px;">
+            <div class="reg-search-group">
+              <label class="reg-search-label">Search Year:</label>
+              <input type="text" id="aySearch" placeholder="Search by name or range..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="ayResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="ayEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="aySaveBtn" class="reg-btn reg-btn-green"><i class="fas fa-check"></i></button>
+              <button type="button" id="ayDeleteBtn" class="reg-btn reg-btn-red"><i class="fas fa-trash-alt"></i></button>
+            </div>
+          </div>
+
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>From Year</th>
+                    <th>To Year</th>
+                    <th>Status</th>
+                    <th>Students</th>
+                    <th>Teachers</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="ayTableBody">
+                  <tr><td colspan="7" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Total Academic Years:</span>
+              <span id="ayCount">0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FINANCE TAB ===== -->
+      <section class="tab-panel" id="tab-finance">
+        <div class="card">
+          <h3>Finance</h3>
+          <p class="muted">Financial management features coming soon.</p>
+        </div>
+      </section>
+
+      <!-- ===== EVALUATION TAB ===== -->
+      <section class="tab-panel" id="tab-evaluation">
+        <div class="reg-subtabs">
+          <button class="reg-subtab active" data-sub="marks">Marks Entry</button>
+          <button class="reg-subtab" data-sub="course-review">Course Review</button>
+          <button class="reg-subtab" data-sub="report-cards">Report Cards</button>
+        </div>
+
+        <!-- ===== MARKS ENTRY SUB-TAB ===== -->
+        <div class="reg-subpanel active" id="sub-marks">
+          <div class="reg-header-bar">Marks Entry</div>
+          <form id="marksForm" style="max-width:900px">
+            <div class="reg-form-split">
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Selection</div>
+                <div class="reg-row-3">
+                  <label>Academic Year <select id="mkYear"><option value="">-- select --</option></select></label>
+                  <label>Class <select id="mkClass"><option value="">-- select --</option></select></label>
+                  <label>Subject <select id="mkSubject"><option value="">-- select --</option></select></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Term
+                    <select id="mkTerm">
+                      <option value="">-- select --</option>
+                      <option>First</option>
+                      <option>Second</option>
+                      <option>Third</option>
+                    </select>
+                  </label>
+                  <label>Sequence
+                    <select id="mkSeq">
+                      <option value="1">Sequence 1</option>
+                      <option value="2">Sequence 2</option>
+                    </select>
+                  </label>
+                  <label>Max Score <input id="mkMaxScore" type="number" value="50" /></label>
+                </div>
+              </div>
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Actions</div>
+                <div class="teacher-action-row" style="margin-top:8px">
+                  <button type="button" class="reg-btn reg-btn-blue" id="mkLoadBtn">Load Students</button>
+                </div>
+                <div class="teacher-action-row" style="margin-top:8px">
+                  <button type="button" class="reg-btn reg-btn-green" id="mkSaveBtn" disabled>Save Sequence</button>
+                </div>
+                <div class="teacher-action-row" style="margin-top:8px">
+                  <button type="button" class="reg-btn reg-btn-gray" id="mkExportBtn">Export CSV</button>
+                  <button type="button" class="reg-btn reg-btn-blue" id="mkPrintBtn">Print</button>
+                </div>
+              </div>
+            </div>
+          </form>
+          <p id="mkMsg" class="msg"></p>
+          <div class="reg-table-wrap" id="marksTableWrap" style="display:none">
+            <div class="reg-table-scroll">
+              <table class="marks-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Matricule</th>
+                    <th>Score</th>
+                    <th>Max</th>
+                  </tr>
+                </thead>
+                <tbody id="marksTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== COURSE REVIEW SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-course-review">
+          <div class="reg-header-bar">Course Review</div>
+          <form id="courseReviewForm" style="max-width:900px">
+            <div class="reg-row-3">
+              <label>Class <select id="crClass"><option value="">-- select --</option></select></label>
+              <label>Subject <select id="crSubject"><option value="">-- select --</option></select></label>
+              <label>Academic Year <select id="crYear"><option value="">-- select --</option></select></label>
+            </div>
+          </form>
+          <p id="crMsg" class="msg"></p>
+          <div class="reg-form-split" id="crSplit" style="margin-top:12px;display:none">
+            <div>
+              <div class="reg-section-divider" style="margin-top:0">All Class Students</div>
+              <input type="text" id="crSearchUnenrolled" placeholder="Search..." class="reg-search-input" style="width:100%;margin-bottom:8px" />
+              <div class="reg-table-wrap">
+                <div class="reg-table-scroll" style="max-height:400px">
+                  <table class="reg-table">
+                    <thead><tr><th>Name</th><th>Matricule</th><th>Sex</th></tr></thead>
+                    <tbody id="crUnenrolledBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="reg-section-divider" style="margin-top:0">Enrolled Students</div>
+              <input type="text" id="crSearchEnrolled" placeholder="Search..." class="reg-search-input" style="width:100%;margin-bottom:8px" />
+              <div class="reg-table-wrap">
+                <div class="reg-table-scroll" style="max-height:400px">
+                  <table class="reg-table">
+                    <thead><tr><th>Name</th><th>Matricule</th><th>Sex</th></tr></thead>
+                    <tbody id="crEnrolledBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="reg-action-bar" id="crActionBar" style="margin-top:8px;display:none">
+            <div class="reg-search-group">
+              <span class="reg-search-label">Bulk Actions:</span>
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" class="reg-btn reg-btn-blue" id="crEnrollSelectedBtn">Enroll Selected</button>
+              <button type="button" class="reg-btn reg-btn-red" id="crUnenrollSelectedBtn">Unenroll Selected</button>
+              <button type="button" class="reg-btn reg-btn-gray" id="crEnrollAllBtn">Enroll All</button>
+              <button type="button" class="reg-btn reg-btn-gray" id="crUnenrollAllBtn">Unenroll All</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== REPORT CARDS SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-report-cards">
+          <div class="reg-header-bar">Report Cards</div>
+          <form id="reportCardForm" style="max-width:700px">
+            <div class="reg-row-3">
+              <label>Class <select id="rcClass"><option value="">-- select --</option></select></label>
+              <label>Term
+                <select id="rcTerm">
+                  <option value="">-- select --</option>
+                  <option>First</option><option>Second</option><option>Third</option>
+                </select>
+              </label>
+              <label>Academic Year <select id="rcYear"><option value="">-- select --</option></select></label>
+            </div>
+            <div class="teacher-action-row" style="margin-top:8px">
+              <button type="button" class="reg-btn reg-btn-blue" id="rcGenerateBtn">Generate Report Card</button>
+            </div>
+          </form>
+          <p id="rcMsg" class="msg"></p>
+          <div id="reportCardOutput" style="display:none">
+            <div class="reg-action-bar">
+              <div class="reg-search-group">
+                <span class="reg-search-label" id="rcSummary"></span>
+              </div>
+              <div class="reg-action-btns">
+                <button type="button" class="reg-btn reg-btn-gray" id="rcExportBtn">Export CSV</button>
+                <button type="button" class="reg-btn reg-btn-blue" id="rcPrintBtn">Print</button>
+              </div>
+            </div>
+            <div class="reg-table-wrap">
+              <div class="reg-table-scroll">
+                <table class="reg-table" id="rcTable">
+                  <thead id="rcThead"></thead>
+                  <tbody id="rcTbody"></tbody>
+                  <tfoot id="rcTfoot"></tfoot>
+                </table>
+              </div>
+            </div>
+            <div class="reg-section-divider" style="margin-top:16px">Key Performance Indicators</div>
+            <div id="rcKPIs" class="reg-row-3" style="margin-top:8px"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PERSONNEL TAB ===== -->
+      <section class="tab-panel" id="tab-personnel">
+        <div class="card">
+          <div class="page-head">
+            <h3>Staff Management</h3>
+          </div>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Section</th><th>Type</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="personnelRows"><tr><td colspan="8" class="muted">Loading&hellip;</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/admin-layout.js?v=<%= Date.now() %>"></script>
+  <script src="/js/location-picker.js"></script>
+</body>
+</html>

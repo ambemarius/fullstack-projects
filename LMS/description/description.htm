@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SILVA - School Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom colors matching the image */
+        .bg-silva-dark { background-color: #1e3a8a; } /* Deep Blue headers */
+        .bg-silva-sidebar { background-color: #2b5a9e; } /* Sidebar background */
+        .bg-silva-btn { background-color: #3b82f6; } /* Vibrant blue buttons */
+        .bg-silva-body { background-color: #b0c4de; } /* Metallic/grey-blue background */
+    </style>
+</head>
+<body class="bg-silva-body font-sans min-h-screen flex flex-col">
+
+    <header class="bg-silva-dark text-white p-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-4">
+            <div class="bg-white text-blue-900 rounded-full p-1 font-bold text-sm">SILVA</div>
+            <h1 class="text-xl font-bold tracking-wider">SCHOOL MANAGEMENT SYSTEM</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold">STUDENTS</button>
+            <button class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold">SUBJECTS</button>
+            <button class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold">EMPLOYEES</button>
+            <button class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold text-amber-300 border-b-2 border-amber-300">CLASSES</button>
+            <button class="bg-red-600 hover:bg-red-700 px-4 py-1.5 rounded text-sm font-semibold ml-6">Sign Out</button>
+        </div>
+    </header>
+
+    <div class="flex flex-1">
+        <aside class="w-48 bg-silva-sidebar p-2 flex flex-col space-y-2 text-white">
+            <button class="w-full py-3 bg-blue-700 rounded text-left px-4 font-medium hover:bg-blue-800"><i class="fas fa-home mr-2"></i> Home</button>
+            <button class="w-full py-3 bg-blue-900 rounded text-left px-4 font-medium border-l-4 border-amber-400"><i class="fas fa-user-plus mr-2"></i> Registration</button>
+            <button class="w-full py-3 bg-blue-700 rounded text-left px-4 font-medium hover:bg-blue-800"><i class="fas fa-wallet mr-2"></i> Finance</button>
+            <button class="w-full py-3 bg-blue-700 rounded text-left px-4 font-medium hover:bg-blue-800"><i class="fas fa-graduation-cap mr-2"></i> Evaluation</button>
+            <button class="w-full py-3 bg-blue-700 rounded text-left px-4 font-medium hover:bg-blue-800"><i class="fas fa-users mr-2"></i> Personnel</button>
+            <div class="flex-grow"></div>
+            <button class="w-full py-2 bg-blue-800 rounded text-left px-4 text-sm font-medium hover:bg-blue-900">Other</button>
+        </aside>
+
+        <main class="flex-1 p-4 bg-gradient-to-b from-slate-300 to-slate-400 flex flex-col space-y-4">
+            
+            <div class="bg-slate-400 text-white text-center py-2 rounded shadow font-bold text-xl uppercase tracking-wide">
+                Add or Edit New Classes
+            </div>
+
+            <form action="/classes/save" method="POST" class="grid grid-cols-3 gap-4">
+                
+                <div class="col-span-2 bg-slate-300/60 p-4 rounded border border-slate-400 space-y-4 shadow-inner">
+                    <div class="grid grid-cols-3 items-center gap-2">
+                        <label class="text-blue-900 font-bold text-sm">Class Code:**</label>
+                        <input type="text" name="classCode" class="col-span-2 p-1 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-3 items-center gap-2">
+                        <label class="text-blue-900 font-bold text-sm">Class Name:*</label>
+                        <input type="text" name="className" class="col-span-2 p-1 border border-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-3 items-center gap-2">
+                        <label class="text-blue-900 font-bold text-sm">Select Option:**</label>
+                        <select name="optionName" class="col-span-2 p-1 border border-gray-400 bg-white rounded focus:outline-none">
+                            <option value="">-- Choose Option --</option>
+                            <option value="ACCOUNTING">ACCOUNTING</option>
+                            <option value="GENERAL ORIENTATION">GENERAL ORIENTATION</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-3 items-center gap-2">
+                        <label class="text-blue-900 font-bold text-sm">Select Class Master:*</label>
+                        <select name="classMaster" class="col-span-2 p-1 border border-gray-400 bg-white rounded focus:outline-none">
+                            <option value="">-- Choose Staff --</option>
+                            <option value="HASAN">HASAN</option>
+                            <option value="AWAH EUGENE">AWAH EUGENE</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-span-1 bg-slate-300/60 p-4 rounded border border-slate-400 flex flex-col justify-between shadow-inner">
+                    <div class="text-center bg-blue-900 text-white font-bold py-0.5 rounded text-xs mb-2">Other Fees</div>
+                    
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between items-center">
+                            <label class="text-blue-900 font-bold">Registration:*</label>
+                            <input type="number" name="registration" value="0" class="w-24 p-0.5 border border-gray-400 text-right rounded">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label class="text-blue-900 font-bold">Tuition:*</label>
+                            <input type="number" name="tuition" value="0" class="w-24 p-0.5 border border-gray-400 text-right rounded">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label class="text-blue-900 font-bold">PTA:*</label>
+                            <input type="number" name="pta" value="0" class="w-24 p-0.5 border border-gray-400 text-right rounded">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label class="text-gray-700 font-medium">Caution:</label>
+                            <input type="number" name="caution" value="0" class="w-24 p-0.5 border border-gray-400 text-right rounded">
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <label class="text-gray-700 font-medium">Practicals:</label>
+                            <input type="number" name="practicals" value="0" class="w-24 p-0.5 border border-gray-400 text-right rounded">
+                        </div>
+                    </div>
+
+                    <div class="mt-3 bg-blue-950 text-white p-2 rounded flex justify-between items-center font-bold">
+                        <span class="text-xs uppercase">Total Fees</span>
+                        <span class="text-base">0 XAF</span>
+                    </div>
+                </div>
+            </form>
+
+            <div class="flex justify-between items-center bg-slate-200/80 p-2 rounded shadow-sm border border-slate-300">
+                <div class="flex items-center space-x-2 flex-1 max-w-xl">
+                    <label class="text-blue-900 font-bold text-sm whitespace-nowrap">Global Search:</label>
+                    <input type="text" placeholder="Search..." class="w-full p-1 border border-gray-400 rounded text-sm">
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <button class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded text-sm font-bold flex items-center"><i class="fas fa-undo mr-1"></i> RESET</button>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-1.5 rounded text-sm font-bold tracking-wider">EDIT</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white p-1.5 rounded-full w-9 h-9 flex items-center justify-center shadow"><i class="fas fa-check text-lg"></i></button>
+                    <button class="bg-red-600 hover:bg-red-700 text-white p-1.5 rounded-md w-9 h-9 flex items-center justify-center shadow"><i class="fas fa-trash-alt text-lg"></i></button>
+                </div>
+            </div>
+
+            <div class="flex-1 bg-white rounded shadow overflow-hidden flex flex-col border border-slate-400">
+                <div class="overflow-y-auto max-h-[300px]">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead class="bg-blue-900 text-white uppercase tracking-wider sticky top-0 font-bold">
+                            <tr>
+                                <th class="p-2 border-r border-blue-800">Class Code</th>
+                                <th class="p-2 border-r border-blue-800">Class Name</th>
+                                <th class="p-2 border-r border-blue-800">Class Master</th>
+                                <th class="p-2 border-r border-blue-800">Option Name</th>
+                                <th class="p-2 border-r border-blue-800">Registration</th>
+                                <th class="p-2">Tuition</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 font-semibold text-gray-800">
+                            <% if (classes && classes.length > 0) { %>
+                                <% classes.forEach(function(item) { %>
+                                    <tr class="hover:bg-blue-50 transition-colors odd:bg-slate-50">
+                                        <td class="p-2 border-r border-gray-200"><%= item.code %></td>
+                                        <td class="p-2 border-r border-gray-200"><%= item.name %></td>
+                                        <td class="p-2 border-r border-gray-200"><%= item.master %></td>
+                                        <td class="p-2 border-r border-gray-200"><%= item.option %></td>
+                                        <td class="p-2 border-r border-gray-200 text-right"><%= item.registration %></td>
+                                        <td class="p-2 text-right"><%= item.tuition %></td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="6" class="p-4 text-center text-gray-500 italic">No classes found.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="bg-blue-950 text-white p-1.5 flex items-center text-sm font-bold">
+                    <span class="bg-blue-900 px-3 py-0.5 rounded text-xs tracking-wider uppercase mr-4">Number of Classes:</span>
+                    <span class="text-base text-amber-300"><%= classes ? classes.length : 0 %></span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
+
+
+<!-- -csss -->
+ .registration-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 column layout */
+  gap: 15px;
+  background-color: #2c3e50; /* Dark blue theme matching image_690418.jpg */
+  padding: 20px;
+  color: white;
+}
+
+.span-3 {
+  grid-column: span 3; /* Allows long fields like FullNames */
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.fee-checkboxes {
+  grid-row: span 3;
+  border-left: 2px solid #ccc;
+  padding-left: 10px;
+}

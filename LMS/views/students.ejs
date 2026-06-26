@@ -1,0 +1,71 @@
+<%- include('partials/header', { title: 'Students' }) %>
+
+<div class="page-head">
+  <h1>Students</h1>
+  <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h3 id="formTitle">Add student</h3>
+    <form id="studentForm">
+      <input type="hidden" id="studentId" />
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <label>First name <input id="firstName" required /></label>
+        <label>Middle name <input id="middleName" /></label>
+        <label>Last name <input id="lastName" required /></label>
+        <label>Matricule <input id="matricule" required /></label>
+        <label>Password <input id="password" type="password" /></label>
+        <label>Section
+          <select id="section">
+            <option>Anglophone</option>
+            <option>Francophone</option>
+          </select>
+        </label>
+        <label>Sex
+          <select id="sex" required>
+            <option value="">-- select --</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </label>
+        <label>Date of birth <input id="dateOfBirth" type="date" /></label>
+        <label>Year of enrollment <input id="yearOfEnrollment" type="number" placeholder="e.g. 2025" /></label>
+        <label>Class
+          <select id="currentClassLevel"><option value="">-- select class --</option></select>
+        </label>
+        <label>Is withdrawn
+          <select id="isWithdrawn">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </label>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="submit" id="submitBtn">Create</button>
+        <button class="btn btn-secondary" type="button" id="clearBtn" style="display:none">Clear</button>
+        <button class="btn btn-danger" type="button" id="deleteBtn" style="display:none">Delete</button>
+      </div>
+    </form>
+    <p id="msg" class="msg"></p>
+  </div>
+
+  <div class="card">
+    <h3>All students</h3>
+    <div style="margin-bottom:12px">
+      <input type="text" id="searchInput" placeholder="Search by name or matricule..." style="width:100%;max-width:300px;padding:8px" />
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Name</th><th>Matricule</th><th>Sex</th><th>Section</th><th>Class</th><th>DOB</th><th>Enrolled</th><th>Withdrawn</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="10" class="muted">Loading&hellip;</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/students.js"></script>
+<%- include('partials/footer') %>

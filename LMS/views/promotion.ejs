@@ -1,0 +1,23 @@
+<%- include('partials/header', { title: 'Student Promotion' }) %>
+<div class="page-head"><h1>Student Promotion</h1></div>
+
+<div class="card">
+  <p>Promote all non-withdrawn students from a class to the next level. Students at the highest level (UpperSixth / Terminale) will be marked as graduated.</p>
+
+  <label style="max-width:300px">Class
+    <select id="promoteClass" required><option value="">-- Select --</option></select>
+  </label>
+  <label style="max-width:300px">Academic Year
+    <select id="promoteYear" required><option value="">-- Select --</option></select>
+  </label>
+  <button class="btn" id="promoteBtn" style="margin-top:10px">Promote Students</button>
+  <div id="promoteMsg" class="msg"></div>
+</div>
+
+<div class="card" style="margin-top:20px">
+  <h2>Recent Promotions</h2>
+  <p class="muted">Promotion results will appear here after each run.</p>
+</div>
+
+<%- include('partials/footer') %>
+<script src="/js/promotion.js"></script>

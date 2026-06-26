@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title : 'LMS' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">LMS</a>
+    <nav class="nav" id="mainNav">
+      <!-- Admin navigates via the sidebar in the admin panel, so no admin tabs here -->
+      <a href="/teacher-dashboard" data-roles="teacher">My Dashboard</a>
+      <a href="/timetable-teacher" data-roles="teacher">My Timetable</a>
+      <a href="/student-dashboard" data-roles="student">My Dashboard</a>
+      <a href="/timetable-student" data-roles="student">My Timetable</a>
+      <a href="/login" data-roles="guest">Login</a>
+      <a href="#" id="navLogout" data-roles="admin,teacher,student">Logout</a>
+    </nav>
+  </header>
+  <main class="container">

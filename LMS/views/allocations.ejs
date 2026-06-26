@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: 'Subject Allocations' }) %>
+<div class="page-head"><h1>Subject Allocations</h1></div>
+<p class="muted">Set, per class and academic year, which subjects are offered and how many periods/week.
+Secondary classes (Form1&ndash;Form5) usually have more subjects than advanced level (Lower/Upper Sixth).
+The timetable is generated from these allocations.</p>
+
+<div class="grid">
+  <div class="card">
+    <h3>Allocate a subject</h3>
+    <label>Academic year <select id="alYear"></select></label>
+    <label>Class <select id="alClass"></select></label>
+    <form id="alForm">
+      <label>Subject <select id="alSubject" required><option value="">-- select --</option></select></label>
+      <label>Periods / week <input type="number" id="alPeriods" min="1" max="12" value="4" required></label>
+      <button class="btn" type="submit">Add / Update</button>
+    </form>
+    <p id="alMsg" class="msg"></p>
+  </div>
+
+  <div class="card">
+    <h3>Allocated subjects</h3>
+    <table>
+      <thead><tr><th>Subject</th><th>Code</th><th>Periods/wk</th><th></th></tr></thead>
+      <tbody id="alRows"><tr><td colspan="4" class="muted">Select a class</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/allocations.js"></script>
+<%- include('partials/footer') %>
