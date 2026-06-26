@@ -39,10 +39,28 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+.kilo/
+
+# ===========================
+#  Large data / backup files
+# ===========================
+*.bak
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.tsv
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
 
 # ===========================
 #  Large media / archives (uncomment if not needed in repo)
 # ===========================
 # *.mp4
-# *.zip
 # *.psd
+
+.bruin.yml
