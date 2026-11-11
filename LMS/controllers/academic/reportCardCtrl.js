@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const SubjectScore = require('../../model/Academic/subjectScore');
 const ClassSubject = require('../../model/Academic/classSubject');
 const Student = require('../../model/Academic/student');
+const ClassModel = require('../../model/Academic/class');
 const { sql, pool, poolConnect } = require('../../config/database');
 
 const httpError = (status, message) => {
@@ -10,24 +11,59 @@ const httpError = (status, message) => {
     return err;
 };
 
-function gradeFromScore(score, maxScore) {
-    if (score === null || score === undefined || maxScore === 0) return 'F';
-    const pct = (score / maxScore) * 100;
-    if (pct >= 91) return 'A';
-    if (pct >= 81) return 'B';
-    if (pct >= 71) return 'C';
-    if (pct >= 61) return 'D';
-    if (pct >= 51) return 'E';
-    return 'F';
+const GRADING_SCALES = {
+    Anglophone: [
+        { min: 80, grade: 'A', remark: 'Excellent' },
+        { min: 70, grade: 'B', remark: 'Very Good' },
+        { min: 60, grade: 'C', remark: 'Good' },
+        { min: 50, grade: 'D', remark: 'Fair' },
+        { min: 40, grade: 'E', remark: 'Pass' },
+        { min: 0,  grade: 'F', remark: 'Fail' },
+    ],
+    Francophone: [
+        { min: 16, grade: '16-20', remark: 'Très Bien' },
+        { min: 14, grade: '14-16', remark: 'Bien' },
+        { min: 12, grade: '12-14', remark: 'Assez Bien' },
+        { min: 10, grade: '10-12', remark: 'Passable' },
+        { min: 8,  grade: '08-10', remark: 'Insuffisant' },
+        { min: 0,  grade: '00-08', remark: 'Très Insuffisant' },
+    ],
+};
+
+function gradeFromScore(score, maxScore, section) {
+    if (score === null || score === undefined || maxScore === 0) {
+        return { grade: section === 'Francophone' ? '00-08' : 'F', remark: section === 'Francophone' ? 'Très Insuffisant' : 'Fail' };
+    }
+    const scale = GRADING_SCALES[section] || GRADING_SCALES.Anglophone;
+    if (section === 'Francophone') {
+        const mark = (score / maxScore) * 20;
+        for (const entry of scale) {
+            if (mark >= entry.min) return { grade: entry.grade, remark: entry.remark };
+        }
+    } else {
+        const pct = (score / maxScore) * 100;
+        for (const entry of scale) {
+            if (pct >= entry.min) return { grade: entry.grade, remark: entry.remark };
+        }
+    }
+    return { grade: scale[scale.length - 1].grade, remark: scale[scale.length - 1].remark };
 }
 
 // GET /api/v1/report-cards/:classId/:term/:academicYearId
+exports.gradeFromScore = gradeFromScore;
+exports.GRADING_SCALES = GRADING_SCALES;
+
 exports.getReportCardCtrl = asyncHandler(async (req, res) => {
     const { classId, term, academicYearId } = req.params;
     if (!classId || !term || !academicYearId) throw httpError(400, 'classId, term and academicYearId are required');
 
-    await poolConnect;
-    const result = await pool.request()
+    const classInfo = await ClassModel.findById(+classId);
+    if (!classInfo) throw httpError(404, 'Class not found');
+    const section = classInfo.section;
+
+    const result = req.app.locals.legacyScopedReportsEnabled
+        ? {recordset: await require('./scopedLegacyReport').rows(req)}
+        : await (async()=>{await poolConnect;return pool.request()
         .input('classId', sql.Int, +classId)
         .input('term', sql.NVarChar(10), term)
         .input('academicYearId', sql.Int, +academicYearId)
@@ -57,6 +93,8 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
             ORDER BY s.lastName, s.firstName, subj.name
         `);
 
+    })();
+
     const rows = result.recordset;
 
     // Build pivot: { studentId: { info, subjects: [{...}], totals } }
@@ -82,7 +120,7 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
             ? (seq1 + seq2) / 2
             : (seq1 !== null ? seq1 : (seq2 !== null ? seq2 : null));
         const coef = parseFloat(r.coefficient) || 1;
-        const grade = avg !== null ? gradeFromScore(avg, max1) : null;
+        const gradeResult = avg !== null ? gradeFromScore(avg, max1, section) : null;
 
         student.subjects.push({
             classSubjectId: r.classSubjectId,
@@ -92,7 +130,8 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
             seq1,
             seq2,
             avg,
-            grade,
+            grade: gradeResult ? gradeResult.grade : null,
+            remark: gradeResult ? gradeResult.remark : null,
             passmark: r.passmark || 50,
             maxScore: max1,
         });
@@ -151,9 +190,14 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
         ? subjectAverages.reduce((a, b) => a.classAvg < b.classAvg ? a : b)
         : null;
 
+    const passThreshold = section === 'Francophone' ? 10 : 50;
+
     res.status(200).json({
         status: 'success',
         data: {
+            section,
+            passThreshold,
+            gradingScale: section === 'Francophone' ? 'French (0-20)' : 'GCE (A-F)',
             students,
             classGeneralAvg: Math.round(classGeneralAvg * 100) / 100,
             totalEnrolled: students.length,

@@ -7,6 +7,8 @@ const Class = require('../../model/Academic/class');
 const ExamResult = require('../../model/Academic/examResult');
 const generateToken = require('../../utils/generateToken');
 const verifyToken = require('../../utils/verifyToken')
+const {isLegacyAdministrator}=require('../../utils/legacyAccountRole');
+const { setAuthCookie } = require('../../utils/authCookie');
 
 // build an Error carrying an HTTP status (read by the global error handler)
 const httpError = (status, message) => {
@@ -19,7 +21,8 @@ const httpError = (status, message) => {
 //route post /api/admin/register
 
 exports.registeradminCtrl =asyncHandler( async (req, res) => {
-    const { name, email, password, role } = req.body || {};
+    const { name, email, password, role = 'admin' } = req.body || {};
+    if (role !== 'admin') throw httpError(400, 'Only school administrator accounts can be created here');
 
     // basic validation
     if (!name || !email || !password || !role) {
@@ -64,7 +67,7 @@ exports.loginadminCtrl = asyncHandler(async (req, res) => {
         const user = await Admin.findByEmail(email);
 
         // verify the password against the stored hash
-        const isMatch = user && await Admin.verifyPassword(password, user.password);
+        const isMatch = user && isLegacyAdministrator(user.role) && await Admin.verifyPassword(password, user.password);
         if (!user || !isMatch) {
             return res.status(401).json({
                 status: 'error',
@@ -73,7 +76,9 @@ exports.loginadminCtrl = asyncHandler(async (req, res) => {
         }
 
         // issue a JWT and return it (the client sends it back as "Bearer <token>")
-        const token = generateToken(user.id);
+        const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('admin',user.id,undefined,user.password) : undefined;
+        const token = generateToken(user.id, 'admin', version);
+        setAuthCookie(res, token);
 
         // never send the password hash back
         const { password: _omit, ...safeUser } = user;
@@ -87,14 +92,14 @@ exports.loginadminCtrl = asyncHandler(async (req, res) => {
 //@desc get all admins
 //@route GET /api/v1/admin
 exports.alladminCtrl = asyncHandler(async (req, res) => {
-    const admins = await Admin.getAll();
+    const admins = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('./scopedLegacyPersonnelReads').handle(req,'list','admins') : await Admin.getAll();
     res.status(200).json({ status: 'success', results: admins.length, data: admins });
 });
 
 //@get all single users
 //get /api/admin/:id
 exports.getadminprofile = asyncHandler( async (req, res) => {
-    const admin = await Admin.findById(req.userAuth.id);
+    const admin = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('./scopedLegacyPersonnelReads').handle(req,'find','admins') : await Admin.findById(req.userAuth.id);
     if (!admin) {
         throw new Error("Admin Not Found");
     }
@@ -109,7 +114,7 @@ exports.getadminprofile = asyncHandler( async (req, res) => {
 //@desc get a single admin by id
 //@route GET /api/v1/admin/:id
 exports.singleadminCtrl = asyncHandler(async (req, res) => {
-    const admin = await Admin.findById(req.params.id);
+    const admin = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('./scopedLegacyPersonnelReads').handle(req,'find','admins',req.params.id) : await Admin.findById(req.params.id);
     if (!admin) throw httpError(404, 'Admin not found');
     const { password, ...safeAdmin } = admin;
     res.status(200).json({ status: 'success', data: safeAdmin });
@@ -118,6 +123,7 @@ exports.singleadminCtrl = asyncHandler(async (req, res) => {
 //@route PUT /api/v1/admin/:id
 exports.updateadminCtrl = asyncHandler(async (req, res) => {
     const { name, email, role } = req.body || {};
+    if (role !== undefined && role !== 'admin') throw httpError(400, 'Invalid administrator role');
     const updated = await Admin.update(req.params.id, { name, email, role });
     if (!updated) throw httpError(404, 'Admin not found');
     res.status(200).json({ status: 'success', data: updated });
@@ -147,20 +153,23 @@ exports.setTeacherStatusCtrl = asyncHandler(async (req, res) => {
 //@desc admin publishes an exam's results
 //@route PUT /api/v1/admin/publish/exam/:id   (:id = examId)
 exports.publishexamCtrl = asyncHandler(async (req, res) => {
-    await ExamResult.publishByExam(req.params.id);
+    if(req.app.locals.legacyScopedExamResultsEnabled)await require('../academic/scopedLegacyExamResults').handle(req,req.params.id,true);
+    else await ExamResult.publishByExam(req.params.id);
     res.status(200).json({ status: 'success', message: 'Exam results published' });
 });
 
 //@desc admin unpublishes an exam's results
 //@route PUT /api/v1/admin/unpublish/exam/:id   (:id = examId)
 exports.unpublishexamCtrl = asyncHandler(async (req, res) => {
-    await ExamResult.unpublishByExam(req.params.id);
+    if(req.app.locals.legacyScopedExamResultsEnabled)await require('../academic/scopedLegacyExamResults').handle(req,req.params.id,false);
+    else await ExamResult.unpublishByExam(req.params.id);
     res.status(200).json({ status: 'success', message: 'Exam results unpublished' });
 });
 
 //@desc admin dashboard stats (counts)
 //@route GET /api/v1/admin/stats
 exports.getAdminStatsCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedPersonnelReadsEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyPersonnelReads').handle(req,'stats')});
     const teachers = await Teacher.getAll();
     const students = await Student.getAll();
     const subjects = await Subject.getAll();

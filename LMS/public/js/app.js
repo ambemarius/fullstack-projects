@@ -25,7 +25,8 @@ async function api(path, options = {}) {
   return { ok: res.ok, status: res.status, data };
 }
 
-function logout() {
+async function logout() {
+  try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   window.location.href = '/login';

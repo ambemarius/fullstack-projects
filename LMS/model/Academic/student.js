@@ -184,7 +184,7 @@ const StudentModel = {
     async getAllFull() {
         await poolConnect;
         const result = await pool.request()
-            .query(`SELECT s.*, c.name AS className, c.stream AS classStream, c.section AS classSection,
+            .query(`SELECT ${this._safeColumns}, c.name AS className, c.stream AS classStream, c.section AS classSection,
                            ay.name AS academicYearName
                     FROM students s
                     LEFT JOIN classes c ON c.id = s.currentClassLevel
@@ -345,17 +345,55 @@ const StudentModel = {
         return result.recordset;
     },
 
-    async promoteClass(classId, academicYearId) {
+    async promoteClass(classId, academicYearId, { minAverage, term } = {}) {
         await poolConnect;
         const students = await this.getByClass(classId);
         const currentClass = await (require('./class')).findById(classId);
         if (!currentClass) throw new Error('Class not found');
 
+        const passMin = minAverage ?? (currentClass.section === 'Francophone' ? 10 : 50);
+
+        let studentAverages = new Map();
+        if (term && academicYearId) {
+            const result = await pool.request()
+                .input('classId', sql.Int, classId)
+                .input('term', sql.NVarChar(10), term)
+                .input('yearId', sql.Int, academicYearId)
+                .query(`
+                    SELECT s.id AS studentId,
+                           AVG((ISNULL(ss1.score,0) + ISNULL(ss2.score,0)) /
+                               (CASE WHEN ss1.score IS NOT NULL AND ss2.score IS NOT NULL THEN 2.0
+                                     WHEN ss1.score IS NOT NULL OR ss2.score IS NOT NULL THEN 1.0
+                                     ELSE 1.0 END)) AS avg_score
+                    FROM students s
+                    JOIN class_subjects cs ON cs.class_id = s.currentClassLevel
+                    LEFT JOIN subject_scores ss1 ON ss1.student_id = s.id
+                        AND ss1.class_subject_id = cs.id AND ss1.academic_year_id = @yearId
+                        AND ss1.term = @term AND ss1.sequence = 1
+                    LEFT JOIN subject_scores ss2 ON ss2.student_id = s.id
+                        AND ss2.class_subject_id = cs.id AND ss2.academic_year_id = @yearId
+                        AND ss2.term = @term AND ss2.sequence = 2
+                    WHERE s.currentClassLevel = @classId AND s.isWithdrawn = 0
+                      AND (ss1.score IS NOT NULL OR ss2.score IS NOT NULL)
+                    GROUP BY s.id
+                `);
+            for (const r of result.recordset) {
+                studentAverages.set(r.studentId, parseFloat(r.avg_score));
+            }
+        }
+
         const nextRank = currentClass.rank + 1;
-        let promoted = 0, graduated = 0, errors = [];
+        let promoted = 0, graduated = 0, retained = 0, errors = [];
 
         for (const student of students) {
             try {
+                const avg = studentAverages.get(student.id);
+                if (term && academicYearId && (avg === undefined || avg < passMin)) {
+                    retained++;
+                    errors.push(`${student.firstName} ${student.lastName}: average ${avg !== undefined ? avg.toFixed(2) : 'N/A'} below minimum ${passMin}`);
+                    continue;
+                }
+
                 if (currentClass.rank >= 7) {
                     await this.setPromoted(student.id, true);
                     graduated++;
@@ -391,7 +429,7 @@ const StudentModel = {
                 errors.push(`${student.firstName} ${student.lastName}: ${err.message}`);
             }
         }
-        return { promoted, graduated, errors };
+        return { promoted, graduated, retained, errors, passMinimum: passMin };
     },
 
     async remove(id) {

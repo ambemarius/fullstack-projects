@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Student = require('../../model/Academic/student');
 const AcademicYear = require('../../model/Academic/academicYear');
 const generateToken = require('../../utils/generateToken');
+const { setAuthCookie } = require('../../utils/authCookie');
 
 const httpError = (status, message) => {
     const err = new Error(message);
@@ -39,18 +40,21 @@ exports.loginStudentCtrl = asyncHandler(async (req, res) => {
     const isMatch = student && await Student.verifyPassword(password, student.password);
     if (!student || !isMatch) throw httpError(401, 'Invalid login credentials');
 
-    const token = generateToken(student.id);
+    if (student.isWithdrawn) throw httpError(403, 'This account is inactive');
+    const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('student',student.id,undefined,student.password) : undefined;
+    const token = generateToken(student.id, 'student', version);
+    setAuthCookie(res, token);
     const { password: _omit, ...safe } = student;
     res.status(200).json({ status: 'success', data: safe, token });
 });
 
 exports.getAllStudentsCtrl = asyncHandler(async (req, res) => {
-    const students = await Student.getAllFull();
+    const students = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('../staff/scopedLegacyPersonnelReads').handle(req,'list','students') : await Student.getAllFull();
     res.status(200).json({ status: 'success', results: students.length, data: students });
 });
 
 exports.getStudentProfileCtrl = asyncHandler(async (req, res) => {
-    res.status(200).json({ status: 'success', data: req.userAuth });
+    res.status(200).json({ status: 'success', data: req.app.locals.legacyScopedSelfEnabled ? await require('../staff/scopedLegacySelf').profile(req) : req.userAuth });
 });
 
 exports.updateStudentProfileCtrl = asyncHandler(async (req, res) => {
@@ -60,6 +64,7 @@ exports.updateStudentProfileCtrl = asyncHandler(async (req, res) => {
 });
 
 exports.singleStudentCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedPersonnelReadsEnabled)return res.status(200).json({status:'success',data:await require('../staff/scopedLegacyPersonnelReads').handle(req,'find','students',req.params.id)});
     const ClassModel = require('../../model/Academic/class');
     const student = await Student.findById(req.params.id);
     if (!student) throw httpError(404, 'Student not found');

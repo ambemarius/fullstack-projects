@@ -3,6 +3,7 @@ const Teacher = require('../../model/staff/teacher');
 const Student = require('../../model/Academic/student');
 const ClassSubject = require('../../model/Academic/classSubject');
 const generateToken = require('../../utils/generateToken');
+const { setAuthCookie } = require('../../utils/authCookie');
 
 const httpError = (status, message) => {
     const err = new Error(message);
@@ -51,7 +52,9 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
         throw httpError(403, `Your account has been ${teacher.status}`);
     }
 
-    const token = generateToken(teacher.id);
+    const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('teacher',teacher.id,undefined,teacher.password) : undefined;
+    const token = generateToken(teacher.id, 'teacher', version);
+    setAuthCookie(res, token);
     const { password: _omit, ...safe } = teacher;
     res.status(200).json({ status: 'success', data: safe, token });
 });
@@ -60,7 +63,7 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/teachers
 //@access Private (admin)
 exports.getAllTeachersCtrl = asyncHandler(async (req, res) => {
-    const teachers = await Teacher.getAll();
+    const teachers = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('./scopedLegacyPersonnelReads').handle(req,'list','teachers') : await Teacher.getAll();
     res.status(200).json({ status: 'success', results: teachers.length, data: teachers });
 });
 
@@ -68,7 +71,7 @@ exports.getAllTeachersCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/teachers/profile
 //@access Private (teacher)
 exports.getTeacherProfileCtrl = asyncHandler(async (req, res) => {
-    res.status(200).json({ status: 'success', data: req.userAuth });
+    res.status(200).json({ status: 'success', data: req.app.locals.legacyScopedSelfEnabled ? await require('./scopedLegacySelf').profile(req) : req.userAuth });
 });
 
 //@desc   Teacher updates own profile
@@ -118,7 +121,7 @@ exports.assignTeacherCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/teachers/:id
 //@access Private (admin)
 exports.singleTeacherCtrl = asyncHandler(async (req, res) => {
-    const teacher = await Teacher.findById(req.params.id);
+    const teacher = req.app.locals.legacyScopedPersonnelReadsEnabled ? await require('./scopedLegacyPersonnelReads').handle(req,'find','teachers',req.params.id) : await Teacher.findById(req.params.id);
     if (!teacher) throw httpError(404, 'Teacher not found');
     res.status(200).json({ status: 'success', data: teacher });
 });
