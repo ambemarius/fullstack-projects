@@ -1,0 +1,20 @@
+{
+  "canonicalPersonnelWrites": true,
+  "canonicalAcademicHistoryReview": true,
+  "canonicalAcademicWrites": true,
+  "canonicalAuxiliaryWrites": true,
+  "canonicalMembershipInvitations": true,
+  "canonicalCredentialRecovery": true,
+  "canonicalAcademicLinks": true,
+  "canonicalStaffAccounts": true,
+  "legacyScopedExamResults": true,
+  "legacyScopedPersonnelReads": true,
+  "legacyScopedTimetables": true,
+  "legacyScopedAllocations": true,
+  "legacyScopedReferences": true,
+  "legacyScopedReports": true,
+  "legacyScopedSelf": true,
+  "notifications.email": false,
+  "notifications.sms": false,
+  "notifications.inApp": false
+}

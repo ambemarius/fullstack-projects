@@ -1,4 +1,5 @@
 <%- include('partials/header', { title: 'Teacher Dashboard' }) %>
+<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><p class="card" data-canonical-courses="true">Teaching assignments, rosters and raw marks are now in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing teacher account. Legacy academic and exam tools are paused pending their scoped replacement.</p><% } %>
 
 <div class="card">
   <div class="page-head">
@@ -28,11 +29,11 @@
 <div class="card">
   <h3>Enter marks</h3>
   <div class="marks-controls">
-    <select id="msSubject"><option value="">Subject&hellip;</option></select>
-    <select id="msTerm">
+    <label>Subject<select id="msSubject"><option value="">Choose a subject</option></select></label>
+    <label>Term<select id="msTerm">
       <option value="">Term&hellip;</option>
       <option>First</option><option>Second</option><option>Third</option>
-    </select>
+    </select></label>
     <button id="msLoadBtn" class="btn">Load students</button>
   </div>
   <div id="marksArea" style="margin-top:12px;display:none;">

@@ -25,5 +25,6 @@ for (const page of ['timetable-teacher','timetable-student']) {
     });
 }
 webRouter.get('/promotion', (req, res) => res.render('promotion'));
+webRouter.get('/parent-dashboard', (req, res) => res.render('parent-dashboard'));
 
 module.exports = webRouter;

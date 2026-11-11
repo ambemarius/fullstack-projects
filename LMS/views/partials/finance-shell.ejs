@@ -1,0 +1,7 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><%= pageTitle %> · LYCEE BATOURI</title><link rel="stylesheet" href="/css/finance-workspace.css"><link rel="stylesheet" href="/css/finance-print.css"><script src="/js/finance-workspace.js" defer></script><script src="/js/finance-print.js" defer></script></head><body class="finance-app">
+<a class="skip-link" href="#finance-main">Skip to content</a>
+<aside class="finance-sidebar"><%- include('finance-nav',{area,active}) %></aside>
+<div class="finance-content"><header class="finance-topbar"><button type="button" id="finance-menu-open" class="secondary mobile-menu" hidden aria-haspopup="dialog">Menu</button><span class="workspace-path">Finance <span aria-hidden="true">/</span> <strong><%= pageTitle %></strong></span><div class="workspace-identity"><span class="practice-badge">Practice records</span><span class="role-label"><%= area==='cashier'?'Bursar / cashier':'Administrator' %></span></div></header>
+<details class="mobile-fallback"><summary>Navigation</summary><%- include('finance-nav',{area,active}) %></details>
+<dialog id="finance-menu" aria-label="Finance navigation"><button type="button" id="finance-menu-close" class="secondary">Close menu</button><%- include('finance-nav',{area,active}) %></dialog>
+<main id="finance-main" tabindex="-1">

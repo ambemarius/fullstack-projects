@@ -26,6 +26,7 @@ const DEFAULT_TERM = () => {
 //@desc   Create a timetable entry
 //@route  POST /api/v1/timetables
 exports.createEntryCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(201).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'create')});
     const { class_id, subject_id, teacher_id, day_of_week, time_slot_id, start_time, end_time, room, academic_term, academic_year_id } = req.body;
 
     if (!class_id || !subject_id || !teacher_id || !day_of_week || !time_slot_id || !academic_term || !academic_year_id) {
@@ -43,6 +44,7 @@ exports.createEntryCtrl = asyncHandler(async (req, res) => {
 //@desc   Get full grid timetable for a class
 //@route  GET /api/v1/timetables/class/:classId/grid?term=&yearId=
 exports.getClassGridCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'grid')});
     const term = req.query.term || DEFAULT_TERM();
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     const slots = await TimeSlot.getAll();
@@ -54,6 +56,7 @@ exports.getClassGridCtrl = asyncHandler(async (req, res) => {
 //@desc   Get timetable for a class (flat list)
 //@route  GET /api/v1/timetables/class/:classId?term=&yearId=
 exports.getClassTimetableCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'class')});
     const term = req.query.term || DEFAULT_TERM();
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     const entries = await Timetable.getByClass(req.params.classId, term, yearId);
@@ -81,6 +84,7 @@ exports.getStudentTimetableCtrl = asyncHandler(async (req, res) => {
 //@desc   Get all entries grouped by section
 //@route  GET /api/v1/timetables?term=&yearId=&section=
 exports.getAllEntriesCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'all')});
     const term = req.query.term || DEFAULT_TERM();
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     const section = req.query.section;
@@ -93,6 +97,7 @@ exports.getAllEntriesCtrl = asyncHandler(async (req, res) => {
 //@route  POST /api/v1/timetables/generate/class/:classId
 //@access Private (admin)
 exports.generateClassCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled){const result=await require('./scopedLegacyTimetable').handle(req,'generate');return res.status(201).json({status:'success',message:`Timetable generated: ${result.placed} periods placed`,...result});}
     const classId = req.params.classId;
     const term = req.body.term || DEFAULT_TERM();
     const yearId = req.body.academic_year_id || (await AcademicYearModel.findCurrent())?.id;
@@ -167,6 +172,7 @@ exports.generateClassCtrl = asyncHandler(async (req, res) => {
 //@desc   Delete a timetable entry
 //@route  DELETE /api/v1/timetables/:id
 exports.deleteEntryCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled){await require('./scopedLegacyTimetable').handle(req,'remove');return res.status(200).json({status:'success',message:'Entry deleted'});}
     await Timetable.delete(req.params.id);
     res.status(200).json({ status: 'success', message: 'Entry deleted' });
 });
@@ -174,6 +180,7 @@ exports.deleteEntryCtrl = asyncHandler(async (req, res) => {
 //@desc   Get form data (slots, classes, subjects, teachers, years)
 //@route  GET /api/v1/timetables/form-data
 exports.getFormDataCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'form')});
     const [slots, classes, subjects, teachers, academicYears] = await Promise.all([
         TimeSlot.getAll(),
         ClassModel.getAll(),
@@ -190,6 +197,7 @@ exports.getFormDataCtrl = asyncHandler(async (req, res) => {
 //@desc   Get period summary per subject for a class
 //@route  GET /api/v1/timetables/class/:classId/periods?term=&yearId=
 exports.getClassPeriodsCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedTimetablesEnabled)return res.status(200).json({status:'success',data:await require('./scopedLegacyTimetable').handle(req,'periods')});
     const term = req.query.term || DEFAULT_TERM();
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     const periods = await Timetable.getPeriodsPerSubject(req.params.classId, term, yearId);

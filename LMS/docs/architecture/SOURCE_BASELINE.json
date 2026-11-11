@@ -1,0 +1,394 @@
+{
+  "date": "2026-10-25",
+  "scope": "First-party application/package/design files; excludes secrets, dependencies, tool metadata and documentation",
+  "files": [
+    {
+      "file": "app/app.js",
+      "sha256": "4cd3f011cba8121b30d5419b28e6a7ee869f989054e57e3bc9a9300c7f6bb995"
+    },
+    {
+      "file": "config/database.js",
+      "sha256": "0b40b7c9da3736638c3e1d303d511e86f00998e25c00cee3f92ac63742a7e8ff"
+    },
+    {
+      "file": "controllers/academic/academicYearCtrl.js",
+      "sha256": "dc007b437892abf9a5fee61043ef6609d9822eadecf1a5b450db56e9d9f2dffc"
+    },
+    {
+      "file": "controllers/academic/classCtrl.js",
+      "sha256": "51b8de57defac8e23ed1a3adbb00f8c30c19f725a449b99d1c0f2a5860ee03d2"
+    },
+    {
+      "file": "controllers/academic/classSubjectStudentCtrl.js",
+      "sha256": "48e7e9bb41abe8f4b2201edddd0b8ba22ff574782d10e893188d37d91f0d877d"
+    },
+    {
+      "file": "controllers/academic/examCtrl.js",
+      "sha256": "2225adf4ea7884e2d81861ddc16d2bc7be0e4dfd92793ea454d371e0358ddd11"
+    },
+    {
+      "file": "controllers/academic/examResultCtrl.js",
+      "sha256": "3b1a81fdc638cc35fabcfd74062e6107a827c96722a2de5bdf7cc91bba27067a"
+    },
+    {
+      "file": "controllers/academic/locationCtrl.js",
+      "sha256": "d231d43ef0aaa90468f1e542392f4163fea6b04f5e7241509caf627e9a1a4f6e"
+    },
+    {
+      "file": "controllers/academic/marksCtrl.js",
+      "sha256": "2169132cd73ebd99e57c19e1deed0665d710f80535ca1416c92a8825d02a148e"
+    },
+    {
+      "file": "controllers/academic/promotionCtrl.js",
+      "sha256": "979d337d215c6f1a9993459d2e68befbefb3c235530e87273889f8cb73e4eeb6"
+    },
+    {
+      "file": "controllers/academic/reportCardCtrl.js",
+      "sha256": "8fff234ee9f9a2331225a303d0666fbcf22ecb8d9a27d1d4ae2dd5e0351e328b"
+    },
+    {
+      "file": "controllers/academic/subjectAllocationCtrl.js",
+      "sha256": "66d43c9a4d1426c03827b7a958a380e70b72b8f887082aab10c8320d2b385e50"
+    },
+    {
+      "file": "controllers/academic/subjectCtrl.js",
+      "sha256": "4c0a80862522d70e5a22446b3a761f357f9751dc81010e1052b350b86b9d46bc"
+    },
+    {
+      "file": "controllers/academic/timetableCtrl.js",
+      "sha256": "a0ce6fdb26c3cd6bf0003efe8b652c59a0438318634d85ae22ff390526c39cec"
+    },
+    {
+      "file": "controllers/staff/adminCtrl.js",
+      "sha256": "80640d57999f528f66f7a66dadcabefaad3eac7d97e2b4e25e9d55186d3d6ae0"
+    },
+    {
+      "file": "controllers/staff/auxiliaryCtrl.js",
+      "sha256": "c886e67415140d94bf5e10673df4935e6946839f2bca8825afe095790b0b44d7"
+    },
+    {
+      "file": "controllers/staff/teacherCtrl.js",
+      "sha256": "ba2013b54dfa2d49e48ee86bb750d94bef7b2f799fac3f6ccb63ca7d770118ca"
+    },
+    {
+      "file": "controllers/students/studentCtrl.js",
+      "sha256": "0ee52abd38350936d9fee78bd265b1dff40f6319a9122be4692d35d251a1855f"
+    },
+    {
+      "file": "description/description.htm",
+      "sha256": "6b6a0ea685d9baadebd52576ad401108c28c937af4e1f9a4bd9716aaa9ae5867"
+    },
+    {
+      "file": "middlewares/globalErrHandler.js",
+      "sha256": "269f54f963f2ce691eeafab7edb8f32b7b40c12cde457e529e24588516feb175"
+    },
+    {
+      "file": "middlewares/isLogin.js",
+      "sha256": "93728656f7de13cf605fb12a3e4721b50fead8c004762498cd4e7b0177d26dee"
+    },
+    {
+      "file": "middlewares/isStudentLogin.js",
+      "sha256": "888ee53bf6a7c7abe62a97b086f8888e6be25ed83cf093bdbbc38facdf26363d"
+    },
+    {
+      "file": "middlewares/isTeacherLogin.js",
+      "sha256": "5a2b66e6facaa559aab8690feadb389ca2590fe4cc0a9e1a8f729d0e27bf4b3d"
+    },
+    {
+      "file": "model/Academic/academicYear.js",
+      "sha256": "7618711dae858bab23691be94453425a3ad74f276a6f738de2212057aed7b994"
+    },
+    {
+      "file": "model/Academic/class.js",
+      "sha256": "3c9a2fd076b936bf41fef40cc50ff39459dee1e5030ee4375436e695b956777a"
+    },
+    {
+      "file": "model/Academic/classSubject.js",
+      "sha256": "3cdca0228e03f8be858eacdaa4bc9e5b2e29117dc0fa2d5d287e3fdb0fb8756a"
+    },
+    {
+      "file": "model/Academic/classSubjectStudent.js",
+      "sha256": "a18820a4d9b58f0c95c524e45f1d6f9cc82696a4803ef4187c5d7e1f40bd2bee"
+    },
+    {
+      "file": "model/Academic/exam.js",
+      "sha256": "419aa5df6d0c45e461a3cbb407d5f19084a9dd8f4eee847a2d653bebfb185657"
+    },
+    {
+      "file": "model/Academic/examResult.js",
+      "sha256": "b65ef5e02eca6bc06a768c946c89281c78196a0b1d36a5856adb361a8ce1a88d"
+    },
+    {
+      "file": "model/Academic/location.js",
+      "sha256": "ab7959e267ae3a2ae742d663696c393e8170a2dd051cba302862edd853930ab3"
+    },
+    {
+      "file": "model/Academic/question.js",
+      "sha256": "da16ba2f16d0d77fecc4893d904536597133cd5526bd27a049dc21e5bd1f7bba"
+    },
+    {
+      "file": "model/Academic/student.js",
+      "sha256": "59109e91702a7a7e2771e871d6fbdebcfe15a95e2c628562cb5f435525c319e1"
+    },
+    {
+      "file": "model/Academic/subject.js",
+      "sha256": "1c8d884eccbd91487081f9d01b3316247bc62632dc7e80e5a607546eac995eab"
+    },
+    {
+      "file": "model/Academic/subjectAllocation.js",
+      "sha256": "66d561f4e8ad4abb4a819e28842c6483c71d1f3d2f1a2bc3c3f3fa67a3a613df"
+    },
+    {
+      "file": "model/Academic/subjectScore.js",
+      "sha256": "4ac26173148215a0b57dd6bd33fd7cbb9ea94fd868bd34dd8c3c7b41e8f549a2"
+    },
+    {
+      "file": "model/Academic/timeSlot.js",
+      "sha256": "1dd565f9f82bcb08d19f9bd0f75e3b99687b15e821197ccd9c8273e2b8fda075"
+    },
+    {
+      "file": "model/Academic/timetable.js",
+      "sha256": "58f362be3244bd409f7017486ad27b99cd4f42b972d1c483a1055115d025b539"
+    },
+    {
+      "file": "model/staff/admin.js",
+      "sha256": "8b3e8e36456867402db75276295893f0b710a618917acb2f885c6a5ffaf4d248"
+    },
+    {
+      "file": "model/staff/auxiliary.js",
+      "sha256": "ceec40a9820dc9c56999e98fe2edd16d8e33495f9ffff08df468bf46249f2ad4"
+    },
+    {
+      "file": "model/staff/teacher.js",
+      "sha256": "acf47374b5dcae7cc669fb8c46f7a57e444138d5eff9c58add8ad3247a0ccc05"
+    },
+    {
+      "file": "package-lock.json",
+      "sha256": "030f79727f22b543623eabf9ebba0ae76db95495734dda3940501631abf8d093"
+    },
+    {
+      "file": "package.json",
+      "sha256": "a6133cfdbd88bed312be13f4fc10b946110843caa89c27f21a760849c6a394ee"
+    },
+    {
+      "file": "public/css/style.css",
+      "sha256": "d2d3136d60f0d85822924364197b5aa4c087aedfb53cea9d9ae256bcd56cafff"
+    },
+    {
+      "file": "public/js/admin-layout.js",
+      "sha256": "9a9dc0a66625cb8932ac3a2fda03030e368ecabe0ca0b67e942b744799c14ab3"
+    },
+    {
+      "file": "public/js/allocations.js",
+      "sha256": "6cc2c300e78a18e3bca2ba74574517e4bf14063a3ddfe0ad7e9ed9337d435e0e"
+    },
+    {
+      "file": "public/js/app.js",
+      "sha256": "deead2aac69c98bc717afdcb141c29c20b33c54a24e110a7ab28c0c2565ab047"
+    },
+    {
+      "file": "public/js/auth.js",
+      "sha256": "af30a512b9a14209bac24d95e791f9d01d3490320b3bee01dec706c749bcedcd"
+    },
+    {
+      "file": "public/js/location-picker.js",
+      "sha256": "025d0ba17722520a44d092d47fc439a5fc72f9c2da5d67502b4217e2b3f20121"
+    },
+    {
+      "file": "public/js/nav.js",
+      "sha256": "ade8ec33fe55987fc2bc3641c9648d3b0ce81f59b7975485703c88ece40e0eaf"
+    },
+    {
+      "file": "public/js/promotion.js",
+      "sha256": "7720d5f37583b3c6ff354863d7f6238862a04deb871af29f150f6ab5cb0ecac7"
+    },
+    {
+      "file": "public/js/student-dashboard.js",
+      "sha256": "a6a0ca4a8e1479220d825345fae0c48499f9260efb2c002bbee70e423e31fb9f"
+    },
+    {
+      "file": "public/js/students.js",
+      "sha256": "dde6eb08265a3c4210fbcd68b06fc5cbb7f27070bbe8ba8210574c5877360c0c"
+    },
+    {
+      "file": "public/js/subjects.js",
+      "sha256": "6ac77e99af4e6fe1dadaa597c56af2c316fe68fe5ae8866569f20615e189d7eb"
+    },
+    {
+      "file": "public/js/teacher-dashboard.js",
+      "sha256": "767e5726ec53f29eca8e984500965c90c303bb7bf843ae2f1dda4db7b7e8eb09"
+    },
+    {
+      "file": "public/js/teachers.js",
+      "sha256": "8fe8936f72ab9c0161206197111d6dcccefb614901964b5e6a4f7ee573a04e30"
+    },
+    {
+      "file": "public/js/timetable.js",
+      "sha256": "2682940504d9657d1331e0d73b37425fd49e4ebe828c7ddf6abce5add833ac1d"
+    },
+    {
+      "file": "routes/academic/academicYearRouter.js",
+      "sha256": "183d4bf39e64df569c4af39f44d3ad0de7ea941c97d140b22c08696a3277ec5f"
+    },
+    {
+      "file": "routes/academic/classRouter.js",
+      "sha256": "c9e9896a847e6c18d2c2df9b692834a6f2d0e2654e3ab725d6c818bd2fd89acd"
+    },
+    {
+      "file": "routes/academic/classSubjectStudentRouter.js",
+      "sha256": "8d1ac2e0b81ada426f0aa7d24a1bb943169223e02df78322fca841bf7e9ad8f0"
+    },
+    {
+      "file": "routes/academic/examResultRouter.js",
+      "sha256": "e16c5b1c4f77602be19110305d3dfc79810af6cef3a23799d831a399726856bf"
+    },
+    {
+      "file": "routes/academic/examRouter.js",
+      "sha256": "6d11953728d6f45aab05cc93eba2f8488ed4fddcd767d33c5941b382d38731a7"
+    },
+    {
+      "file": "routes/academic/locationRouter.js",
+      "sha256": "4883445797b58c1e4a3481425373e74185147fbf6e18c3ea9de90bd08159e05c"
+    },
+    {
+      "file": "routes/academic/marksRouter.js",
+      "sha256": "0e4154fb7357980b885592e5433a1d33edf02b45ffa7f8f9073ec613a2eabad9"
+    },
+    {
+      "file": "routes/academic/reportCardRouter.js",
+      "sha256": "830cbfbf07e293dda87c2fe3cba7a7a2b1917e059267c2037b5df5b9337856f8"
+    },
+    {
+      "file": "routes/academic/subjectAllocationRouter.js",
+      "sha256": "f8850b286e0f37daf59f659b2878b71c978f567c5c26bbc380040af38962d5c0"
+    },
+    {
+      "file": "routes/academic/subjectRouter.js",
+      "sha256": "78c8d46301325924d9edaa731a449fe400635cb4f9b502a642c2cca27c8ddaf4"
+    },
+    {
+      "file": "routes/academic/timetableRouter.js",
+      "sha256": "bfd3180536a5f6c6c40aa6d3dbd9158fecbbadeed37a20ea8510edd2a6eab3f3"
+    },
+    {
+      "file": "routes/staff/adminRouter.js",
+      "sha256": "0b6d9c82ef351a08b3b10e668cfddc5f1094d1e9ea40af118a6c2121ba658f20"
+    },
+    {
+      "file": "routes/staff/auxiliaryRouter.js",
+      "sha256": "241d1b535cb4c43441fe33fcbce07dabb8f2771fd89ab00b61e1c393ac3680e4"
+    },
+    {
+      "file": "routes/staff/teacherRouter.js",
+      "sha256": "9a566f8982161e75cf0bae864c0e25bff3d8fd5450084331fdca1da7775097f5"
+    },
+    {
+      "file": "routes/students/studentRouter.js",
+      "sha256": "522219ca6ea68f5db1aa24596586050a67e7dae59867ae444aa9eb5a147f1f87"
+    },
+    {
+      "file": "routes/webRouter.js",
+      "sha256": "7305efc9e635db2808c62240c9dd13bfa02c9ef23460991a31e109c3f49315dc"
+    },
+    {
+      "file": "scripts/freePort.js",
+      "sha256": "ab1f82d25049b9fb9670ff7a5e31f8bd5db459428fc4a895256f6a19e5d620ac"
+    },
+    {
+      "file": "scripts/migrateStudents.js",
+      "sha256": "50e2b705e5dd3adaa9fd6a3ad67238e9439911711bb01d82a6418d87d2c727e7"
+    },
+    {
+      "file": "scripts/resetPasswords.js",
+      "sha256": "59fd1eb3b6bca4d338dbdf04032d434bd73ca75a4e0384aaf85ded9560738b41"
+    },
+    {
+      "file": "scripts/seedAdmin.js",
+      "sha256": "c856cb6641f4846f4ef894862ec7b3d619cd9e8227760c7f6065ee5007654d03"
+    },
+    {
+      "file": "scripts/seedDemo.js",
+      "sha256": "46e6d6f0224398b6221f4822d471d8cec5582c79b32bf58f951dcfe887446425"
+    },
+    {
+      "file": "scripts/seedStudents.js",
+      "sha256": "5ada5af30f14b418cdbd56844f98d873830ae46d43da02d47d319fe86f74fdb6"
+    },
+    {
+      "file": "scripts/setupAcademic.js",
+      "sha256": "a3666ad0a77992e6ac8ea03e24c2fcd81fceaad31df67d9a7d5a2ce658f2bc31"
+    },
+    {
+      "file": "server.js",
+      "sha256": "496de0295b49dcbd8532ae262f7d7fe94ef242638bcf1d963864f160f6e34f89"
+    },
+    {
+      "file": "utils/generateToken.js",
+      "sha256": "89dfd71ec8832d0317ed6e4465a9144de80655775a515d627690550e2061b9f0"
+    },
+    {
+      "file": "utils/verifyToken.js",
+      "sha256": "1cf45ec5e94dab4b7cea036b88884d3e2e74a60d82d9cdb2287fb768a4d83618"
+    },
+    {
+      "file": "views/admin-layout.ejs",
+      "sha256": "9c3313942d7e97dec39184f4b90c56521f5f7b9b189fc9ee44be70988ca5047b"
+    },
+    {
+      "file": "views/allocations.ejs",
+      "sha256": "ba9ebc3d42e486b7b389cb1366ae09c8c3a918787302439263da15bf937e0f41"
+    },
+    {
+      "file": "views/landing.ejs",
+      "sha256": "10ee303af81524603e391dbc8f76a6eebdc6c350348fbabd84949d1d19a8c70a"
+    },
+    {
+      "file": "views/login.ejs",
+      "sha256": "a25250ac380c247e531258f24988cda41010ce9becd83a15db0f3ac27b7b289c"
+    },
+    {
+      "file": "views/partials/footer.ejs",
+      "sha256": "cd08781028c8470f687320b3d5ed3b5c39833c041c48c7776816509f4b598462"
+    },
+    {
+      "file": "views/partials/header.ejs",
+      "sha256": "c9fbb79bf35497cd32102bf7d0a7ad53bf2f44156ea10130deeab31f8748849a"
+    },
+    {
+      "file": "views/promotion.ejs",
+      "sha256": "a2fd7837d69f566ecd80b0c8da4ddf8e8450cebfb1a38c82a33de9756357c7e1"
+    },
+    {
+      "file": "views/student-dashboard.ejs",
+      "sha256": "281d4cc0723845c37a23e58c0bb4c479229d2feebdb2350ec94c80408929cded"
+    },
+    {
+      "file": "views/students.ejs",
+      "sha256": "ef4113b1b4b6b52fcecf74c3f494ac0141bc9f31e5545fb3cf35ff4ffe25f8b5"
+    },
+    {
+      "file": "views/subjects.ejs",
+      "sha256": "e4a2e0e606cb10453036eac90f03cf1cd14b303e9f96670fdec5ae07be69acb0"
+    },
+    {
+      "file": "views/teacher-dashboard.ejs",
+      "sha256": "4877dcb273d552b553b01b1d42d8abb98ca26fd1c427bbd7b4136f0d2c359f30"
+    },
+    {
+      "file": "views/teachers.ejs",
+      "sha256": "c280176e69c920da33807b9fd1ae05c0f4c53eec53f549c4ea71f9247bf60322"
+    },
+    {
+      "file": "views/timetable-student.ejs",
+      "sha256": "d80b5c088e371b04d1b0e113ab60c9480efeac5ac83b71cc29be96c78bc804a7"
+    },
+    {
+      "file": "views/timetable-teacher.ejs",
+      "sha256": "d80b5c088e371b04d1b0e113ab60c9480efeac5ac83b71cc29be96c78bc804a7"
+    },
+    {
+      "file": "views/timetable.ejs",
+      "sha256": "29c1ee275efc49f064894880e4b53ef952d96fcacdd441adb54bbddd58c996ec"
+    }
+  ]
+}

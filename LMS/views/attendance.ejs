@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Class attendance register</title><link rel="stylesheet" href="/css/m1-preview.css">
+  <script defer src="/js/attendance.js"></script>
+<%- include('partials/workspace-assets') %></head>
+<body class="lms-ui lms-practice"><header><strong>Attendance practice school</strong><span>Synthetic records</span></header>
+<main><%- include('partials/workspace-wayfinding',{workspaceMode:'Practice',workspaceHome:'https://localhost:2030/'}) %><h1>Class attendance register</h1>
+  <button id="enter" type="button">Open sample register</button>
+  <p id="notice" role="status" aria-live="polite"></p>
+  <section id="workspace" hidden>
+    <label>Class and date<select id="register"></select></label>
+    <p id="periods"></p>
+    <details>
+      <summary>Attendance totals for this class</summary>
+      <form id="totals-form" class="form-grid">
+        <label>From<input id="from" type="date" required></label>
+        <label>To<input id="to" type="date" required></label>
+        <button>Show totals</button>
+      </form>
+      <p>Totals cover saved registers in the selected class and academic year. Unrecorded periods remain visible separately.</p>
+      <div id="totals" class="table-wrap"></div>
+    </details>
+    <div id="pupils"></div>
+  </section>
+</main></body></html>

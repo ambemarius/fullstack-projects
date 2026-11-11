@@ -12,6 +12,8 @@ const httpError = (status, message) => {
 //@route  GET /api/v1/classes
 //@access Private (admin)
 exports.getAllClassesCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'classes');return res.status(200).json({status:'success',results:data.length,data});}
+
     const classes = await ClassModel.getAll();
     res.status(200).json({ status: 'success', results: classes.length, data: classes });
 });
@@ -20,6 +22,8 @@ exports.getAllClassesCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/classes/:id
 //@access Private (admin)
 exports.singleClassCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'classes', req.params.id);return res.status(200).json({status:'success',data});}
+
     const klass = await ClassModel.findById(req.params.id);
     if (!klass) throw httpError(404, 'Class not found');
     res.status(200).json({ status: 'success', data: klass });
@@ -29,6 +33,8 @@ exports.singleClassCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/classes/:id/subjects?term=First
 //@access Private (admin)
 exports.classSubjectsCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'classSubjects', undefined, req.params.id);return res.status(200).json({status:'success',results:data.length,data});}
+
     const rows = await ClassSubject.getClassSubjects(req.params.id, req.query.term || null);
     res.status(200).json({ status: 'success', results: rows.length, data: rows });
 });
@@ -47,6 +53,8 @@ exports.updateClassCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/classes/with-fees
 //@access Private (admin)
 exports.getClassesWithFeesCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'classes');return res.status(200).json({status:'success',results:data.length,data});}
+
     const classes = await ClassModel.getAll();
     res.status(200).json({ status: 'success', results: classes.length, data: classes });
 });

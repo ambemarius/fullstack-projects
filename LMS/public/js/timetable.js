@@ -217,7 +217,7 @@
         return;
       }
       // Get unique class IDs and load slot info
-      const slotRes = await api('/timetables/form-data');
+      const slotRes = await api('/academic-context');
       const slots = (slotRes && slotRes.data && slotRes.data.data && slotRes.data.data.slots) || [];
       const entriesBySlotDay = {};
       for (const e of res.data.data) {
@@ -243,7 +243,7 @@
         container.innerHTML = '<p class="muted">No timetable entries found for you this term.</p>';
         return;
       }
-      const slotRes = await api('/timetables/form-data');
+      const slotRes = await api('/academic-context');
       const slots = (slotRes && slotRes.data && slotRes.data.data && slotRes.data.data.slots) || [];
       const entriesBySlotDay = {};
       for (const e of res.data.data) {

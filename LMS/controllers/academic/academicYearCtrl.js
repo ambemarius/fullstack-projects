@@ -1,5 +1,4 @@
 const asyncHandler = require('express-async-handler');
-const { sql, pool } = require('../../config/database');
 const AcademicYear = require('../../model/Academic/academicYear');
 
 const httpError = (status, message) => {
@@ -29,6 +28,8 @@ exports.createAcademicYearCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/academic-years
 //@access Private (admin)
 exports.getAllAcademicYearsCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'years');return res.status(200).json({status:'success',results:data.length,data});}
+
     const years = await AcademicYear.getAll();
     res.status(200).json({ status: 'success', results: years.length, data: years });
 });
@@ -37,6 +38,8 @@ exports.getAllAcademicYearsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/academic-years/:id
 //@access Private (admin)
 exports.singleAcademicYearCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'years', req.params.id);return res.status(200).json({status:'success',data});}
+
     const year = await AcademicYear.findById(req.params.id);
     if (!year) throw httpError(404, 'Academic year not found');
     res.status(200).json({ status: 'success', data: year });
@@ -52,21 +55,5 @@ exports.setCurrentAcademicYearCtrl = asyncHandler(async (req, res) => {
     res.status(200).json({ status: 'success', message: 'Academic year set as current' });
 });
 
-exports.deleteAcademicYearCtrl = asyncHandler(async (req, res) => {
-    const year = await AcademicYear.findById(req.params.id);
-    if (!year) throw httpError(404, 'Academic year not found');
-
-    const enrolledCount = await pool.request()
-        .input('yearId', sql.Int, req.params.id)
-        .query('SELECT COUNT(*) AS cnt FROM academic_year_students WHERE academic_year_id = @yearId');
-
-    if (enrolledCount.recordset[0].cnt > 0) {
-        throw httpError(409, 'Cannot delete academic year with enrolled students');
-    }
-
-    await pool.request()
-        .input('id', sql.Int, req.params.id)
-        .query('DELETE FROM academic_years WHERE id = @id');
-
-    res.status(200).json({ status: 'success', message: 'Academic year deleted' });
-});
+exports.deleteAcademicYearCtrl = (_req, res) =>
+    res.status(405).set('Allow','GET, HEAD').json({ status:'failed', message:'Academic years are retained for historical records.' });

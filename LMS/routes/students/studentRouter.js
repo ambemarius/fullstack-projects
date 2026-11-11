@@ -17,9 +17,10 @@ const {
 
 const isLogin = require('../../middlewares/isLogin');               // admin auth
 const isStudentLogin = require('../../middlewares/isStudentLogin'); // student auth
+const { uploadSingle } = require('../../middlewares/upload');
 
-// admin registers a student
-studentRouter.post('/register', isLogin, registerStudentCtrl);
+// admin registers a student (with optional photo upload)
+studentRouter.post('/register', isLogin, ...uploadSingle('photo', { category: 'image', subDir: 'photos' }), registerStudentCtrl);
 
 // student login (public)
 studentRouter.post('/login', loginStudentCtrl);
@@ -37,7 +38,7 @@ studentRouter.post('/promote/:classId', isLogin, promoteClassCtrl);
 
 // admin gets / updates / deletes a single student
 studentRouter.get('/:id', isLogin, singleStudentCtrl);
-studentRouter.put('/:id', isLogin, adminUpdateStudentCtrl);
+studentRouter.put('/:id', isLogin, ...uploadSingle('photo', { category: 'image', subDir: 'photos' }), adminUpdateStudentCtrl);
 studentRouter.delete('/:id', isLogin, deleteStudentCtrl);
 
 module.exports = studentRouter;

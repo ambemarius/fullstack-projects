@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · LMS</title>
+  <%- include('partials/workspace-assets') %>
+</head>
+<body class="lms-ui lms-error-page">
+  <header><a class="brand" href="/">LMS <span>School management</span></a></header>
+  <main>
+    <section class="panel lms-error-panel" aria-labelledby="error-title">
+      <span class="lms-error-icon" aria-hidden="true"><%- include('partials/hub-icon', {icon:'shield'}) %></span>
+      <p class="eyebrow">Page unavailable · <%= statusCode %></p>
+      <h1 id="error-title"><%= title %></h1>
+      <p><%= description %></p>
+      <a class="btn lms-error-return" href="/">Return to workspace</a>
+      <% if (requestId) { %><p class="lms-error-reference">Support reference<br><code><%= requestId %></code></p><% } %>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+        <!-- ===== TEACHER SUB-TAB ===== -->
+        <div class="reg-subpanel" id="sub-teacher">
+          <div class="reg-header-bar" id="teacherHeaderBar">Register New Teacher</div>
+          <form id="teacherForm" class="teacher-split-form">
+            <input type="hidden" id="teacherEditId" value="" />
+
+            <div class="reg-form-split">
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Personal &amp; Contact Details</div>
+                <div class="reg-row-3">
+                  <label>First Name <input id="tFirstName" required /></label>
+                  <label>Middle Name <input id="tMiddleName" /></label>
+                  <label>Last Name <input id="tLastName" required /></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Email <input id="tEmail" type="email" required /></label>
+                  <label>Phone Number <input id="tPhone" type="tel" /></label>
+                  <label>Gender
+                    <select id="tGender">
+                      <option value="">-- select --</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Civil Status
+                    <select id="tCivilStatus">
+                      <option value="">-- select --</option>
+                      <option>Single</option>
+                      <option>Married</option>
+                      <option>Divorced</option>
+                      <option>Widowed</option>
+                    </select>
+                  </label>
+                  <label>Number of Children <input id="tNoOfChildren" type="number" min="0" value="0" /></label>
+                  <label>Address <input id="tAddress" /></label>
+                </div>
+              </div>
+
+              <div>
+                <div class="reg-section-divider" style="margin-top:0">Employment &amp; Identity Details</div>
+                <div class="reg-row-3">
+                  <label>Section
+                    <select id="tSection" required>
+                      <option value="">-- select --</option>
+                      <option>Anglophone</option>
+                      <option>Francophone</option>
+                    </select>
+                  </label>
+                  <label>Employment Type
+                    <select id="tEmpType" required>
+                      <option value="">-- select --</option>
+                      <option>Government</option>
+                      <option>Part-time</option>
+                    </select>
+                  </label>
+                  <label>Status
+                    <select id="tStatus" required>
+                      <option value="active">Active</option>
+                      <option value="suspended">Suspended</option>
+                      <option value="withdrawn">Withdrawn</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="reg-row-3">
+                  <label>ID Card Number <input id="tIdCard" /></label>
+                  <label>Date of Issue <input id="tDateOfIssue" type="date" /></label>
+                  <label>Matricule <input id="tMatriculeFile" placeholder="e.g. 100007f" /></label>
+                </div>
+                <div class="reg-row-2">
+                  <label>Password <input id="tPassword" type="password" required /></label>
+                  <label>Telephone (Alternate) <input id="tTelephone" type="tel" /></label>
+                </div>
+              </div>
+            </div>
+
+            <div class="reg-section-divider">Emergency / Secondary Contact</div>
+            <div class="reg-row-2">
+              <label>Secondary Contact Name <input id="tSecContactName" /></label>
+              <label>Secondary Contact Phone <input id="tSecContactPhone" type="tel" maxlength="10" /></label>
+            </div>
+
+            <div class="teacher-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="teacherSubmitBtn">Create Teacher</button>
+            </div>
+            <p id="teacherFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar for Teacher -->
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label" for="teacherSearch">Search Teacher:</label>
+              <input type="text" id="teacherSearch" placeholder="Search by name or email..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="teacherResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="teacherEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="teacherSaveBtn" class="reg-btn reg-btn-green">Save</button>
+              <button type="button" id="teacherDeleteBtn" class="reg-btn reg-btn-red">Delete</button>
+            </div>
+          </div>
+
+          <!-- Teacher table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Section</th>
+                    <th>Employment</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherTableBody">
+                  <tr><td colspan="7" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Teachers:</span>
+              <span id="teacherCount">0</span>
+            </div>
+          </div>
+        </div>
+

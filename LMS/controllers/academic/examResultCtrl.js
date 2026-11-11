@@ -13,6 +13,6 @@ exports.getMyResultsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/exam-results/exam/:examId
 //@access Private (admin)
 exports.getExamResultsCtrl = asyncHandler(async (req, res) => {
-    const results = await ExamResult.getByExam(req.params.examId);
+    const results = req.app.locals.legacyScopedExamResultsEnabled ? await require('./scopedLegacyExamResults').handle(req,req.params.examId) : await ExamResult.getByExam(req.params.examId);
     res.status(200).json({ status: 'success', results: results.length, data: results });
 });

@@ -1,0 +1,8 @@
+<a class="hub-brand" href="<%= hub.practice?'/':'/school' %>"><span class="hub-brand-mark"><%- include('hub-icon',{icon:'school'}) %></span><span>LMS<small>School management</small></span></a>
+<nav aria-label="<%= mobile?'Mobile school navigation':'School navigation' %>">
+ <p class="hub-nav-label">Workspace</p><a class="hub-nav-link is-current" href="#overview" aria-current="page"><%- include('hub-icon',{icon:'grid'}) %>Overview</a>
+ <% if(hub.modules.length){ %><p class="hub-nav-label">Practice modules</p><% for(const module of hub.modules){ %><a class="hub-nav-link" href="#<%= module.id %>"><%- include('hub-icon',{icon:module.icon}) %><%= module.title %></a><% } } %>
+ <% if(hub.history){ %><a class="hub-nav-link" href="#academic-history"><%- include('hub-icon',{icon:'book'}) %>Academic history</a><% } %>
+ <p class="hub-nav-label">School records</p><% for(const group of hub.groups){ %><a class="hub-nav-link" href="#records-<%= group.icon %>"><%- include('hub-icon',{icon:group.icon}) %><%= group.title %></a><% } %>
+ <% if(hub.practice){ %><a class="hub-nav-link" href="https://localhost:2027/school"><%- include('hub-icon',{icon:'shield'}) %>School sign-in</a><% } %>
+</nav><div class="hub-sidebar-note"><strong><%= hub.practice?'Practice environment':'School workspace' %></strong><p><%= hub.practice?'Explore with fictional records.':'Navigation follows your school account.' %></p></div>

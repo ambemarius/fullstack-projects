@@ -8,6 +8,7 @@ const ExamResult = require('../../model/Academic/examResult');
 const generateToken = require('../../utils/generateToken');
 const verifyToken = require('../../utils/verifyToken')
 const {isLegacyAdministrator}=require('../../utils/legacyAccountRole');
+const { sql, pool, poolConnect } = require('../../config/database');
 const { setAuthCookie } = require('../../utils/authCookie');
 
 // build an Error carrying an HTTP status (read by the global error handler)
@@ -182,5 +183,73 @@ exports.getAdminStatsCtrl = asyncHandler(async (req, res) => {
             subjects: subjects.length,
             classes: classes.length,
         }
+    });
+});
+
+//@desc   Admin dashboard analytics (enrollment breakdown, teacher distribution, fee summary)
+//@route  GET /api/v1/admin/analytics
+exports.getAdminAnalyticsCtrl = asyncHandler(async (req, res) => {
+    await poolConnect;
+
+    const [enrollmentResult, teacherResult, feeResult] = await Promise.all([
+        pool.request().query(`
+            SELECT c.section, COUNT(s.id) AS count
+            FROM students s
+            JOIN classes c ON c.id = s.currentClassLevel
+            WHERE s.isWithdrawn = 0
+            GROUP BY c.section
+        `),
+        pool.request().query(`
+            SELECT section, employmentType, status, COUNT(*) AS count
+            FROM teachers
+            GROUP BY section, employmentType, status
+        `),
+        pool.request().query(`
+            SELECT c.section, c.name AS className,
+                   SUM(CASE WHEN sf.fee_type = 'registration' THEN sf.amount ELSE 0 END) AS registration,
+                   SUM(CASE WHEN sf.fee_type = 'tuition' THEN sf.amount ELSE 0 END) AS tuition,
+                   SUM(sf.amount) AS total
+            FROM student_fees sf
+            JOIN students s ON s.id = sf.student_id
+            JOIN classes c ON c.id = s.currentClassLevel
+            WHERE sf.paid = 1
+            GROUP BY c.section, c.name
+        `),
+    ]);
+
+    const enrollmentBySection = {};
+    for (const r of enrollmentResult.recordset) {
+        enrollmentBySection[r.section] = r.count;
+    }
+
+    const teacherBreakdown = teacherResult.recordset;
+
+    const activeTeachers = teacherBreakdown
+        .filter(t => t.status === 'active')
+        .reduce((sum, t) => sum + t.count, 0);
+    const suspendedTeachers = teacherBreakdown
+        .filter(t => t.status === 'suspended')
+        .reduce((sum, t) => sum + t.count, 0);
+
+    const feesByClass = feeResult.recordset;
+    const totalFeesCollected = feesByClass.reduce((sum, r) => sum + (r.total || 0), 0);
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            enrollment: {
+                bySection: enrollmentBySection,
+                total: Object.values(enrollmentBySection).reduce((a, b) => a + b, 0),
+            },
+            teachers: {
+                active: activeTeachers,
+                suspended: suspendedTeachers,
+                bySection: teacherBreakdown,
+            },
+            fees: {
+                byClass: feesByClass,
+                totalCollected: totalFeesCollected,
+            },
+        },
     });
 });

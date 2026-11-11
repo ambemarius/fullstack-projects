@@ -16,9 +16,10 @@ const {
 
 const isLogin = require('../../middlewares/isLogin');               // admin auth
 const isTeacherLogin = require('../../middlewares/isTeacherLogin'); // teacher auth
+const { uploadSingle } = require('../../middlewares/upload');
 
-// admin registers a teacher
-teacherRouter.post('/register', isLogin, registerTeacherCtrl);
+// admin registers a teacher (with optional matricule file upload)
+teacherRouter.post('/register', isLogin, ...uploadSingle('matriculeFile', { category: 'document', subDir: 'matricules' }), registerTeacherCtrl);
 
 // teacher login (public)
 teacherRouter.post('/login', loginTeacherCtrl);
@@ -37,7 +38,7 @@ teacherRouter.post('/:id/assign', isLogin, assignTeacherCtrl);
 
 // admin gets / updates a single teacher
 teacherRouter.get('/:id', isLogin, singleTeacherCtrl);
-teacherRouter.put('/:id', isLogin, adminUpdateTeacherCtrl);
+teacherRouter.put('/:id', isLogin, ...uploadSingle('matriculeFile', { category: 'document', subDir: 'matricules' }), adminUpdateTeacherCtrl);
 teacherRouter.delete('/:id', isLogin, deleteTeacherCtrl);
 
 module.exports = teacherRouter;

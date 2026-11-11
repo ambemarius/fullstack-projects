@@ -1,0 +1,92 @@
+<%- include('partials/header', { title: 'Parent Dashboard' }) %>
+
+<div class="card">
+  <div class="page-head">
+    <h1>Parent / Guardian Dashboard</h1>
+    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+  </div>
+  <p id="welcome" class="welcome">Loading&hellip;</p>
+</div>
+
+<div class="card" id="childrenCard" style="display:none">
+  <h2>My Children</h2>
+  <div id="childrenList"></div>
+</div>
+
+<div class="card" id="reportCard" style="display:none">
+  <h2 id="reportTitle">Report Card</h2>
+  <table class="table" id="reportTable">
+    <thead>
+      <tr><th>Subject</th><th>Code</th><th>Term</th><th>Seq</th><th>Score</th><th>Max</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+(function () {
+  const token = localStorage.getItem('token');
+  if (!token) return (location.href = '/login');
+
+  const headers = { Authorization: 'Bearer ' + token, Accept: 'application/json' };
+
+  fetch('/api/v1/parents/profile', { headers })
+    .then(r => { if (!r.ok) throw r; return r.json(); })
+    .then(d => {
+      document.getElementById('welcome').textContent =
+        'Welcome, ' + d.data.firstName + ' ' + d.data.lastName;
+      loadChildren();
+    })
+    .catch(() => { location.href = '/login'; });
+
+  function loadChildren() {
+    fetch('/api/v1/parents/children', { headers })
+      .then(r => r.json())
+      .then(d => {
+        const list = document.getElementById('childrenList');
+        const card = document.getElementById('childrenCard');
+        if (!d.data || d.data.length === 0) {
+          list.innerHTML = '<p>No children linked to your account yet.</p>';
+          card.style.display = '';
+          return;
+        }
+        list.innerHTML = d.data.map(c =>
+          '<div class="child-row" style="padding:.5rem 0;border-bottom:1px solid var(--border,#ddd)">' +
+          '<strong>' + esc(c.firstName + ' ' + c.lastName) + '</strong> &mdash; ' +
+          esc(c.className || 'N/A') + ' (' + esc(c.section || '') + ') ' +
+          '<button class="btn btn-sm" onclick="viewReport(' + c.id + ',\'' + esc(c.firstName) + ' ' + esc(c.lastName) + '\')">View Report</button>' +
+          '</div>'
+        ).join('');
+        card.style.display = '';
+      });
+  }
+
+  window.viewReport = function (studentId, name) {
+    document.getElementById('reportTitle').textContent = 'Report Card — ' + name;
+    fetch('/api/v1/parents/children/' + studentId + '/report', { headers })
+      .then(r => r.json())
+      .then(d => {
+        const tbody = document.querySelector('#reportTable tbody');
+        if (!d.data || d.data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6">No scores published yet.</td></tr>';
+        } else {
+          tbody.innerHTML = d.data.map(r =>
+            '<tr><td>' + esc(r.subjectName) + '</td><td>' + esc(r.subjectCode || '') +
+            '</td><td>' + r.term + '</td><td>' + r.sequence +
+            '</td><td>' + r.score + '</td><td>' + r.max_score + '</td></tr>'
+          ).join('');
+        }
+        document.getElementById('reportCard').style.display = '';
+      });
+  };
+
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('token');
+    location.href = '/login';
+  });
+
+  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+})();
+</script>
+<%- include('partials/footer') %>

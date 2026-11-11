@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+config/.env
+config/.env.*
+!config/.env.example
+!config/.env.test.local.example
+coverage/
+*.log
+backups/
+test-results/private/

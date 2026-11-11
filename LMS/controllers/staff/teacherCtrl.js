@@ -4,6 +4,7 @@ const Student = require('../../model/Academic/student');
 const ClassSubject = require('../../model/Academic/classSubject');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
+const { getPublicUrl } = require('../../middlewares/upload');
 
 const httpError = (status, message) => {
     const err = new Error(message);
@@ -15,11 +16,12 @@ const httpError = (status, message) => {
 //@route  POST /api/v1/teachers/register
 //@access Private (admin)
 exports.registerTeacherCtrl = asyncHandler(async (req, res) => {
-    const { 
-        firstName, lastName, email, password, phone, secondaryContactName, secondaryContactPhone, 
+    const {
+        firstName, lastName, email, password, phone, secondaryContactName, secondaryContactPhone,
         employmentType, section, status, middleName,
-        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile 
+        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone
     } = req.body || {};
+    const matriculeFile = req.file ? getPublicUrl(req.file.path) : (req.body || {}).matriculeFile || null;
     if (!firstName || !lastName || !email || !password || !employmentType || !section) {
         throw httpError(400, 'firstName, lastName, email, password, employmentType and section are required');
     }
@@ -29,10 +31,10 @@ exports.registerTeacherCtrl = asyncHandler(async (req, res) => {
     const exists = await Teacher.findByEmail(email);
     if (exists) throw httpError(409, 'Teacher with this email already exists');
 
-    const teacher = await Teacher.create({ 
-        firstName, middleName, lastName, email, password, phone, secondaryContactName, secondaryContactPhone, 
+    const teacher = await Teacher.create({
+        firstName, middleName, lastName, email, password, phone, secondaryContactName, secondaryContactPhone,
         employmentType, section, status,
-        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile 
+        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile
     });
     res.status(201).json({ status: 'success', data: teacher });
 });
@@ -132,16 +134,19 @@ exports.singleTeacherCtrl = asyncHandler(async (req, res) => {
 exports.adminUpdateTeacherCtrl = asyncHandler(async (req, res) => {
     const teacher = await Teacher.findById(req.params.id);
     if (!teacher) throw httpError(404, 'Teacher not found');
-    const { 
-        firstName, middleName, lastName, phone, secondaryContactName, secondaryContactPhone, 
+    const {
+        firstName, middleName, lastName, phone, secondaryContactName, secondaryContactPhone,
         employmentType, section, status,
-        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile 
+        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone
     } = req.body || {};
-    const updated = await Teacher.update(req.params.id, { 
-        firstName, middleName, lastName, phone, secondaryContactName, secondaryContactPhone, 
+    const matriculeFile = req.file ? getPublicUrl(req.file.path) : undefined;
+    const updates = {
+        firstName, middleName, lastName, phone, secondaryContactName, secondaryContactPhone,
         employmentType, section, status,
-        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile 
-    });
+        address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone,
+    };
+    if (matriculeFile) updates.matriculeFile = matriculeFile;
+    const updated = await Teacher.update(req.params.id, updates);
     res.status(200).json({ status: 'success', data: updated });
 });
 

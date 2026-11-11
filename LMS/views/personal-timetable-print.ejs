@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My timetable · <%= term %> term</title>
+  <link rel="stylesheet" href="/css/timetable-print.css">
+  <script src="/js/timetable-print.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>My timetable</h1>
+    <p><% if (lessons.length) { %><%= lessons[0].yearName %> · <% } %><%= term %> term</p>
+    <% if (lessons.length) { %>
+      <button id="print" type="button">Print timetable</button>
+      <table>
+        <thead><tr><% for (const label of ['Day','Time','Class','Subject','Teacher','Room']) { %><th scope="col"><%= label %></th><% } %></tr></thead>
+        <tbody>
+          <% for (const lesson of lessons) { %>
+            <tr>
+              <td><%= lesson.day %></td><td><%= lesson.startTime %>–<%= lesson.endTime %></td>
+              <td><%= [lesson.className,lesson.stream].filter(Boolean).join(' · ') %></td>
+              <td><%= lesson.subjectName %></td><td><%= lesson.teacherName %></td><td><%= lesson.room || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    <% } else { %><p>No confirmed lessons for this term.</p><% } %>
+  </main>
+</body>
+</html>

@@ -5,7 +5,7 @@
   <button id="logoutBtn" class="btn btn-secondary">Logout</button>
 </div>
 
-<div class="grid">
+<div class="grid lms-records-layout">
   <div class="card">
     <h3 id="formTitle">Add student</h3>
     <form id="studentForm">
@@ -30,7 +30,7 @@
           </select>
         </label>
         <label>Date of birth <input id="dateOfBirth" type="date" /></label>
-        <label>Year of enrollment <input id="yearOfEnrollment" type="number" placeholder="e.g. 2025" /></label>
+        <label>Year of enrolment <input id="yearOfEnrollment" type="number" placeholder="e.g. 2025" /></label>
         <label>Class
           <select id="currentClassLevel"><option value="">-- select class --</option></select>
         </label>
@@ -53,7 +53,8 @@
   <div class="card">
     <h3>All students</h3>
     <div style="margin-bottom:12px">
-      <input type="text" id="searchInput" placeholder="Search by name or matricule..." style="width:100%;max-width:300px;padding:8px" />
+      <label for="searchInput">Search pupils</label>
+      <input type="text" id="searchInput" placeholder="Search by name or matricule…" style="width:100%;max-width:300px;padding:8px" />
     </div>
     <div style="overflow-x:auto">
       <table>

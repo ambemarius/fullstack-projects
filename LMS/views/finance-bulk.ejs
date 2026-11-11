@@ -1,0 +1,8 @@
+<%- include('partials/finance-shell',{pageTitle:'Batch charges',active:'charges'}) %>
+<h1><%= confirmed?'Batch charges saved':'Review batch charges' %></h1>
+<p><%= confirmed?result.year:result.year.name %> · <%= result.description %></p><p><strong>Total: <%= formatMoney(result.total) %></strong></p>
+<% if(confirmed){ %><p class="notice" role="status">All <%= result.charges.length %> charges were saved. No payments were recorded.</p><ul><% result.charges.forEach(c=>{ %><li><a href="/workspace/<%= area %>?charge=<%= c.id %>"><%= c.pupil %> · <%= c.matricule %></a></li><% }) %></ul>
+<% }else{ %><p>No charges have been saved yet. Confirm within 15 minutes in this session. Preparing another batch replaces this review.</p><p><%= result.pupils.length %> pupils · <%= formatMoney(result.amount) %> each · Due: <%= result.due||'Not set' %></p>
+<div class="table-wrap"><table><thead><tr><th>Pupil</th><th>Matricule</th><th>Charge</th></tr></thead><tbody><% result.pupils.forEach(p=>{ %><tr><td><%= p.firstName %> <%= p.lastName %></td><td><%= p.matricule %></td><td><%= formatMoney(result.amount) %></td></tr><% }) %></tbody></table></div>
+<form method="post" action="/workspace/<%= area %>/bulk/confirm"><input type="hidden" name="csrf" value="<%= csrf %>"><input type="hidden" name="review" value="<%= result.token %>"><button>Confirm and save all charges</button> <a href="/workspace/<%= area %>">Return without saving</a></form><% } %>
+<%- include('partials/finance-end') %>

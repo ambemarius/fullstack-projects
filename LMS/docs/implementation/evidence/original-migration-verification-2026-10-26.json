@@ -1,0 +1,13 @@
+{
+  "target": "schooldb",
+  "passed": true,
+  "verifiedAt": "2026-10-26T18:41:29.322Z",
+  "sourceCountsPreserved": true,
+  "migrationChecksums": true,
+  "canonicalSession": true,
+  "inactiveSessionDenied": true,
+  "revocation": true,
+  "crossSchoolConstraintDenied": true,
+  "integrity": true,
+  "testChangesRolledBack": true
+}

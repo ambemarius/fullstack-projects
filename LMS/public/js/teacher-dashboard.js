@@ -106,9 +106,9 @@ document.getElementById('msLoadBtn').addEventListener('click', async () => {
     return;
   }
 
-  const yrRes = await api('/academic-years');
+  const yrRes = await api('/academic-context');
   if (!yrRes.ok) { msg.textContent = 'Failed to load academic years'; msg.className = 'msg error'; return; }
-  const curYear = yrRes.data.data.find(y => y.isCurrent);
+  const curYear = yrRes.data.data.currentYear;
   if (!curYear) { msg.textContent = 'No current academic year set'; msg.className = 'msg error'; return; }
   marksCurYearId = curYear.id;
   marksCurTerm = term;

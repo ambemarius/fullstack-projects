@@ -4,11 +4,13 @@
   "description": "School Management System for Secondary school",
   "main": "server.js",
   "scripts": {
-    "prestart": "node scripts/freePort.js",
     "start": "node server.js",
-    "preserver": "node scripts/freePort.js",
     "server": "nodemon server.js",
-    "freeport": "node scripts/freePort.js",
+    "test": "node --require ./tests/setup.cjs --test --test-concurrency=1 tests/*.test.js",
+    "test:sql": "node --require ./tests/setup.cjs --test --test-concurrency=1 tests/sql/*.test.js",
+    "test:finance": "node --require ./tests/setup.cjs --test --test-concurrency=1 tests/sql/finance-workflows.test.js tests/sql/finance-batch.test.js tests/sql/inventory-workflows.test.js",
+    "check:practice": "node scripts/checkSchoolPractice.js",
+    "check:ui": "node scripts/checkUiRoutes.js",
     "setup": "node scripts/setupAcademic.js",
     "seed": "node scripts/seedAdmin.js",
     "seed:demo": "node scripts/seedDemo.js",
@@ -23,7 +25,6 @@
   "type": "commonjs",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
@@ -31,6 +32,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.11.0",
     "mssql": "^12.5.5",
+    "multer": "^2.5.0",
     "nodemon": "^3.1.14"
   }
 }

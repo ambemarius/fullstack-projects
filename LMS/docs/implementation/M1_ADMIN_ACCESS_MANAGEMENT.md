@@ -1,0 +1,22 @@
+# Administrator access review and removal
+
+27 October 2026. Active in the platform-operator section of https://localhost:2027/invitations. This increment completes the removal side of the existing-local-teacher administrator invitation workflow. It does not provision new staff profiles, auxiliary permissions or cross-school accounts, and does not close M1.
+
+The operator can review **current verified active local administrators** with names, business emails, profile types and whether an additional role is removable. This is not an inventory of disabled, unverified or legacy-only identities. School administration alone does not grant directory or removal authority; the platform_operator permission is rechecked inside the serializable transaction. The real mount remains restricted to LYCEE_BATOURI.
+
+Removal is deliberately limited to a verified active teacher with both teacher and administrator roles, a recorded accepted existing-account administrator invitation, no active platform grant, and a different actor account. Another verified active original administrator must remain in that school. Original administrator profiles, platform operators, self-removal, missing invitation provenance, stale review versions and unresolved source/credential/status drift require separate review. No job title or submitted role name can confer authority.
+
+The browser shows a confirmation identifying the selected staff member and submits only schoolId, accountId and the reviewed security version. The transaction takes the same per-account reauthentication lock used by public invitation acceptance, then the same school/account membership lock. It removes only that school's additional administrator role, increments the recipient's account security version, revokes all recipient sessions, invalidates outstanding matching local administrator invitation tokens and writes an audit event atomically. Teacher membership, other-school roles, original profiles, passwords and platform grants remain unchanged. Other-school sessions also end because the account version changes; the confirmation explicitly says all devices must sign in again.
+
+The audit event records the operator account as actor and the target membership as resource. It does not mislabel the target membership as the operator's actor membership. The first SQL run caught that invalid actor-membership reference; it was corrected before deployment. An injected audit failure now rolls back the role deletion, version increment and session invalidation. Concurrent removal attempts produce one commit and one stale-review rejection. A teacher can receive administrator access again only through a fresh authorised invitation and acceptance.
+
+## Verification and activation
+
+- `npm.cmd test`: **94 passed**; frontend tests cover confirmation cancellation, exact reviewed payload, protected rows, refreshed directory, success and cache clearing after denial. Unit tests reject injected fields and non-operator callers before SQL.
+- `npm.cmd run test:sql`: **16 passed**, no failures/skips/TODO. Extended synthetic invitation tests cover operator-only/school boundaries, protected original administrator, self/stale rejection, forced-audit rollback, concurrent removal, session invalidation, preserved credentials/teacher role and preserved other-school administrator role.
+- A retry initially ran without the required network permission and hit SQL socket errors; the properly elevated full suite passed. No production test identities, invitations, removals or password changes were used.
+- Read-only exact original-school readiness passed. Restarted only the verified owned canonical process, launchPID30032. Original19352 and shared legacy locks were unchanged. The immediate HTTPS probe ran before startup completed; its subsequent pinned-certificate check passed, including anonymous administrator directory/removal403, existing course/API protections and original409 locks.
+
+No schema migration or runtime policy change was required. Human browser/owner acceptance remains pending the existing certificate handoff; this increment does not bypass it. If rollback is necessary, remove the UI/API mount together while retaining shared personnel/academic/course write locks. Do not reopen old privileged writers.
+
+Remaining M1 work includes native administrator and auxiliary account provisioning, explicit multi-school staff-profile integration, remaining domain boundaries and browser/owner acceptance. M2 remains queued.

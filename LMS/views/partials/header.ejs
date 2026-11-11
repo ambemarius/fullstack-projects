@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= typeof title !== 'undefined' ? title : 'LMS' %></title>
   <link rel="stylesheet" href="/css/style.css" />
-</head>
-<body>
+<%- include('workspace-assets') %></head>
+<body class="lms-ui">
   <header class="topbar">
     <a class="brand" href="/">LMS</a>
     <nav class="nav" id="mainNav">
@@ -19,4 +19,4 @@
       <a href="#" id="navLogout" data-roles="admin,teacher,student">Logout</a>
     </nav>
   </header>
-  <main class="container">
+  <main class="container"><%- include('workspace-wayfinding',{workspaceMode:'Original application',workspaceHome:'https://localhost:2027/school'}) %>

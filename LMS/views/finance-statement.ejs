@@ -1,0 +1,22 @@
+<%- include('partials/finance-shell',{pageTitle:'Pupil statements',active:'statements'}) %>
+<h1>Pupil statements</h1><p><%= school.name %> · Fictional records · XAF</p>
+<% if(!pupil){ %>
+<form method="get"><label>Find pupil by name or matricule<input name="search" maxlength="120" value="<%= search %>"></label><button>Find pupil</button></form>
+<% if(morePupils){ %><p class="notice">Showing the first 200 matches. Refine the name or matricule to find another pupil.</p><% } %>
+<div class="table-wrap"><table><thead><tr><th>Pupil</th><th>Matricule</th><th>Profile status</th><th>Statement</th></tr></thead><tbody>
+<% pupils.forEach(p=>{ %><tr><td><%= p.name %></td><td><%= p.matricule %></td><td><%= p.isWithdrawn?'Withdrawn':'Active' %></td><td><a href="?pupil=<%= p.id %>">Open statement</a></td></tr><% }) %>
+<% if(!pupils.length){ %><tr><td colspan="4">No matching pupils.</td></tr><% } %></tbody></table></div>
+<% }else{ %>
+<h2><%= pupil.name %> · <%= pupil.matricule %></h2><% if(pupil.isWithdrawn){ %><p>Withdrawn pupil — recorded financial history remains available.</p><% } %>
+<form method="get" class="no-print"><input type="hidden" name="pupil" value="<%= pupil.id %>"><label>Academic year<select name="year"><option value="">All academic years</option><% years.forEach(y=>{ %><option value="<%= y.id %>" <%= yearId===y.id?'selected':'' %>><%= y.name %></option><% }) %></select></label><button>Show statement</button> <a href="/workspace/<%= area %>/statements">Choose another pupil</a></form>
+<p><strong><%= yearId?years.find(y=>y.id===yearId).name:'All academic years' %></strong> · Generated at <%= generatedAt.toISOString() %> (UTC).</p>
+<p>Current balances reflect only recorded charges and payments, with current cancellations and reversals. A zero balance does not confirm that every school fee has been entered.</p>
+<div class="cards"><section><h3>Active charges</h3><p><%= formatMoney(totals.charged) %></p></section><section><h3>Net paid</h3><p><%= formatMoney(totals.paid) %></p></section><section><h3>Outstanding</h3><p><%= formatMoney(totals.balance) %></p></section><section><h3>Overdue</h3><p><%= formatMoney(totals.overdue) %></p><p>Due before <%= asOf %>.</p></section></div>
+<p class="no-print"><a href="?<%= exportQuery %>">Download statement CSV</a> <button type="button" id="print-receipt">Print statement</button></p>
+<h2>Charges</h2><div class="table-wrap"><table><thead><tr><th>Year / fee</th><th>Due date</th><th>Original amount</th><th>Net paid</th><th>Outstanding</th><th>Current status</th></tr></thead><tbody>
+<% charges.forEach(c=>{ %><tr><td><a href="/workspace/<%= area %>?charge=<%= c.id %>"><%= c.year %> · <%= c.description %></a></td><td><%= c.dueDate||'Not set' %></td><td><%= formatMoney(c.amount) %></td><td><%= formatMoney(c.paid) %></td><td><%= c.cancelled?'—':formatMoney(c.balance) %></td><td><%= c.cancelled?'Cancelled: '+c.cancelled:BigInt(c.balance)===0n?'Paid':c.dueDate&&c.dueDate<asOf?'Overdue':'Open' %></td></tr><% }) %>
+<% if(!charges.length){ %><tr><td colspan="6">No charges recorded for this selection.</td></tr><% } %></tbody></table></div>
+<h2>Payment history</h2><div class="table-wrap"><table><thead><tr><th>Receipt / date</th><th>Charge</th><th>Method / reference</th><th>Amount</th><th>Current status</th></tr></thead><tbody>
+<% payments.forEach(p=>{ %><tr><td><a href="/workspace/<%= area %>/receipt/<%= p.id %>"><%= p.receiptNumber %></a><br><%= p.paidOn %></td><td><%= charges.find(c=>c.id===p.charge_id).description %></td><td><%= p.method %><br><%= p.reference %></td><td><%= formatMoney(p.amount) %></td><td><%= p.reversed?'Reversed: '+p.reversed:'Recorded' %></td></tr><% }) %>
+<% if(!payments.length){ %><tr><td colspan="5">No payments recorded for this selection.</td></tr><% } %></tbody></table></div>
+<% } %><%- include('partials/finance-end') %>

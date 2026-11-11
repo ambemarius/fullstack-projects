@@ -1,0 +1,4 @@
+interface:
+  display_name: "LMS Product Design"
+  short_description: "Polished school dashboards, forms and workflows"
+  default_prompt: "Use $lms-product-design to redesign the LMS interface into a coherent, professional school-management experience while preserving its working forms and permissions."

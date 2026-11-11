@@ -1,0 +1,1400 @@
+{
+  "generatedAt": "2026-10-28T06:45:31.381Z",
+  "scope": "Source declarations and gate interception only; downstream auth/data scope is not certified.",
+  "policySha256": "afa5e948a57cdab38d32987e537b30c67b8647c09f689aa6a6c7ce8ce27a6502",
+  "routeCount": 107,
+  "apiCount": 94,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/admin-dashboard",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/allocations",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic-context",
+      "auth": "any-account",
+      "source": "routes/academic/academicContextRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic-years",
+      "auth": "admin",
+      "source": "routes/academic/academicYearRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/academic-years",
+      "auth": "admin",
+      "source": "routes/academic/academicYearRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/academic-years/:id",
+      "auth": "admin",
+      "source": "routes/academic/academicYearRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/academic-years/:id",
+      "auth": "admin",
+      "source": "routes/academic/academicYearRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/academic-years/:id/current",
+      "auth": "admin",
+      "source": "routes/academic/academicYearRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/admin/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/login",
+      "auth": "credential-endpoint",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/profile",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/publish/exam/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-exam-results-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/admin/register",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/set-status/teacher/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/stats",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/admin/unpublish/exam/:id",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-exam-results-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/allocations",
+      "auth": "admin",
+      "source": "routes/academic/subjectAllocationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-allocation-reads-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/allocations",
+      "auth": "admin",
+      "source": "routes/academic/subjectAllocationRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/allocations/:id",
+      "auth": "admin",
+      "source": "routes/academic/subjectAllocationRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/allocations/class/:classId",
+      "auth": "admin",
+      "source": "routes/academic/subjectAllocationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-allocation-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/allocations/form-data",
+      "auth": "admin",
+      "source": "routes/academic/subjectAllocationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-allocation-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auxiliary",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/auxiliary/:id",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/auxiliary/:id",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/auxiliary/:id",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auxiliary/register",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/auxiliary/set-status/:id",
+      "auth": "admin",
+      "source": "routes/staff/auxiliaryRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/class-subject-students/:classSubjectId/:academicYearId",
+      "auth": "admin",
+      "source": "routes/academic/classSubjectStudentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/class-subject-students/bulk-enroll",
+      "auth": "admin",
+      "source": "routes/academic/classSubjectStudentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/class-subject-students/bulk-unenroll",
+      "auth": "admin",
+      "source": "routes/academic/classSubjectStudentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/class-subject-students/enroll",
+      "auth": "admin",
+      "source": "routes/academic/classSubjectStudentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/class-subject-students/unenroll",
+      "auth": "admin",
+      "source": "routes/academic/classSubjectStudentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/classes",
+      "auth": "admin",
+      "source": "routes/academic/classRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/classes/:id",
+      "auth": "admin",
+      "source": "routes/academic/classRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/classes/:id",
+      "auth": "admin",
+      "source": "routes/academic/classRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/classes/:id/subjects",
+      "auth": "admin",
+      "source": "routes/academic/classRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/classes/with-fees",
+      "auth": "admin",
+      "source": "routes/academic/classRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exam-results/exam/:examId",
+      "auth": "admin",
+      "source": "routes/academic/examResultRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-exam-results-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exam-results/my-results",
+      "auth": "student",
+      "source": "routes/academic/examResultRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exams",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exams",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exams/:examId/questions",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exams/:examId/questions",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exams/:examId/take",
+      "auth": "student",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/exams/:examId/write",
+      "auth": "student",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/exams/:id",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/exams/:id/status",
+      "auth": "teacher",
+      "source": "routes/academic/examRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/locations/divisions/:divisionId/subdivisions",
+      "auth": "admin",
+      "source": "routes/academic/locationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/locations/regions",
+      "auth": "admin",
+      "source": "routes/academic/locationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/locations/regions/:regionId/divisions",
+      "auth": "admin",
+      "source": "routes/academic/locationRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/marks/admin/save-all/:classSubjectId/:term/:academicYearId",
+      "auth": "admin",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/marks/admin/save/:classSubjectId/:term/:sequence/:academicYearId",
+      "auth": "admin",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marks/admin/students/:classSubjectId/:term/:academicYearId",
+      "auth": "admin",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/marks/save-all/:classSubjectId/:term/:academicYearId",
+      "auth": "teacher",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/marks/save/:classSubjectId/:term/:sequence/:academicYearId",
+      "auth": "teacher",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/marks/students/:classSubjectId/:term/:academicYearId",
+      "auth": "teacher",
+      "source": "routes/academic/marksRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/report-cards/:classId/:term/:academicYearId",
+      "auth": "admin",
+      "source": "routes/academic/reportCardRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-report-reads-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/students",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/students/:id",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/students/:id",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/students/:id",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/students/by-class/:classId",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/students/login",
+      "auth": "credential-endpoint",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/students/profile",
+      "auth": "student",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-self-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/students/profile",
+      "auth": "student",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/students/promote/:classId",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/students/register",
+      "auth": "admin",
+      "source": "routes/students/studentRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/subjects",
+      "auth": "admin",
+      "source": "routes/academic/subjectRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/subjects",
+      "auth": "admin",
+      "source": "routes/academic/subjectRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/subjects/:id",
+      "auth": "admin",
+      "source": "routes/academic/subjectRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/subjects/:id",
+      "auth": "admin",
+      "source": "routes/academic/subjectRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-reference-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/subjects/:id",
+      "auth": "admin",
+      "source": "routes/academic/subjectRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teachers",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/teachers/:id",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teachers/:id",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-personnel-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/teachers/:id",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/teachers/:id/assign",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/teachers/login",
+      "auth": "credential-endpoint",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teachers/my-students",
+      "auth": "teacher",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teachers/my-subjects",
+      "auth": "teacher",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/teachers/profile",
+      "auth": "teacher",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "downstream_auth_required",
+        "student": "downstream_auth_required"
+      },
+      "dataBoundary": "legacy-self-reads-scoped"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v1/teachers/profile",
+      "auth": "teacher",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/teachers/register",
+      "auth": "admin",
+      "source": "routes/staff/teacherRouter.js",
+      "gates": {
+        "anonymous": "moved_409",
+        "admin": "moved_409",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/timetables",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v1/timetables/:id",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/class/:classId",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/class/:classId/grid",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/class/:classId/periods",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/form-data",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/timetables/generate/class/:classId",
+      "auth": "admin",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "legacy-timetable-scoped"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/student",
+      "auth": "student",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/timetables/teacher",
+      "auth": "teacher",
+      "source": "routes/academic/timetableRouter.js",
+      "gates": {
+        "anonymous": "downstream_auth_required",
+        "admin": "downstream_auth_required",
+        "teacher": "moved_409",
+        "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/login",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/promotion",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/student-dashboard",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/students",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/subjects",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/teacher-dashboard",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/teachers",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/timetable",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/timetable-student",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/timetable-teacher",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    }
+  ]
+}

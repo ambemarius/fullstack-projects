@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title><%= {library:'Library',laboratory:'Laboratory',requests:'Teacher requests'}[area] %></title><link rel="stylesheet" href="/css/practice.css"><%- include('partials/workspace-assets') %></head>
+<body class="lms-ui lms-practice"><header><a href="/">School feature menu</a><span>Practice records</span></header><main><%- include('partials/workspace-wayfinding',{workspaceMode:'Practice',workspaceHome:'/'}) %>
+<h1><%= {library:'Library',laboratory:'Laboratory stock',requests:'Teacher laboratory requests'}[area] %></h1>
+<% if(saved){ %><p role="status" class="notice">Saved.</p><% } %>
+<% if(area==='library'){ %>
+<details><summary>Add a book copy</summary><form method="post" class="fields"><%- include('partials/practice-operation') %>
+<label>Title<input name="title" maxlength="160" required></label><label>Author<input name="author" maxlength="120" required></label>
+<label>Accession or barcode<input name="accession" maxlength="60" required></label><label>Shelf<input name="shelf" maxlength="80" required></label><label>ISBN (optional)<input name="isbn" maxlength="30"></label>
+<button name="action" value="add">Add copy</button></form></details>
+<h2>Catalogue and loans</h2>
+<form method="get" class="fields"><label>Search title, author, barcode, ISBN, shelf or borrower<input name="search" maxlength="120" value="<%= search %>"></label><button>Search catalogue</button><a href="/workspace/library">Clear search</a></form>
+<% if(!copies.length){ %><p>No copies match your search.</p><% } %>
+<div class="cards">
+<% for(const c of copies){ const loan=['checkout','renew'].includes(c.action),review=['lost','damaged'].includes(c.action); %>
+<section><h3><%= c.title %></h3><p><%= c.author %> · <%= c.accession %> · <%= c.shelf %><% if(c.isbn){ %> · ISBN <%= c.isbn %><% } %></p>
+<strong><%= loan?(c.due<today?'Overdue':'On loan'):review?c.action:'Available' %></strong>
+<% if(loan){ %><p><%= c.borrower %> · Due <%= c.due %></p><% } %>
+<form method="post"><%- include('partials/practice-operation') %><input type="hidden" name="copy" value="<%= c.id %>"><input type="hidden" name="version" value="<%= c.version %>">
+<% if(!loan&&!review){ %><label>Borrower<select name="borrower" required><option value="">Choose a borrower</option>
+<% for(const p of pupils){ %><option value="pupil:<%= p.id %>"><%= p.label %></option><% } for(const m of staff){ %><option value="staff:<%= m.id %>"><%= m.label %></option><% } %></select></label><% } %>
+<% if(!review){ %><label>Due date<input type="date" name="due" min="<%= today %>" required></label>
+<button name="action" value="<%= loan?'renew':'checkout' %>"><%= loan?'Renew loan':'Check out' %></button>
+<% if(loan){ %><button class="btn-secondary" name="action" value="return" formnovalidate>Return copy</button><% } %>
+<button class="danger-outline" name="action" value="damaged" formnovalidate>Record damage</button><button class="danger-outline" name="action" value="lost" formnovalidate>Record loss</button>
+<% }else{ %><button name="action" value="repair">Restore to circulation</button><% } %></form></section><% } %></div>
+<h2>Recent circulation</h2><% if(!history.length){ %><p>No circulation recorded yet.</p><% }else{ %><ul><% for(const e of history){ %><li><%= e.accession %> · <%= e.action %> · <%= e.occurred_at.toISOString().slice(0,10) %></li><% } %></ul><% } %>
+<% }else{ %>
+<% if(area==='laboratory'){ %><details><summary>Add an inventory item or batch</summary><form method="post" class="fields"><%- include('partials/practice-operation') %>
+<label>Item name<input name="name" maxlength="120" required></label><label>Subject or category<input name="category" maxlength="60" required></label>
+<label>Type<select name="kind"><option>equipment</option><option>consumable</option><option>reagent</option></select></label>
+<label>Unit<input name="unit" placeholder="pieces, mL, g" maxlength="30" required></label><label>Storage location<input name="location" required maxlength="80"></label>
+<label>Batch (optional)<input name="batch" maxlength="60"></label><label>Low-stock level<input type="number" name="minimum" step=".001" min="0" required></label>
+<label>Expiry (optional)<input type="date" name="expiry"></label><label><input type="checkbox" name="restricted"> Restricted item</label><button name="action" value="add">Add item</button></form></details><% } %>
+<h2>Stock</h2><div class="cards"><% for(const i of items){const expired=i.expiryDate&&i.expiryDate<today; %>
+<section><h3><%= i.name %></h3><p><%= i.category %> · <%= i.kind %> · <%= i.location %><% if(i.batch){ %> · <%= i.batch %><% } %></p>
+<strong><%= i.available %> <%= i.unit %> available</strong><% if(i.available<=i.minimum){ %> · Low stock<% } %>
+<% if(i.expiryDate){ %><p><%= expired?'Expired':'Expires' %> <%= i.expiryDate %></p><% } if(i.restricted){ %><p>Restricted stock</p><% } %>
+<% if(area==='laboratory'||!expired){ %><form method="post"><%- include('partials/practice-operation') %><input type="hidden" name="item" value="<%= i.id %>">
+<label>Quantity (<%= i.unit %>)<input type="number" name="quantity" min="<%= i.kind==='equipment'?1:0.001 %>" step="<%= i.kind==='equipment'?1:0.001 %>" required></label>
+<% if(area==='requests'){ %><label>Needed on<input type="date" min="<%= today %>" name="needed" required></label><label>Lesson or purpose<input name="purpose" maxlength="200" required></label><button name="action" value="request">Request item</button>
+<% }else{ %><button name="action" value="receive">Receive stock</button><% } %></form><% } %></section><% } %></div>
+<h2><%= area==='requests'?'My requests':'Request register' %></h2>
+<% if(!requests.length){ %><p>No requests yet.</p><% } %><div class="cards">
+<% for(const r of requests){ %><section><h3><%= r.name %> · <%= r.quantity %> <%= r.unit %></h3>
+<p><%= r.purpose %> · Needed <%= r.needed %></p><p><%= r.requester %> · <strong><%= r.status %></strong></p>
+<% if(area==='laboratory'&&['pending','approved','issued'].includes(r.status)){ %><form method="post"><%- include('partials/practice-operation') %><input type="hidden" name="request" value="<%= r.id %>">
+<% const actions=r.status==='pending'?['approve','decline']:r.status==='approved'?['issue']:r.kind==='equipment'?['return','damage']:['return','damage','consume'];
+for(const a of actions){ %><button name="action" value="<%= a %>"><%= {approve:'Approve',decline:'Decline',issue:'Issue stock',return:'Return usable',damage:'Record damage',consume:'Record consumption'}[a] %></button><% } %></form><% } %></section><% } %></div>
+<% if(area==='laboratory'){ %>
+<h2>Recent stock movements</h2>
+<div class="table-wrap"><table><thead><tr><th>Item</th><th>Action</th><th>Available stock change</th><th>Request</th><th>Editor</th><th>Recorded (UTC)</th></tr></thead><tbody>
+<% for(const m of movements){ %><tr><td><%= m.name %></td><td><%= m.action %></td><td><%= m.delta %> <%= m.unit %></td><td><%= m.requestId||'—' %></td><td><%= m.editor %></td><td><%= m.occurredAt.toISOString().replace('T',' ').slice(0,19) %></td></tr><% } %>
+</tbody></table></div><p>Showing the latest 50 movements.</p>
+<% } %><% } %></main></body></html>

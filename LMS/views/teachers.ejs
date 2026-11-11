@@ -5,7 +5,7 @@
   <button id="logoutBtn" class="btn btn-secondary">Logout</button>
 </div>
 
-<div class="grid">
+<div class="grid lms-records-layout">
   <div class="card" style="grid-column: span 2;">
     <h3 id="formTitle">Add teacher</h3>
     <form id="teacherForm">
@@ -97,11 +97,12 @@
   <div class="card">
     <h3>All teachers</h3>
     <div style="margin-bottom:12px">
-      <input type="text" id="searchInput" placeholder="Search by name or email..." style="width:100%;max-width:300px;padding:8px" />
+      <label for="searchInput">Search teachers</label>
+      <input type="text" id="searchInput" placeholder="Search by name or email…" style="width:100%;max-width:300px;padding:8px" />
     </div>
     <table>
       <thead>
-        <tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Section</th><th>Type</th><th>Status</th><th>Actions</th></tr>
+        <tr><th>ID</th><th>First name</th><th>Last name</th><th>Email</th><th>Phone</th><th>Section</th><th>Type</th><th>Status</th></tr>
       </thead>
       <tbody id="rows"><tr><td colspan="8" class="muted">Loading&hellip;</td></tr></tbody>
     </table>
@@ -112,13 +113,13 @@
   <h3>Assign a teacher to teach</h3>
   <p class="muted">Pick the teacher, the class, the subject offered in that class, and the term.</p>
   <form id="assignForm" class="assign-form">
-    <select id="aTeacher" required><option value="">Teacher&hellip;</option></select>
-    <select id="aClass" required><option value="">Class&hellip;</option></select>
-    <select id="aSubject" required><option value="">Subject&hellip;</option></select>
-    <select id="aTerm" required>
+    <label>Teacher<select id="aTeacher" required><option value="">Choose a teacher</option></select></label>
+    <label>Class<select id="aClass" required><option value="">Choose a class</option></select></label>
+    <label>Subject<select id="aSubject" required><option value="">Choose a subject</option></select></label>
+    <label>Term<select id="aTerm" required>
       <option value="">Term&hellip;</option>
       <option>First</option><option>Second</option><option>Third</option>
-    </select>
+    </select></label>
     <button class="btn" type="submit">Assign</button>
   </form>
   <p id="assignMsg" class="msg"></p>

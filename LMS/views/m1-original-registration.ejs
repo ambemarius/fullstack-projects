@@ -1,0 +1,51 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>School Registration — LMS</title><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/m1-original-registration.css"><script src="/js/m1-original-registration.js" defer></script><%- include('partials/workspace-assets') %></head>
+<body class="lms-ui  admin-body" data-enrolment-ledger="<%= typeof enrolmentLedgerEnabled !== 'undefined' && enrolmentLedgerEnabled ? 'true' : 'false' %>"><aside class="sidebar" id="sidebar"><div class="sidebar-brand"><span class="sidebar-logo" id="schoolName">LMS</span><span class="sidebar-sub">School Administration</span></div><nav class="sidebar-nav"><a class="sidebar-tab" href="/">Workspace</a><button class="sidebar-tab active" type="button">Registration</button></nav><div class="sidebar-footer"><button id="sidebarLogout" class="sidebar-logout">Logout</button></div></aside>
+<div class="admin-main"><header class="admin-topbar"><div class="admin-topbar-left"><button id="menuToggle" class="menu-toggle" aria-label="Toggle menu" aria-controls="sidebar" aria-expanded="false">&#x2630;</button><h2 class="panel-title">Registration</h2></div><div class="admin-topbar-right"><label>School<select id="schoolSwitch" aria-label="Active school"></select></label><button id="topLogout" class="btn btn-secondary btn-sm">Logout</button></div></header>
+<div class="admin-content"><%- include('partials/workspace-wayfinding',{workspaceMode:typeof sampleEnvironment !== 'undefined' && !sampleEnvironment?'School':'Practice',workspaceHome:typeof sampleEnvironment !== 'undefined' && !sampleEnvironment?'/school':'/'}) %><p class="m1-sample-note"><%= typeof sampleEnvironment !== 'undefined' && !sampleEnvironment ? 'LYCEE BATOURI · Student and teacher registration' : 'Sample workspace · Fictional records only' %></p><p id="workspaceMessage" role="status" aria-live="polite"></p><section id="registrationWorkspace" hidden><div class="reg-subtabs" role="group" aria-label="Registration type"><button class="reg-subtab active" data-kind="student" aria-pressed="true">Student</button><button class="reg-subtab" data-kind="teacher" aria-pressed="false">Teacher</button></div>
+<% if(typeof placementReview !== 'undefined' && placementReview){ %>
+<details id="placementReview"><summary>Review current pupil placements</summary>
+<p>Active pupils whose profile needs a class or a current-year check. Use the school register to confirm their placement.</p>
+<p id="placementReviewMessage" role="status"></p><div id="placementReviewRows"></div>
+<button type="button" hidden id="placementReviewNext" class="reg-btn reg-btn-gray">Next pupils</button>
+</details>
+<% } %>
+<%- include('partials/canonical-student-registration') %><%- include('partials/canonical-teacher-registration') %>
+<% if(typeof academicHistoryReview !== 'undefined' && academicHistoryReview){ %>
+<section id="sourceReview" hidden aria-labelledby="sourceReviewTitle">
+<h3 id="sourceReviewTitle" tabindex="-1"></h3>
+<label>Academic year <select id="sourceReviewYear"></select></label>
+<div id="sourceReviewResults" aria-live="polite"></div>
+<button type="button" id="sourceReviewClose" class="reg-btn reg-btn-gray">Close review</button>
+</section>
+<% } %>
+<% if (typeof enrolmentLedgerEnabled !== 'undefined' && enrolmentLedgerEnabled) { %>
+<fieldset id="initialEnrolmentFields" class="m2-enrolment-fields"><legend>Initial enrolment</legend>
+<p>Enter the verified start date and the register or document that supports it. The pupil, account, current placement and enrolment are saved together.</p>
+<div class="reg-row-3"><label>Enrolment start date<input id="sEnrolmentFrom" type="date" form="studentForm" required></label>
+<label>Source reference<input id="sEnrolmentSource" maxlength="200" form="studentForm" required placeholder="Admission register, page or reference"></label>
+<label>Reason<input id="sEnrolmentReason" maxlength="500" form="studentForm" required placeholder="Reason for recording this placement"></label></div></fieldset>
+<section id="enrolmentHistory" class="m2-enrolment-history" hidden aria-labelledby="enrolmentHistoryTitle"><h3 id="enrolmentHistoryTitle" tabindex="-1">Enrolment history</h3>
+<p id="enrolmentCoverage"></p><div class="reg-table-scroll"><table class="reg-table"><thead><tr><th scope="col">Revision</th><th scope="col">Class / year</th><th scope="col">Start</th><th scope="col">End (excluded)</th><th scope="col">Status</th><th scope="col">Source and reason</th></tr></thead><tbody id="enrolmentHistoryBody"></tbody></table></div>
+<% if (typeof currentTransfers !== 'undefined' && currentTransfers) { %>
+<details id="transferPanel" class="m2-enrolment-fields" hidden><summary>Record a class or year transfer</summary>
+<form id="transferForm"><p id="transferContext"></p><p>Existing marks and subject enrolments are retained. Add any subjects for the new class separately.</p>
+<div class="reg-row-3"><label>Destination class<select id="transferClass" required></select></label>
+<label>Effective date<input id="transferDate" type="date" required></label>
+<label>Source reference<input id="transferSource" maxlength="200" required></label></div>
+<label>Reason for transfer<input id="transferReason" maxlength="500" required></label>
+<button type="submit" class="reg-btn reg-btn-blue">Record transfer</button></form></details>
+<% } %>
+<% if (typeof pupilLifecycle !== 'undefined' && pupilLifecycle) { %>
+<details id="pupilStatusPanel" class="m2-enrolment-fields" hidden><summary id="pupilStatusTitle"></summary>
+<form id="pupilStatusForm"><p id="pupilStatusNotice"></p>
+<label id="returnClassLabel" hidden>Return class<select id="returnClass"></select></label>
+<p id="returnCourseNotice" aria-live="polite"></p>
+<label id="returnCourseLabel" hidden><input id="confirmReturnCourses" type="checkbox"> Resume the listed subject enrolments</label>
+<div class="reg-row-3"><label>Effective date<input id="statusDate" type="date" required></label>
+<label>Source reference<input id="statusSource" maxlength="200" required></label>
+<label>Reason<input id="statusReason" maxlength="500" required></label></div>
+<button id="recordPupilStatus" type="submit" class="reg-btn reg-btn-blue"></button></form></details>
+<% } %>
+<button id="closeEnrolmentHistory" type="button" class="reg-btn reg-btn-gray">Close history</button></section>
+<% } %>
+</section><p id="signInNotice" hidden><a href="/">Sign in to your school workspace</a> to continue.</p></div></div></body></html>

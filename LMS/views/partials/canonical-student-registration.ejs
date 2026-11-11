@@ -1,0 +1,140 @@
+        <!-- ===== STUDENT SUB-TAB ===== -->
+        <div class="reg-subpanel active" id="sub-student">
+          <div class="reg-header-bar" id="studentHeaderBar">Register New Student</div>
+          <form id="studentForm" class="reg-student-form">
+            <input type="hidden" id="studentEditId" value="" />
+            <div class="reg-student-layout">
+              <div class="reg-student-fields">
+                <!-- Row: names -->
+                <div class="reg-row-3">
+                  <label>First Name <input id="sFirstName" required /></label>
+                  <label>Middle Name <input id="sMiddleName" /></label>
+                  <label>Last Name <input id="sLastName" required /></label>
+                </div>
+                <!-- Row: gender, dob, place of birth -->
+                <div class="reg-row-3">
+                  <label>Gender
+                    <select id="sSex" required>
+                      <option value="">--</option>
+                      <option>Male</option>
+                      <option>Female</option>
+                    </select>
+                  </label>
+                  <label>Date of Birth <input id="sDob" type="date" /></label>
+                  <label>Place of Birth <input id="sPlaceOfBirth" /></label>
+                </div>
+                <!-- Row: region, division -->
+                <div class="reg-row-3">
+                  <label>Region of Origin
+                    <select id="sRegion"><option value="">-- select region --</option></select>
+                  </label>
+                  <label>Division
+                    <select id="sDivision"><option value="">-- select region first --</option></select>
+                  </label>
+                  <label>Address <input id="sAddress" /></label>
+                </div>
+                <!-- Row: acc year, class, section -->
+                <div class="reg-row-3">
+                  <label>Academic Year <select id="sAcademicYear"><option value="">-- select --</option></select></label>
+                  <label>Class <select id="sClass"><option value="">-- select --</option></select></label>
+                  <label>Section
+                    <select id="sSection">
+                      <option>Anglophone</option>
+                      <option>Francophone</option>
+                    </select>
+                  </label>
+                </div>
+                <!-- Row: matricule, password -->
+                <div class="reg-row-3">
+                  <label >Matricule <input id="sMatricule" placeholder="e.g. STU-OO1-OO1" required /></label>
+                  <label>Password <input id="sPassword" type="password" required /></label>
+                  <label>&nbsp;</label>
+                </div>
+                <!-- Parent / Guardian section -->
+                <div class="reg-section-divider">Parent / Guardian Information</div>
+                <div class="reg-row-3">
+                  <label>Full Name <input id="sParentName" /></label>
+                  <label>Telephone <input id="sParentPhone" type="tel" /></label>
+                  <label>Telephone 2 <input id="sParentPhone2" type="tel" /></label>
+                </div>
+                <div class="reg-row-3">
+                  <label>Medical Status <input id="sMedicalStatus" placeholder="Allergies, conditions..." /></label>
+                  <label>&nbsp;</label>
+                  <label>&nbsp;</label>
+                </div>
+              </div>
+
+              <!-- Right: Fees section -->
+              <div class="reg-student-fees">
+                <div class="reg-fees-header">Fees Details</div>
+                <div class="reg-fees-body" id="studentFeesBody">
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Registration" aria-label="Registration selected" /> <span>Registration</span><input type="number" class="sf-amt" data-fee="Registration" aria-label="Registration amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IDCard" aria-label="ID card selected" /> <span>ID Card</span><input type="number" class="sf-amt" data-fee="IDCard" aria-label="ID card amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Tuition" aria-label="Tuition selected" /> <span>Tuition</span><input type="number" class="sf-amt" data-fee="Tuition" aria-label="Tuition amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="PTA" aria-label="PTA selected" /> <span>PTA</span><input type="number" class="sf-amt" data-fee="PTA" aria-label="PTA amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Sportware" aria-label="Sportswear selected" /> <span>Sportswear</span><input type="number" class="sf-amt" data-fee="Sportware" aria-label="Sportswear amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Practicals" aria-label="Practicals selected" /> <span>Practicals</span><input type="number" class="sf-amt" data-fee="Practicals" aria-label="Practicals amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IT" aria-label="IT selected" /> <span>IT</span><input type="number" class="sf-amt" data-fee="IT" aria-label="IT amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Examination" aria-label="Examination selected" /> <span>Examination</span><input type="number" class="sf-amt" data-fee="Examination" aria-label="Examination amount" value="0" /></div>
+                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Textbook" aria-label="Textbook selected" /> <span>Textbook</span><input type="number" class="sf-amt" data-fee="Textbook" aria-label="Textbook amount" value="0" /></div>
+                </div>
+                <div class="reg-fees-total">
+                  <span>Total Fees</span>
+                  <span id="studentFeesTotal">0 XAF</span>
+                </div>
+              </div>
+            </div>
+            <div class="student-action-row">
+              <button class="reg-btn reg-btn-blue" type="submit" id="studentSubmitBtn">Register Student</button>
+            </div>
+            <p id="studentFormMsg" class="msg"></p>
+          </form>
+
+          <!-- Search bar -->
+          <div class="reg-action-bar">
+            <div class="reg-search-group">
+              <label class="reg-search-label" for="studentSearch">Global Search:</label>
+              <input type="text" id="studentSearch" placeholder="Search by matricule, name or class..." class="reg-search-input" />
+            </div>
+            <div class="reg-action-btns">
+              <button type="button" id="studentResetBtn" class="reg-btn reg-btn-gray"> RESET</button>
+              <button type="button" id="studentEditBtn" class="reg-btn reg-btn-blue">EDIT</button>
+              <button type="button" id="studentSaveBtn" class="reg-btn reg-btn-green">Save</button>
+              <button type="button" id="studentDeleteBtn" class="reg-btn reg-btn-red">Delete</button>
+            </div>
+          </div>
+
+          <!-- Student table -->
+          <div class="reg-table-wrap">
+            <div class="reg-table-scroll">
+              <table class="reg-table">
+                <thead>
+                  <tr>
+                    <th>Matricule</th>
+                    <th>Name</th>
+                    <th>Gender</th>
+                    <th>Address</th>
+                    <th>Date of Birth</th>
+                    <th>Region</th>
+                    <th>Division</th>
+                    <th>Place of Birth</th>
+                    <th>Class</th>
+                    <th>Acc Year</th>
+                    <th>Parent/Guardian</th>
+                    <th>Tel</th>
+                    <th>Medical</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTableBody">
+                  <tr><td colspan="14" class="reg-muted">Loading&hellip;</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="reg-table-footer">
+              <span>Number of Students:</span>
+              <span id="studentCount">0</span>
+            </div>
+          </div>
+        </div>
+

@@ -1,32 +1,56 @@
-require('dotenv').config()
-const http = require('http')
-const app = require('./app/app')
-const { poolConnect } = require('./config/database')
-const Admin = require('./model/staff/admin')
+const http = require('node:http');
+const { loadEnvironment } = require('./config/environment');
 
-const PORT = process.env.PORT || 2026
-const server = http.createServer(app)
-
-// Fail clearly if the port is already taken (instead of an ugly stack trace)
-server.on('error', err => {
-    if (err.code === 'EADDRINUSE') {
-        console.error(`\nPort ${PORT} is already in use — another server is still running.`)
-        console.error(`Stop it first, e.g. (PowerShell):`)
-        console.error(`  Get-NetTCPConnection -LocalPort ${PORT} -State Listen | %{ Stop-Process -Id $_.OwningProcess -Force }\n`)
-    } else {
-        console.error('Server error:', err)
+async function startServer({ database, createApplication, port, host } = {}) {
+    loadEnvironment();
+    require('./config/auth').authConfiguration();
+    const db = database || require('./config/database');
+    const createApp = createApplication || require('./app/app').createApp;
+    const listenPort = port ?? process.env.PORT ?? 2026;
+    let server;
+    try {
+        await db.connect();
+        // Schema setup is explicit maintenance, never a server-start side effect.
+        const policy = require('./config/runtimePolicy.json');
+        server = http.createServer(createApp({ legacyPersonnelReadOnly: policy.canonicalPersonnelWrites === true, legacyAcademicReadOnly: policy.canonicalAcademicWrites === true, legacyAuxiliaryReadOnly: policy.canonicalAuxiliaryWrites === true, legacyCredentialVersionsEnabled: policy.canonicalCredentialRecovery === true, legacyAcademicLinksReadOnly: policy.canonicalAcademicLinks === true, legacyScopedExamResultsEnabled:policy.legacyScopedExamResults===true, legacyScopedPersonnelReadsEnabled:policy.legacyScopedPersonnelReads===true, legacyScopedTimetablesEnabled:policy.legacyScopedTimetables===true, legacyScopedAllocationsEnabled:policy.legacyScopedAllocations===true, legacyScopedReferencesEnabled:policy.legacyScopedReferences===true, legacyScopedReportsEnabled:policy.legacyScopedReports===true, legacyScopedSelfEnabled:policy.legacyScopedSelf===true }));
+        await new Promise((resolve, reject) => {
+            server.once('error', reject);
+            server.listen(listenPort, host, resolve);
+        });
+        server.on('error', () => console.error('HTTP server error'));
+    } catch (err) {
+        await db.close().catch(() => {});
+        throw err;
     }
-    process.exit(1)
-})
+    return {
+        server,
+        async close() {
+            try {
+                await new Promise((resolve, reject) => server.close(err => err ? reject(err) : resolve()));
+            } finally {
+                await db.close();
+            }
+        },
+    };
+}
 
-poolConnect
-    .then(async () => {
-        await Admin.createTable()
-        server.listen(PORT, () => {
-            console.log(`Server running on PORT ${PORT}`)
-        })
-    })
-    .catch(err => {
-        console.error('Database connection failed:', err)
-        process.exit(1)
-    })
+if (require.main === module) {
+    startServer().then(runtime => {
+        console.log(`Server running on PORT ${runtime.server.address().port}`);
+        let stopping = false;
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            process.once(signal, () => {
+                if (stopping) return;
+                stopping = true;
+                runtime.close().then(() => { process.exitCode = 0; }, () => { process.exitCode = 1; });
+            });
+        }
+    }).catch(err => {
+        console.error(err.code === 'EADDRINUSE'
+            ? 'Server port is already in use; the existing process was left running.'
+            : 'Server startup failed. Check configuration and database availability.');
+        process.exitCode = 1;
+    });
+}
+
+module.exports = { startServer };

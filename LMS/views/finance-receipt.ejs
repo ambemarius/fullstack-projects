@@ -1,0 +1,6 @@
+<%- include('partials/finance-shell',{pageTitle:'Payment receipt',active:'charges'}) %>
+<p class="no-print"><a href="/workspace/<%= area %>?charge=<%= charge.id %>">Back to charge</a></p><h1>Payment receipt</h1><p class="notice">SAMPLE — fictional payment. Not a receipt for real money.</p>
+<h2><%= school.name %></h2><p>Receipt <strong><%= receiptNumber %></strong></p>
+<% if(payment.reversed){ %><p class="notice"><strong>REVERSED — no longer counted as collected.</strong><br><%= payment.reversed %></p><% } %>
+<dl><dt>Pupil</dt><dd><%= charge.pupil %> · <%= charge.matricule %></dd><dt>Academic year</dt><dd><%= charge.year %></dd><dt>Fee</dt><dd><%= charge.description %></dd><dt>Amount received</dt><dd><strong><%= formatMoney(payment.amount) %></strong></dd><dt>Payment date</dt><dd><%= payment.paidOn %></dd><dt>Method</dt><dd><%= payment.method %></dd><dt>Transaction reference</dt><dd><%= payment.reference||'—' %></dd><dt>Recorded by</dt><dd><%= payment.recordedBy %></dd><dt>Recorded at (UTC)</dt><dd><%= payment.recordedAt.toISOString() %></dd></dl>
+<button id="print-receipt" type="button">Print receipt</button><%- include('partials/finance-end') %>

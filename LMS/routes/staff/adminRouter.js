@@ -12,6 +12,7 @@ const {
     unpublishexamCtrl,
     getadminprofile,
     getAdminStatsCtrl,
+    getAdminAnalyticsCtrl,
 } = require("../../controllers/staff/adminCtrl");
 
 const isLogin = require('../../middlewares/isLogin');
@@ -19,7 +20,7 @@ const isLogin = require('../../middlewares/isLogin');
 
 // ---- public ----
 // register
-adminRouter.post('/register', registeradminCtrl)
+adminRouter.post('/register', isLogin, registeradminCtrl)
 
 // login
 adminRouter.post('/login', loginadminCtrl)
@@ -33,6 +34,9 @@ adminRouter.get('/profile', isLogin, getadminprofile)
 
 // admin dashboard stats
 adminRouter.get('/stats', isLogin, getAdminStatsCtrl)
+
+// admin dashboard analytics (detailed breakdown)
+adminRouter.get('/analytics', isLogin, getAdminAnalyticsCtrl)
 
 // get single admin by id
 adminRouter.get('/:id', isLogin, singleadminCtrl)

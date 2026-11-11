@@ -1,0 +1,1326 @@
+{
+  "reviewedAt": "2026-10-26T15:55:34.039Z",
+  "mode": "read-only",
+  "school": "LYCEE BATOURI",
+  "ownership": "Owner attests all schooldb records belong to this school",
+  "proposedPlatformOperator": "admin@school.local",
+  "database_name": "schooldb",
+  "server_name": "MARIUS\\DEV",
+  "sql_version": "14.0.3456.2",
+  "hasMigrationLedger": false,
+  "hasCanonicalSchools": false,
+  "schoolOwnedTables": [
+    {
+      "table": "Admins",
+      "present": true,
+      "count": "3",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "email",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "password",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "role",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "teachers",
+      "present": true,
+      "count": "22",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "email",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "password",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "phone",
+          "type": "nvarchar",
+          "max_length": 60,
+          "is_nullable": true
+        },
+        {
+          "name": "employmentType",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "section",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "role",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        },
+        {
+          "name": "status",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "firstName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "middleName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "lastName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "secondaryContactName",
+          "type": "nvarchar",
+          "max_length": 400,
+          "is_nullable": true
+        },
+        {
+          "name": "secondaryContactPhone",
+          "type": "nvarchar",
+          "max_length": 60,
+          "is_nullable": true
+        },
+        {
+          "name": "address",
+          "type": "nvarchar",
+          "max_length": 600,
+          "is_nullable": true
+        },
+        {
+          "name": "idCardNo",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": true
+        },
+        {
+          "name": "dateOfIssue",
+          "type": "date",
+          "max_length": 3,
+          "is_nullable": true
+        },
+        {
+          "name": "gender",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": true
+        },
+        {
+          "name": "civilStatus",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": true
+        },
+        {
+          "name": "noOfChildren",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "telephone",
+          "type": "nvarchar",
+          "max_length": 60,
+          "is_nullable": true
+        },
+        {
+          "name": "matriculeFile",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": true
+        }
+      ]
+    },
+    {
+      "table": "classes",
+      "present": true,
+      "count": "21",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "section",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": false
+        },
+        {
+          "name": "stream",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": true
+        },
+        {
+          "name": "rank",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_master_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "registration_fee",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "tuition_fee",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "pta_fee",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "caution_fee",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "practicals_fee",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "option_name",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        }
+      ]
+    },
+    {
+      "table": "subjects",
+      "present": true,
+      "count": "16",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "code",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "description",
+          "type": "nvarchar",
+          "max_length": 400,
+          "is_nullable": true
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        },
+        {
+          "name": "coefficient",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "categories",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": true
+        },
+        {
+          "name": "subject_master",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "hours_per_week",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "has_lab",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "academic_years",
+      "present": true,
+      "count": "2",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "fromYear",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "toYear",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "isCurrent",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "createdBy",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "students",
+      "present": true,
+      "count": "79",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "matricule",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": false
+        },
+        {
+          "name": "password",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "section",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "role",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "academicYearId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "currentClassLevel",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "isWithdrawn",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "promoted",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        },
+        {
+          "name": "firstName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "middleName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "lastName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "dateOfBirth",
+          "type": "date",
+          "max_length": 3,
+          "is_nullable": true
+        },
+        {
+          "name": "sex",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "yearOfEnrollment",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "address",
+          "type": "nvarchar",
+          "max_length": 400,
+          "is_nullable": true
+        },
+        {
+          "name": "placeOfBirth",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "regionOfOrigin",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "division",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "parentName",
+          "type": "nvarchar",
+          "max_length": 400,
+          "is_nullable": true
+        },
+        {
+          "name": "parentPhone",
+          "type": "nvarchar",
+          "max_length": 30,
+          "is_nullable": true
+        },
+        {
+          "name": "medicalStatus",
+          "type": "nvarchar",
+          "max_length": 400,
+          "is_nullable": true
+        },
+        {
+          "name": "parentPhone2",
+          "type": "nvarchar",
+          "max_length": 30,
+          "is_nullable": true
+        }
+      ]
+    },
+    {
+      "table": "student_fees",
+      "present": true,
+      "count": "10",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "student_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "fee_type",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": false
+        },
+        {
+          "name": "amount",
+          "type": "decimal",
+          "max_length": 9,
+          "is_nullable": false
+        },
+        {
+          "name": "paid",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "auxiliary_staff",
+      "present": true,
+      "count": "0",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "firstName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "middleName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": true
+        },
+        {
+          "name": "lastName",
+          "type": "nvarchar",
+          "max_length": 200,
+          "is_nullable": false
+        },
+        {
+          "name": "email",
+          "type": "nvarchar",
+          "max_length": 510,
+          "is_nullable": false
+        },
+        {
+          "name": "phone",
+          "type": "nvarchar",
+          "max_length": 60,
+          "is_nullable": true
+        },
+        {
+          "name": "role",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": false
+        },
+        {
+          "name": "status",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "class_subjects",
+      "present": true,
+      "count": "237",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "class_subject_teachers",
+      "present": true,
+      "count": "177",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "teacher_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "term",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "class_subject_students",
+      "present": true,
+      "count": "9",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "student_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "academic_year_students",
+      "present": true,
+      "count": "0",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "student_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "academic_year_teachers",
+      "present": true,
+      "count": "12",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "teacher_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "exams",
+      "present": true,
+      "count": "2",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "name",
+          "type": "nvarchar",
+          "max_length": 300,
+          "is_nullable": false
+        },
+        {
+          "name": "description",
+          "type": "nvarchar",
+          "max_length": 1000,
+          "is_nullable": true
+        },
+        {
+          "name": "subjectId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "classLevel",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "passmark",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "totalmark",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "coefficient",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academicTerm",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "academicYearId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "examDate",
+          "type": "date",
+          "max_length": 3,
+          "is_nullable": true
+        },
+        {
+          "name": "examStatus",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": false
+        },
+        {
+          "name": "createdBy",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "questions",
+      "present": true,
+      "count": "4",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "examId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "questionText",
+          "type": "nvarchar",
+          "max_length": -1,
+          "is_nullable": false
+        },
+        {
+          "name": "optionA",
+          "type": "nvarchar",
+          "max_length": 1000,
+          "is_nullable": false
+        },
+        {
+          "name": "optionB",
+          "type": "nvarchar",
+          "max_length": 1000,
+          "is_nullable": false
+        },
+        {
+          "name": "optionC",
+          "type": "nvarchar",
+          "max_length": 1000,
+          "is_nullable": false
+        },
+        {
+          "name": "optionD",
+          "type": "nvarchar",
+          "max_length": 1000,
+          "is_nullable": false
+        },
+        {
+          "name": "correctOption",
+          "type": "char",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "marks",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdBy",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "exam_results",
+      "present": true,
+      "count": "0",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "studentId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "examId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "subjectId",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "score",
+          "type": "decimal",
+          "max_length": 5,
+          "is_nullable": false
+        },
+        {
+          "name": "passmark",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "grade",
+          "type": "nvarchar",
+          "max_length": 10,
+          "is_nullable": true
+        },
+        {
+          "name": "status",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "remarks",
+          "type": "nvarchar",
+          "max_length": 40,
+          "is_nullable": true
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        },
+        {
+          "name": "isPublished",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "time_slots",
+      "present": true,
+      "count": "10",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "slot_number",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "start_time",
+          "type": "nvarchar",
+          "max_length": 10,
+          "is_nullable": false
+        },
+        {
+          "name": "end_time",
+          "type": "nvarchar",
+          "max_length": 10,
+          "is_nullable": false
+        },
+        {
+          "name": "is_break",
+          "type": "bit",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "sort_order",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "subject_allocations",
+      "present": true,
+      "count": "174",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "periods_week",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "subject_scores",
+      "present": true,
+      "count": "19",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "student_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "term",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "sequence",
+          "type": "tinyint",
+          "max_length": 1,
+          "is_nullable": false
+        },
+        {
+          "name": "score",
+          "type": "decimal",
+          "max_length": 5,
+          "is_nullable": false
+        },
+        {
+          "name": "max_score",
+          "type": "decimal",
+          "max_length": 5,
+          "is_nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        }
+      ]
+    },
+    {
+      "table": "timetables",
+      "present": true,
+      "count": "172",
+      "columns": [
+        {
+          "name": "id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "class_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "subject_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "teacher_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "day_of_week",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "start_time",
+          "type": "nvarchar",
+          "max_length": 10,
+          "is_nullable": false
+        },
+        {
+          "name": "end_time",
+          "type": "nvarchar",
+          "max_length": 10,
+          "is_nullable": false
+        },
+        {
+          "name": "room",
+          "type": "nvarchar",
+          "max_length": 100,
+          "is_nullable": true
+        },
+        {
+          "name": "academic_term",
+          "type": "nvarchar",
+          "max_length": 20,
+          "is_nullable": false
+        },
+        {
+          "name": "academic_year_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "created_by",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": false
+        },
+        {
+          "name": "createdAt",
+          "type": "datetime2",
+          "max_length": 8,
+          "is_nullable": false
+        },
+        {
+          "name": "time_slot_id",
+          "type": "int",
+          "max_length": 4,
+          "is_nullable": true
+        }
+      ]
+    }
+  ],
+  "untrustedForeignKeys": [],
+  "accountReview": {
+    "adminTableRows": 3,
+    "recognisedAdministrators": 2,
+    "roleExceptions": 1
+  },
+  "changes": 0,
+  "executionGate": "No changes made. Existing unversioned schema needs reviewed adoption/expand migrations and verified original-source backup/rehearsal; do not run synthetic setup over it."
+}

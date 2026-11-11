@@ -26,6 +26,8 @@ exports.registerAuxiliaryCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/auxiliary
 //@access Private (admin)
 exports.getAllAuxiliaryCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('../academic/scopedLegacyReferences').handle(req, 'records', 'auxiliary');return res.status(200).json({status:'success',results:data.length,data});}
+
     const staff = await Auxiliary.getAll();
     res.status(200).json({ status: 'success', results: staff.length, data: staff });
 });
@@ -34,6 +36,8 @@ exports.getAllAuxiliaryCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/auxiliary/:id
 //@access Private (admin)
 exports.singleAuxiliaryCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('../academic/scopedLegacyReferences').handle(req, 'records', 'auxiliary', req.params.id);return res.status(200).json({status:'success',data});}
+
     const staff = await Auxiliary.findById(req.params.id);
     if (!staff) throw httpError(404, 'Auxiliary staff not found');
     res.status(200).json({ status: 'success', data: staff });

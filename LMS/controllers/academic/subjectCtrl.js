@@ -29,6 +29,8 @@ const httpError = (status, message) => {
 //@route  GET /api/v1/subjects
 //@access Private (admin)
 exports.getAllSubjectsCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'subjects');return res.status(200).json({status:'success',results:data.length,data});}
+
     const subjects = await Subject.getAll();
     res.status(200).json({ status: 'success', results: subjects.length, data: subjects });
 });
@@ -37,6 +39,8 @@ exports.getAllSubjectsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/subjects/:id
 //@access Private (admin)
 exports.singleSubjectCtrl = asyncHandler(async (req, res) => {
+    if(req.app.locals.legacyScopedReferencesEnabled){const data=await require('./scopedLegacyReferences').handle(req, 'records', 'subjects', req.params.id);return res.status(200).json({status:'success',data});}
+
     const subject = await Subject.findById(req.params.id);
     if (!subject) throw httpError(404, 'Subject not found');
     res.status(200).json({ status: 'success', data: subject });

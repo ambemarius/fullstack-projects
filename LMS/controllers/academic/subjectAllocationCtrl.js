@@ -32,6 +32,10 @@ exports.setAllocationCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/allocations/class/:classId?yearId=
 //@access Private (admin)
 exports.getClassAllocationsCtrl = asyncHandler(async (req, res) => {
+    if (req.app.locals.legacyScopedAllocationsEnabled) {
+        const data = await require('./scopedLegacyAllocations').handle(req);
+        return res.status(200).json({ status: 'success', results: data.length, data });
+    }
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     if (!yearId) throw httpError(400, 'No academic year (provide yearId or set a current year)');
     const data = await SubjectAllocation.getByClass(req.params.classId, yearId);
@@ -42,6 +46,10 @@ exports.getClassAllocationsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/allocations?yearId=
 //@access Private (admin)
 exports.getAllAllocationsCtrl = asyncHandler(async (req, res) => {
+    if (req.app.locals.legacyScopedAllocationsEnabled) {
+        const data = await require('./scopedLegacyAllocations').handle(req);
+        return res.status(200).json({ status: 'success', results: data.length, data });
+    }
     const yearId = req.query.yearId || (await AcademicYearModel.findCurrent())?.id;
     if (!yearId) throw httpError(400, 'No academic year (provide yearId or set a current year)');
     const data = await SubjectAllocation.getAll(yearId);
@@ -60,6 +68,9 @@ exports.deleteAllocationCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/allocations/form-data
 //@access Private (admin)
 exports.getFormDataCtrl = asyncHandler(async (req, res) => {
+    if (req.app.locals.legacyScopedAllocationsEnabled) {
+        return res.status(200).json({ status: 'success', data: await require('./scopedLegacyAllocations').handle(req, true) });
+    }
     const [classes, subjects, academicYears] = await Promise.all([
         ClassModel.getAll(),
         SubjectModel.getAll(),

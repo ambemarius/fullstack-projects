@@ -3,6 +3,7 @@ const Student = require('../../model/Academic/student');
 const AcademicYear = require('../../model/Academic/academicYear');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
+const { getPublicUrl } = require('../../middlewares/upload');
 
 const httpError = (status, message) => {
     const err = new Error(message);
@@ -12,6 +13,7 @@ const httpError = (status, message) => {
 
 exports.registerStudentCtrl = asyncHandler(async (req, res) => {
     const { firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, fees } = req.body || {};
+    const photo = req.file ? getPublicUrl(req.file.path) : null;
     if (!firstName || !lastName || !matricule || !password || !section || !sex) {
         throw httpError(400, 'firstName, lastName, matricule, password, section and sex are required');
     }
@@ -24,7 +26,7 @@ exports.registerStudentCtrl = asyncHandler(async (req, res) => {
         if (year) finalYear = year.fromYear;
     }
 
-    const student = await Student.create({ firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment: finalYear, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus });
+    const student = await Student.create({ firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment: finalYear, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, photo });
     if (fees && Array.isArray(fees) && fees.length) {
         await Student.saveFees(student.id, fees);
     }
@@ -77,6 +79,7 @@ exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
     const student = await Student.findById(req.params.id);
     if (!student) throw httpError(404, 'Student not found');
     const { firstName, middleName, lastName, section, dateOfBirth, sex, yearOfEnrollment, currentClassLevel, academicYearId, isWithdrawn, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, fees } = req.body || {};
+    const photo = req.file ? getPublicUrl(req.file.path) : undefined;
 
     let finalYear = yearOfEnrollment;
     if (!finalYear && academicYearId) {
@@ -84,7 +87,9 @@ exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
         if (year) finalYear = year.fromYear;
     }
 
-    const updated = await Student.update(req.params.id, { firstName, middleName, lastName, section, dateOfBirth, sex, yearOfEnrollment: finalYear, currentClassLevel, academicYearId, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus });
+    const updates = { firstName, middleName, lastName, section, dateOfBirth, sex, yearOfEnrollment: finalYear, currentClassLevel, academicYearId, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus };
+    if (photo) updates.photo = photo;
+    const updated = await Student.update(req.params.id, updates);
     if (isWithdrawn !== undefined) await Student.setWithdrawn(req.params.id, isWithdrawn === true || isWithdrawn === 'true');
     if (fees && Array.isArray(fees) && fees.length) {
         await Student.saveFees(req.params.id, fees);
