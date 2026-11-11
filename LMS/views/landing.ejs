@@ -1,9 +1,162 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LYCEE BATOURI · School management</title><%- include('partials/workspace-assets') %></head>
-<body class="lms-ui lms-landing"><header><a class="brand" href="/">LMS <span>LYCEE BATOURI</span></a><nav class="nav" aria-label="Main navigation"><a href="#about">School tools</a><a href="#contact">Support</a><a href="/login">Original application sign-in</a></nav></header>
-<main><section class="lms-landing-hero"><div><p class="lms-eyebrow">LYCEE BATOURI</p><h1>A clear view of your school day.</h1><p>Access school records, manage academic work and find the tools you need from one school workspace.</p><div class="lms-landing-actions"><a class="btn" href="https://localhost:2027/school">Open school dashboard <span aria-hidden="true">→</span></a><a class="btn btn-secondary" href="/login">Sign in to original application</a></div></div><aside class="lms-landing-guide"><span class="lms-mode">School workspace</span><h2>One place to get started</h2><ol><li>Sign in with your existing school account.</li><li>Open the tools available for your role.</li><li>Keep live records separate from practice.</li></ol></aside></section>
-<section id="about"><div class="lms-section-intro"><p class="lms-eyebrow">School tools</p><h2>Organised around your work</h2><p>Your school account determines which records and actions you can access.</p></div><div class="lms-landing-grid">
-<article class="card"><%- include('partials/hub-icon',{icon:'people'}) %><h3>People &amp; registration</h3><p>Pupil, teacher and support-staff records, with account access managed separately.</p></article>
-<article class="card"><%- include('partials/hub-icon',{icon:'book'}) %><h3>Academics &amp; timetables</h3><p>Academic setup, courses, teaching assignments and your school timetable.</p></article>
-<article class="card"><%- include('partials/hub-icon',{icon:'shield'}) %><h3>School administration</h3><p>Staff access, invitations and existing administrator reports.</p></article></div></section>
-<section class="lms-practice-promo"><div><span class="lms-mode">Practice only</span><h2>Explore before you start</h2><p>Try Finance, Library, Laboratory and Attendance with fictional records. These workspaces are separate from live school records.</p></div><a class="btn btn-secondary" href="https://localhost:2030/">Explore practice workspaces</a></section>
-<section id="contact" class="lms-support"><h2>Need help with access?</h2><p>Contact your school administrator for account invitations, password recovery or permission changes.</p></section></main><footer>LYCEE BATOURI · LMS School management</footer></body></html>
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LYCEE BATOURI &middot; School Management</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <%- include('partials/workspace-assets') %>
+  <style>
+    .lms-landing { background: var(--bg); }
+    .lms-landing header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 64px; background: var(--surface);
+      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
+    }
+    .lms-landing .brand span { font-weight: 400; font-size: 14px; color: var(--muted); margin-left: 6px; }
+
+    .lms-hero {
+      max-width: 960px; margin: 0 auto; padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .lms-hero h1 {
+      font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15;
+      margin: 0 0 16px; color: var(--text);
+    }
+    .lms-hero p { font-size: 18px; color: var(--text-secondary); max-width: 560px; margin: 0 auto 32px; }
+    .lms-hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .lms-hero-actions .btn { padding: 14px 28px; font-size: 16px; }
+
+    .lms-features {
+      max-width: 960px; margin: 0 auto; padding: 0 24px 56px;
+    }
+    .lms-features-header { text-align: center; margin-bottom: 36px; }
+    .lms-features-header h2 { font-size: 24px; margin: 0 0 8px; }
+    .lms-features-header p { color: var(--muted); font-size: 15px; margin: 0; }
+
+    .lms-features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .lms-features-grid .card {
+      padding: 28px; text-align: center;
+      transition: box-shadow var(--transition), transform 0.1s ease;
+    }
+    .lms-features-grid .card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .lms-features-grid h3 { font-size: 17px; margin: 14px 0 8px; }
+    .lms-features-grid p { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.5; }
+    .lms-feature-icon { font-size: 36px; display: block; margin-bottom: 4px; }
+
+    .lms-steps {
+      background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 48px 24px;
+    }
+    .lms-steps-inner { max-width: 720px; margin: 0 auto; text-align: center; }
+    .lms-steps h2 { font-size: 22px; margin: 0 0 28px; }
+    .lms-steps-row { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+    .lms-step { flex: 1; min-width: 180px; max-width: 240px; }
+    .lms-step-num {
+      width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 16px; margin-bottom: 10px;
+    }
+    .lms-step h3 { font-size: 15px; margin: 0 0 4px; }
+    .lms-step p { font-size: 13px; color: var(--muted); margin: 0; }
+
+    .lms-support-section {
+      max-width: 600px; margin: 0 auto; padding: 48px 24px; text-align: center;
+    }
+    .lms-support-section h2 { font-size: 22px; margin: 0 0 10px; }
+    .lms-support-section p { color: var(--muted); font-size: 15px; margin: 0; }
+
+    .lms-landing footer {
+      text-align: center; padding: 24px; color: var(--muted); font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .lms-landing header { flex-wrap: wrap; height: auto; padding: 12px 20px; gap: 8px; }
+      .lms-landing .nav { gap: 12px; }
+      .lms-landing .nav a { margin-left: 0; font-size: 14px; }
+      .lms-hero { padding: 40px 20px 32px; }
+      .lms-steps-row { flex-direction: column; align-items: center; gap: 24px; }
+    }
+  </style>
+</head>
+<body class="lms-ui lms-landing">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+
+  <header>
+    <a class="brand" href="/">LMS <span>LYCEE BATOURI</span></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#features">Features</a>
+      <a href="#contact">Support</a>
+      <a href="/login">Sign in</a>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section class="lms-hero">
+      <h1>A clear view of your school day.</h1>
+      <p>Access school records, manage academic work and find the tools you need &mdash; all from one place.</p>
+      <div class="lms-hero-actions">
+        <a class="btn" href="/login">Sign in to your account</a>
+      </div>
+    </section>
+
+    <section id="features" class="lms-features">
+      <div class="lms-features-header">
+        <h2>Built for your school</h2>
+        <p>Your account type determines which tools and records you can access.</p>
+      </div>
+      <div class="lms-features-grid">
+        <article class="card">
+          <%- include('partials/hub-icon', { icon: 'people' }) %>
+          <h3>People &amp; Registration</h3>
+          <p>Manage pupil, teacher and support-staff records with role-based access control.</p>
+        </article>
+        <article class="card">
+          <%- include('partials/hub-icon', { icon: 'book' }) %>
+          <h3>Academics &amp; Timetables</h3>
+          <p>Set up courses, manage teaching assignments and view timetables for any class.</p>
+        </article>
+        <article class="card">
+          <%- include('partials/hub-icon', { icon: 'shield' }) %>
+          <h3>School Administration</h3>
+          <p>Staff access management, analytics dashboards and administrator reports.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="lms-steps">
+      <div class="lms-steps-inner">
+        <h2>Get started in three steps</h2>
+        <div class="lms-steps-row">
+          <div class="lms-step">
+            <span class="lms-step-num">1</span>
+            <h3>Sign in</h3>
+            <p>Use your existing school account credentials.</p>
+          </div>
+          <div class="lms-step">
+            <span class="lms-step-num">2</span>
+            <h3>Open your tools</h3>
+            <p>See dashboards and actions available for your role.</p>
+          </div>
+          <div class="lms-step">
+            <span class="lms-step-num">3</span>
+            <h3>Manage records</h3>
+            <p>Work with live school data securely.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="lms-support-section">
+      <h2>Need help with access?</h2>
+      <p>Contact your school administrator for account invitations, password recovery or permission changes.</p>
+    </section>
+  </main>
+
+  <footer>&copy; <%= new Date().getFullYear() %> LYCEE BATOURI &middot; School Management System</footer>
+</body>
+</html>

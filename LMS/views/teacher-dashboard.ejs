@@ -1,12 +1,14 @@
 <%- include('partials/header', { title: 'Teacher Dashboard' }) %>
-<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><p class="card" data-canonical-courses="true">Teaching assignments, rosters and raw marks are now in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing teacher account. Legacy academic and exam tools are paused pending their scoped replacement.</p><% } %>
+<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Teaching assignments, rosters and raw marks are now in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing teacher account. Legacy academic and exam tools are paused pending their scoped replacement.</div><% } %>
 
 <div class="card">
   <div class="page-head">
-    <h1>Teacher Dashboard</h1>
+    <div>
+      <h1>Teacher Dashboard</h1>
+      <p id="welcome" class="welcome">Loading&hellip;</p>
+    </div>
     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
   </div>
-  <p id="welcome" class="welcome">Loading&hellip;</p>
   <div id="profile"></div>
 </div>
 
@@ -16,6 +18,11 @@
     <thead><tr><th>Class</th><th>Subject</th><th>Code</th><th>Term</th></tr></thead>
     <tbody id="subjectRows"><tr><td colspan="4" class="muted">Loading&hellip;</td></tr></tbody>
   </table>
+  <div id="subjectEmpty" class="empty-state" style="display:none">
+    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'book' }) %></div>
+    <h3>No subjects assigned</h3>
+    <p>Subjects will appear here once the administrator assigns you to a class.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -24,6 +31,11 @@
     <thead><tr><th>Name</th><th>Matricule</th><th>Section</th></tr></thead>
     <tbody id="studentRows"><tr><td colspan="3" class="muted">Loading&hellip;</td></tr></tbody>
   </table>
+  <div id="studentEmpty" class="empty-state" style="display:none">
+    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'people' }) %></div>
+    <h3>No students yet</h3>
+    <p>Students will appear here once they are enrolled in a class you teach.</p>
+  </div>
 </div>
 
 <div class="card">
@@ -61,5 +73,6 @@
 </div>
 
 <script src="/js/app.js"></script>
+<script src="/js/toast.js"></script>
 <script src="/js/teacher-dashboard.js"></script>
 <%- include('partials/footer') %>

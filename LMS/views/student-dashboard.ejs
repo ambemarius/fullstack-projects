@@ -1,15 +1,18 @@
 <%- include('partials/header', { title: 'Student Dashboard' }) %>
-<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><p class="card" data-canonical-courses="true">View your subject memberships in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing pupil account. Legacy academic and exam tools are paused pending their scoped replacement.</p><% } %>
+<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">View your subject memberships in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing pupil account. Legacy academic and exam tools are paused pending their scoped replacement.</div><% } %>
 
 <div class="card">
   <div class="page-head">
-    <h1>Student Dashboard</h1>
+    <div>
+      <h1>Student Dashboard</h1>
+      <p id="welcome" class="welcome">Loading&hellip;</p>
+    </div>
     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
   </div>
-  <p id="welcome" class="welcome">Loading&hellip;</p>
   <div id="profile"></div>
 </div>
 
 <script src="/js/app.js"></script>
+<script src="/js/toast.js"></script>
 <script src="/js/student-dashboard.js"></script>
 <%- include('partials/footer') %>

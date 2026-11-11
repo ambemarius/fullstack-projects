@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="/css/style.css" />
 <%- include('workspace-assets') %></head>
 <body class="lms-ui">
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="topbar">
     <a class="brand" href="/">LMS</a>
     <nav class="nav" id="mainNav">
@@ -19,4 +20,4 @@
       <a href="#" id="navLogout" data-roles="admin,teacher,student">Logout</a>
     </nav>
   </header>
-  <main class="container"><%- include('workspace-wayfinding',{workspaceMode:'Original application',workspaceHome:'https://localhost:2027/school'}) %>
+  <main class="container" id="main-content"><%- include('workspace-wayfinding',{workspaceMode:'Original application',workspaceHome:'https://localhost:2027/school'}) %>
