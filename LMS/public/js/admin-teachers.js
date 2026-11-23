@@ -32,15 +32,15 @@
 
       return `<tr data-id="${t.id}">
         <td>${name}</td>
-        <td>${esc(t.email)}</td>
-        <td>${esc(t.phone || '')}</td>
+        <td class="col-secondary">${esc(t.email)}</td>
+        <td class="col-secondary">${esc(t.phone || '')}</td>
         <td>${esc(t.section)}</td>
-        <td>${esc(t.employmentType)}</td>
+        <td class="col-secondary">${esc(t.employmentType)}</td>
         <td><span class="badge ${t.status === 'active' ? 'no' : 'yes'}">${esc(t.status)}</span></td>
         <td class="action-col">
-          <button type="button" class="action-btn edit" onclick="event.stopPropagation(); editTeacher(${t.id})" title="Edit Teacher">📝</button>
-          <button type="button" class="action-btn delete" onclick="event.stopPropagation(); deleteTeacher(${t.id})" title="Delete Teacher">❌</button>
-          <button type="button" class="action-btn accept" onclick="event.stopPropagation(); acceptTeacher(${t.id})" style="${acceptStyle}" title="${acceptTitle}">✅</button>
+          <button type="button" class="action-btn edit" data-action="editTeacher" data-id="${t.id}" aria-label="Edit Teacher">Edit</button>
+          <button type="button" class="action-btn delete" data-action="deleteTeacher" data-id="${t.id}" aria-label="Delete Teacher">Delete</button>
+          <button type="button" class="action-btn accept" data-action="acceptTeacher" data-id="${t.id}" style="${acceptStyle}" aria-label="${acceptTitle}">Accept</button>
         </td>
       </tr>`;
     }).join('');
@@ -154,7 +154,7 @@
   // ===== Inline Action Handlers =====
   window.editTeacher = async function (id) {
     const { ok, data } = await api(`/teachers/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch teacher details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch teacher details.'); return; }
     fillTeacherForm(data.data);
     switchTab('registration');
     document.querySelector('.reg-subtab[data-sub="teacher"]').click();
@@ -163,21 +163,23 @@
 
   window.inlineEditTeacher = async function (id) {
     const { ok, data } = await api(`/teachers/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch teacher details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch teacher details.'); return; }
     fillTeacherForm(data.data);
     selectedTeacherId = data.data.id;
     highlightTeacherRow(selectedTeacherId);
   };
 
   window.deleteTeacher = async function (id) {
-    if (!confirm('Are you sure you want to permanently delete this teacher?')) return;
+    const teacher = allTeachersList.find(t => t.id === id);
+    const teacherLabel = teacher ? `${[teacher.firstName, teacher.middleName, teacher.lastName].filter(Boolean).join(' ')} (${teacher.email})` : 'this teacher';
+    if (!confirm(`Delete ${teacherLabel}? Their teaching assignments will be removed. This cannot be undone.`)) return;
     const { ok, data } = await api(`/teachers/${id}`, { method: 'DELETE' });
     if (ok) {
       loadTeacherTable();
       if (window.LMS.loadPersonnel) window.LMS.loadPersonnel();
       loadStats();
     } else {
-      alert(data.message || 'Failed to delete teacher.');
+      toast(data.message || 'Failed to delete teacher.');
     }
   };
 
@@ -189,9 +191,9 @@
     if (ok) {
       loadTeacherTable();
       if (window.LMS.loadPersonnel) window.LMS.loadPersonnel();
-      alert('Teacher accepted and activated successfully!');
+      toast('Teacher accepted and activated successfully!');
     } else {
-      alert(data.message || 'Failed to accept teacher.');
+      toast(data.message || 'Failed to accept teacher.');
     }
   };
 
@@ -220,7 +222,7 @@
       if (firstRow) {
         selectedTeacherId = parseInt(firstRow.dataset.id);
       } else {
-        alert('Select a teacher first.');
+        toast('Select a teacher first.');
         return;
       }
     }
@@ -237,7 +239,7 @@
       if (firstRow) {
         selectedTeacherId = parseInt(firstRow.dataset.id);
       } else {
-        alert('Select a teacher first.');
+        toast('Select a teacher first.');
         return;
       }
     }

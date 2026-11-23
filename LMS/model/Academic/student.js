@@ -15,121 +15,11 @@ function normalizePhone(raw) {
 }
 
 const StudentModel = {
-    async createTable() {
-        await poolConnect;
-        await pool.request().query(`
-            IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'students')
-            CREATE TABLE students (
-                id                INT IDENTITY(1,1) PRIMARY KEY,
-                firstName         NVARCHAR(100) NOT NULL,
-                middleName        NVARCHAR(100) NULL,
-                lastName          NVARCHAR(100) NOT NULL,
-                matricule         NVARCHAR(50)  NOT NULL UNIQUE,
-                password          NVARCHAR(255) NOT NULL,
-                section           NVARCHAR(20)  NOT NULL,
-                dateOfBirth       DATE NULL,
-                sex               NVARCHAR(10)  NOT NULL CHECK (sex IN ('Male', 'Female')),
-                yearOfEnrollment  INT NULL,
-                role              NVARCHAR(20)  NOT NULL DEFAULT 'student',
-                academicYearId    INT NULL,
-                currentClassLevel INT NULL,
-                isWithdrawn       BIT NOT NULL DEFAULT 0,
-                promoted          BIT NOT NULL DEFAULT 0,
-                address           NVARCHAR(200) NULL,
-                placeOfBirth      NVARCHAR(100) NULL,
-                regionOfOrigin    NVARCHAR(100) NULL,
-                division          NVARCHAR(100) NULL,
-                parentName        NVARCHAR(200) NULL,
-                parentPhone       NVARCHAR(15)  NULL,
-                parentPhone2      NVARCHAR(15)  NULL,
-                medicalStatus     NVARCHAR(200) NULL,
-                createdAt         DATETIME2     NOT NULL DEFAULT SYSUTCDATETIME(),
-                CONSTRAINT CK_student_section CHECK (section IN ('Anglophone', 'Francophone')),
-                CONSTRAINT CK_student_role    CHECK (role = 'student'),
-                CONSTRAINT FK_student_class FOREIGN KEY (currentClassLevel) REFERENCES classes(id),
-                CONSTRAINT FK_student_year  FOREIGN KEY (academicYearId)    REFERENCES academic_years(id)
-            );
-        `);
-        await this.createFeesTable();
-
-        await poolConnect;
-        await pool.request().query(`
-            IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('students') AND name = 'parentPhone' AND max_length > 15)
-                ALTER TABLE students ALTER COLUMN parentPhone NVARCHAR(15);
-        `);
-        await pool.request().query(`
-            IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('students') AND name = 'parentPhone2')
-                ALTER TABLE students ADD parentPhone2 NVARCHAR(15) NULL;
-        `);
-    },
-
-    async createFeesTable() {
-        await poolConnect;
-        await pool.request().query(`
-            IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'student_fees')
-            CREATE TABLE student_fees (
-                id         INT IDENTITY(1,1) PRIMARY KEY,
-                student_id INT NOT NULL,
-                fee_type   NVARCHAR(50) NOT NULL,
-                amount     DECIMAL(10,2) NOT NULL DEFAULT 0,
-                paid       BIT NOT NULL DEFAULT 0,
-                CONSTRAINT UQ_student_fee UNIQUE (student_id, fee_type),
-                CONSTRAINT FK_student_fee_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
-            );
-        `);
-    },
-
-    async migrate() {
-        await poolConnect;
-        const newCols = ['firstName', 'middleName', 'lastName', 'dateOfBirth', 'sex', 'yearOfEnrollment', 'address', 'placeOfBirth', 'regionOfOrigin', 'division', 'parentName', 'parentPhone', 'medicalStatus'];
-        for (const c of newCols) {
-            const exists = await pool.request()
-                .query(`SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('students') AND name = '${c}'`);
-            if (exists.recordset.length) continue;
-            let ddl;
-            switch (c) {
-                case 'firstName': ddl = "ALTER TABLE students ADD firstName NVARCHAR(100) NULL"; break;
-                case 'middleName': ddl = "ALTER TABLE students ADD middleName NVARCHAR(100) NULL"; break;
-                case 'lastName': ddl = "ALTER TABLE students ADD lastName NVARCHAR(100) NULL"; break;
-                case 'dateOfBirth': ddl = "ALTER TABLE students ADD dateOfBirth DATE NULL"; break;
-                case 'sex': ddl = "ALTER TABLE students ADD sex NVARCHAR(10) NULL"; break;
-                case 'yearOfEnrollment': ddl = "ALTER TABLE students ADD yearOfEnrollment INT NULL"; break;
-                case 'address': ddl = "ALTER TABLE students ADD address NVARCHAR(200) NULL"; break;
-                case 'placeOfBirth': ddl = "ALTER TABLE students ADD placeOfBirth NVARCHAR(100) NULL"; break;
-                case 'regionOfOrigin': ddl = "ALTER TABLE students ADD regionOfOrigin NVARCHAR(100) NULL"; break;
-                case 'division': ddl = "ALTER TABLE students ADD division NVARCHAR(100) NULL"; break;
-                case 'parentName': ddl = "ALTER TABLE students ADD parentName NVARCHAR(200) NULL"; break;
-                case 'parentPhone': ddl = "ALTER TABLE students ADD parentPhone NVARCHAR(15) NULL"; break;
-                case 'parentPhone2': ddl = "ALTER TABLE students ADD parentPhone2 NVARCHAR(15) NULL"; break;
-                case 'medicalStatus': ddl = "ALTER TABLE students ADD medicalStatus NVARCHAR(200) NULL"; break;
-            }
-            await pool.request().query(ddl);
-        }
-        const sexCk = await pool.request()
-            .query("SELECT 1 FROM sys.check_constraints WHERE parent_object_id = OBJECT_ID('students') AND name = 'CK_student_sex'");
-        if (!sexCk.recordset.length) {
-            await pool.request().query("ALTER TABLE students ADD CONSTRAINT CK_student_sex CHECK (sex IN ('Male', 'Female'))");
-        }
-        const needFill = await pool.request()
-            .query("SELECT COUNT(*) AS c FROM students WHERE firstName IS NULL AND lastName IS NULL");
-        if (needFill.recordset[0].c > 0) {
-            await pool.request().query(`
-                UPDATE students
-                SET firstName = CASE WHEN CHARINDEX(' ', name) > 0 THEN LEFT(name, CHARINDEX(' ', name) - 1) ELSE name END,
-                    lastName = CASE WHEN CHARINDEX(' ', name) > 0 THEN RIGHT(name, LEN(name) - CHARINDEX(' ', name)) ELSE name END,
-                    sex = CASE WHEN id % 2 = 0 THEN 'Female' ELSE 'Male' END,
-                    yearOfEnrollment = 2025
-                WHERE firstName IS NULL
-            `);
-        }
-        await this.createFeesTable();
-    },
-
     _safeColumns: `s.id, s.firstName, s.middleName, s.lastName, s.matricule, s.section, s.role,
                    s.dateOfBirth, s.sex, s.yearOfEnrollment,
                    s.academicYearId, s.currentClassLevel, s.isWithdrawn, s.promoted,
                    s.address, s.placeOfBirth, s.regionOfOrigin, s.division,
-                   s.parentName, s.parentPhone, s.parentPhone2, s.medicalStatus, s.createdAt`,
+                   s.parentName, s.parentPhone, s.parentPhone2, s.medicalStatus, s.createdAt, s.school_id`,
 
     async create({ firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus }) {
         await poolConnect;
@@ -214,7 +104,8 @@ const StudentModel = {
                        ay.name AS academicYearName
                 FROM students s
                 LEFT JOIN academic_years ay ON ay.id = s.academicYearId
-                WHERE s.currentClassLevel IN (
+                WHERE s.isWithdrawn = 0
+                  AND s.currentClassLevel IN (
                     SELECT DISTINCT cs.class_id
                     FROM class_subject_teachers cst
                     JOIN class_subjects cs ON cs.id = cst.class_subject_id
@@ -432,12 +323,15 @@ const StudentModel = {
         return { promoted, graduated, retained, errors, passMinimum: passMin };
     },
 
+    // A student's marks, fees and enrolments cascade on hard delete; withdrawal keeps the record.
     async remove(id) {
         await poolConnect;
         await pool.request()
             .input('id', sql.Int, id)
-            .query('DELETE FROM students WHERE id = @id');
+            .query('UPDATE students SET isWithdrawn = 1 WHERE id = @id');
     },
 };
+
+StudentModel.normalizePhone = normalizePhone;
 
 module.exports = StudentModel;

@@ -6,104 +6,65 @@
       <h1>Parent / Guardian Dashboard</h1>
       <p id="welcome" class="welcome">Loading&hellip;</p>
     </div>
-    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+    <button id="logoutBtn" class="btn btn-secondary">Sign out</button>
   </div>
 </div>
 
-<div class="card" id="childrenCard" style="display:none">
-  <h2>My Children</h2>
+<div class="card" id="childrenCard">
+  <h2>My children</h2>
   <div id="childrenList"></div>
   <div id="childrenEmpty" class="empty-state" style="display:none">
     <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'people' }) %></div>
-    <h3>No children linked</h3>
-    <p>Ask your school administrator to link your children to your account.</p>
+    <h3>No children linked yet</h3>
+    <p>Link a child below using the matricule on their school documents. The phone number on the student's record must match the one on your account.</p>
   </div>
+  <details id="linkChild">
+    <summary>Link a child</summary>
+    <form id="linkChildForm" class="assign-form">
+      <label>Student matricule
+        <input id="linkMatricule" required autocomplete="off" placeholder="e.g. LB2024-0153" />
+      </label>
+      <label>Relationship
+        <select id="linkRelationship" required>
+          <option value="Mother">Mother</option>
+          <option value="Father">Father</option>
+          <option value="Guardian">Guardian</option>
+        </select>
+      </label>
+      <button type="submit" class="btn" id="linkChildBtn">Link child</button>
+    </form>
+    <p id="linkMsg" class="msg" role="status" aria-live="polite"></p>
+  </details>
 </div>
 
 <div class="card" id="reportCard" style="display:none">
-  <h2 id="reportTitle">Report Card</h2>
-  <table id="reportTable">
-    <thead>
-      <tr><th>Subject</th><th>Code</th><th>Term</th><th>Seq</th><th>Score</th><th>Max</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="page-head">
+    <h2 id="reportTitle">Report card</h2>
+    <button type="button" class="btn btn-secondary btn-sm" data-print>Print</button>
+  </div>
+  <div class="table-wrap">
+    <table id="reportTable">
+      <thead>
+        <tr><th>Subject</th><th>Code</th><th>Term</th><th>Sequence</th><th>Score</th><th>Out of</th></tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
   <div id="reportEmpty" class="empty-state" style="display:none">
     <h3>No scores published yet</h3>
-    <p>Scores will appear here once teachers enter them.</p>
+    <p>Scores appear here once teachers enter and publish them.</p>
   </div>
+  <h3 style="margin-top:24px">Attendance this year</h3>
+  <div class="profile-grid" id="childAttTotals"></div>
+  <div id="childAttRecent"></div>
+  <h3 style="margin-top:24px">Library loans</h3>
+  <div id="childLoans"></div>
 </div>
 
 <script src="/js/app.js"></script>
 <script src="/js/toast.js"></script>
-<script>
-(function () {
-  const token = localStorage.getItem('token');
-  if (!token) return (location.href = '/login');
-
-  const headers = { Authorization: 'Bearer ' + token, Accept: 'application/json' };
-
-  fetch('/api/v1/parents/profile', { headers })
-    .then(r => { if (!r.ok) throw r; return r.json(); })
-    .then(d => {
-      document.getElementById('welcome').textContent =
-        'Welcome, ' + d.data.firstName + ' ' + d.data.lastName;
-      loadChildren();
-    })
-    .catch(() => { location.href = '/login'; });
-
-  function loadChildren() {
-    fetch('/api/v1/parents/children', { headers })
-      .then(r => r.json())
-      .then(d => {
-        const list = document.getElementById('childrenList');
-        const card = document.getElementById('childrenCard');
-        if (!d.data || d.data.length === 0) {
-          document.getElementById('childrenEmpty').style.display = '';
-          card.style.display = '';
-          return;
-        }
-        list.innerHTML = d.data.map(c =>
-          '<div class="child-row">' +
-          '<div><strong>' + esc(c.firstName + ' ' + c.lastName) + '</strong>' +
-          '<span class="muted" style="margin-left:8px">' + esc(c.className || 'N/A') +
-          (c.section ? ' (' + esc(c.section) + ')' : '') + '</span></div>' +
-          '<button class="btn btn-secondary" onclick="viewReport(' + c.id + ',\'' +
-          esc(c.firstName) + ' ' + esc(c.lastName) + '\')">View Report</button>' +
-          '</div>'
-        ).join('');
-        card.style.display = '';
-      });
-  }
-
-  window.viewReport = function (studentId, name) {
-    document.getElementById('reportTitle').textContent = 'Report Card — ' + name;
-    fetch('/api/v1/parents/children/' + studentId + '/report', { headers })
-      .then(r => r.json())
-      .then(d => {
-        const tbody = document.querySelector('#reportTable tbody');
-        const emptyEl = document.getElementById('reportEmpty');
-        if (!d.data || d.data.length === 0) {
-          tbody.innerHTML = '';
-          emptyEl.style.display = '';
-        } else {
-          emptyEl.style.display = 'none';
-          tbody.innerHTML = d.data.map(r =>
-            '<tr><td>' + esc(r.subjectName) + '</td><td>' + esc(r.subjectCode || '') +
-            '</td><td>' + r.term + '</td><td>' + r.sequence +
-            '</td><td>' + r.score + '</td><td>' + r.max_score + '</td></tr>'
-          ).join('');
-        }
-        document.getElementById('reportCard').style.display = '';
-      });
-  };
-
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    localStorage.removeItem('token');
-    location.href = '/login';
-  });
-
-  function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-})();
-</script>
+<script src="/js/attendance-summary.js"></script>
+<script src="/js/library-loans.js"></script>
+<script src="/js/parent-dashboard.js"></script>
 <%- include('partials/footer') %>

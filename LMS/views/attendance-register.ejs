@@ -1,0 +1,60 @@
+<%- include('partials/header', { title: 'Attendance' }) %>
+
+<div class="card">
+  <div class="page-head">
+    <div>
+      <h1>Attendance</h1>
+      <p class="welcome">Class registers, absences to justify and term totals. Absence hours flow into report cards.</p>
+    </div>
+    <a class="btn btn-secondary" id="attHome" href="/">Back to my dashboard</a>
+  </div>
+  <div class="attendance-tabs" role="tablist" aria-label="Attendance views">
+    <button type="button" class="btn btn-secondary" role="tab" id="tab-registers" aria-controls="panel-registers" aria-selected="true">Registers</button>
+    <button type="button" class="btn btn-secondary" role="tab" id="tab-absences" aria-controls="panel-absences" aria-selected="false">Absences to justify</button>
+    <button type="button" class="btn btn-secondary" role="tab" id="tab-totals" aria-controls="panel-totals" aria-selected="false">Class totals</button>
+  </div>
+  <p id="attError" class="msg error" role="alert" hidden></p>
+</div>
+
+<div class="card" role="tabpanel" id="panel-registers" aria-labelledby="tab-registers">
+  <h2>Class registers</h2>
+  <div class="attendance-filters">
+    <label>Class<select id="regClass"><option value="">Choose a class</option></select></label>
+    <label>Date<input type="date" id="regDate"></label>
+    <label>Term<select id="regTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+  </div>
+  <div id="regLessons" class="duty-list"><p class="muted">Choose a class to see its lessons for the day.</p></div>
+  <div id="regRegister"></div>
+</div>
+
+<div class="card" role="tabpanel" id="panel-absences" aria-labelledby="tab-absences" hidden>
+  <h2>Absences and lateness</h2>
+  <form class="attendance-filters" id="absForm">
+    <label>Class<select id="absClass"><option value="">All classes</option></select></label>
+    <label>From<input type="date" id="absFrom" required></label>
+    <label>To<input type="date" id="absTo" required></label>
+    <label class="inline-label"><span><input type="checkbox" id="absPending" checked> Unjustified only</span></label>
+    <button class="btn">Show</button>
+  </form>
+  <div class="table-wrap"><table><thead><tr><th>Date</th><th>Student</th><th>Class / lesson</th><th>Mark</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody id="absRows"><tr><td colspan="6" class="muted">Choose dates and press Show.</td></tr></tbody></table></div>
+</div>
+
+<div class="card" role="tabpanel" id="panel-totals" aria-labelledby="tab-totals" hidden>
+  <h2>Class totals for a term</h2>
+  <form class="attendance-filters" id="totForm">
+    <label>Class<select id="totClass" required><option value="">Choose a class</option></select></label>
+    <label>Academic year<select id="totYear" required></select></label>
+    <label>Term<select id="totTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+    <button class="btn">Show</button>
+  </form>
+  <div class="table-wrap"><table><thead><tr><th>Student</th><th>Periods recorded</th><th>Absences</th><th>Absence hours</th><th>Justified</th><th>Unjustified</th><th>Lates</th></tr></thead>
+  <tbody id="totRows"><tr><td colspan="7" class="muted">Choose a class and term.</td></tr></tbody></table></div>
+  <p><button type="button" class="btn btn-secondary" data-print>Print</button></p>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/attendance-register.js"></script>
+<script src="/js/attendance-page.js"></script>
+<%- include('partials/footer') %>

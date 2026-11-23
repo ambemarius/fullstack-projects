@@ -1,0 +1,12 @@
+node_modules
+uploads
+logs
+backups
+coverage
+test-results
+config/.env
+config/.env.*
+!config/.env.example
+docs
+tests
+.git

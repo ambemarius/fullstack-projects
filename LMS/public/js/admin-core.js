@@ -1,3 +1,18 @@
+// Table action buttons: <button data-action="editStudent" data-id="5" [data-arg="…"]>.
+// Capture phase so the click does not also select the table row (replaces inline onclick + stopPropagation).
+const ADMIN_ACTIONS = new Set(['editSubject', 'deleteSubject', 'acceptSubject', 'inlineEditClass', 'inlineDeleteClass', 'inlineAcceptClass',
+  'editAuxiliary', 'deleteAuxiliary', 'acceptAuxiliary', 'setCurrentAY', 'deleteAY', 'toggleStatus',
+  'editStudent', 'deleteStudent', 'acceptStudent', 'editTeacher', 'deleteTeacher', 'acceptTeacher']);
+document.addEventListener('click', (e) => {
+  const button = e.target.closest && e.target.closest('[data-action]');
+  if (!button || !ADMIN_ACTIONS.has(button.dataset.action) || button.disabled) return;
+  const handler = window[button.dataset.action];
+  if (typeof handler !== 'function') return;
+  e.stopPropagation();
+  const id = Number(button.dataset.id);
+  button.dataset.arg !== undefined ? handler(id, button.dataset.arg) : handler(id);
+}, true);
+
 (function () {
   const TOKEN = localStorage.getItem('token');
   const ROLE = localStorage.getItem('role');
@@ -21,38 +36,15 @@
   };
   window.LMS = lms;
 
-  // ----- Tab switching -----
-  const tabs = document.querySelectorAll('.sidebar-tab');
-  const panels = {
-    home: document.getElementById('tab-home'),
-    registration: document.getElementById('tab-registration'),
-    finance: document.getElementById('tab-finance'),
-    evaluation: document.getElementById('tab-evaluation'),
-    personnel: document.getElementById('tab-personnel'),
-  };
-  const panelTitle = document.getElementById('panelTitle');
-
-  function switchTab(tabName) {
-    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
-    Object.keys(panels).forEach(k => panels[k].classList.toggle('active', k === tabName));
-    panelTitle.textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
-    location.hash = tabName;
-    sessionStorage.setItem('adminTab', tabName);
-  }
-  lms.switchTab = switchTab;
-
-  tabs.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
-
-  // ----- Sidebar collapse on mobile -----
-  document.getElementById('menuToggle')?.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
-  });
-  document.querySelectorAll('.sidebar-tab').forEach(t => t.addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('open');
-  }));
+  lms.switchTab = window.LMSNavigation.switchTab;
 
   // ----- Logout -----
-  function doLogout() { localStorage.clear(); sessionStorage.clear(); window.location.href = '/login'; }
+  async function doLogout() {
+    try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
+    for (const key of ['token','role','user']) localStorage.removeItem(key);
+    for (const key of ['adminTab','adminSubTab','evalSubTab']) sessionStorage.removeItem(key);
+    window.location.href = '/login';
+  }
   document.getElementById('sidebarLogout')?.addEventListener('click', doLogout);
   document.getElementById('topLogout')?.addEventListener('click', doLogout);
 
@@ -84,64 +76,4 @@
   lms.loadStats = loadStats;
   loadStats();
 
-  // ----- Registration sub-tab switching -----
-  const regSubtabs = document.querySelectorAll('#tab-registration .reg-subtab');
-  const regSubpanels = {
-    student: document.getElementById('sub-student'),
-    teacher: document.getElementById('sub-teacher'),
-    subject: document.getElementById('sub-subject'),
-    classes: document.getElementById('sub-classes'),
-    auxiliary: document.getElementById('sub-auxiliary'),
-    'academic-years': document.getElementById('sub-academic-years'),
-  };
-
-  regSubtabs.forEach(btn => {
-    btn.addEventListener('click', () => {
-      regSubtabs.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      Object.keys(regSubpanels).forEach(k => regSubpanels[k].classList.toggle('active', k === btn.dataset.sub));
-      location.hash = 'registration/' + btn.dataset.sub;
-      sessionStorage.setItem('adminTab', 'registration');
-      sessionStorage.setItem('adminSubTab', btn.dataset.sub);
-    });
-  });
-
-  // ----- Evaluation sub-tab switching -----
-  const evalSubtabs = document.querySelectorAll('#tab-evaluation .reg-subtab');
-  const evalSubpanels = {
-    marks: document.getElementById('sub-marks'),
-    'course-review': document.getElementById('sub-course-review'),
-    'report-cards': document.getElementById('sub-report-cards'),
-  };
-
-  evalSubtabs.forEach(btn => {
-    btn.addEventListener('click', () => {
-      evalSubtabs.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      Object.keys(evalSubpanels).forEach(k => evalSubpanels[k].classList.toggle('active', k === btn.dataset.sub));
-      sessionStorage.setItem('evalSubTab', btn.dataset.sub);
-      sessionStorage.setItem('adminTab', 'evaluation');
-      location.hash = 'evaluation/' + btn.dataset.sub;
-    });
-  });
-
-  // ----- Restore tab from sessionStorage -----
-  lms.activateFromStorage = function () {
-    const tab = sessionStorage.getItem('adminTab') || 'home';
-    if (panels[tab]) switchTab(tab);
-    if (tab === 'registration') {
-      const sub = sessionStorage.getItem('adminSubTab');
-      if (sub) {
-        const subBtn = [...regSubtabs].find(button => button.dataset.sub === sub);
-        if (subBtn) subBtn.click();
-      }
-    }
-    if (tab === 'evaluation') {
-      const sub = sessionStorage.getItem('evalSubTab');
-      if (sub) {
-        const subBtn = [...evalSubtabs].find(button => button.dataset.sub === sub);
-        if (subBtn) subBtn.click();
-      }
-    }
-  };
 })();

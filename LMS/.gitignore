@@ -10,3 +10,6 @@ coverage/
 *.log
 backups/
 test-results/private/
+
+# Private uploads (served via authenticated /files route)
+uploads/

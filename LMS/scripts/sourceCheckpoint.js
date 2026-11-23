@@ -12,7 +12,7 @@ function permitted(relative) {
     const basename = path.posix.basename(relative);
     if (basename.startsWith('.env')) return ['config/.env.example', 'config/.env.test.local.example'].includes(relative);
     if (ROOT_FILES.includes(relative)) return true;
-    if (['scripts/Start-LmsRuntime.ps1','scripts/Restart-PracticeRuntime.ps1'].includes(relative)) return true;
+    if (['scripts/Start-LmsRuntime.ps1','scripts/Restart-PracticeRuntime.ps1','scripts/Start-PracticeRuntime.ps1','scripts/Recover-LegacyRuntimeOwnership.ps1'].includes(relative)) return true;
     return ROOTS.includes(relative.split('/')[0]) && /\.(js|cjs|css|ejs|md|sql|json)$/.test(relative);
 }
 

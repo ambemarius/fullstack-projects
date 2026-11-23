@@ -1,38 +1,69 @@
 // Shared frontend helper: auth guard + API wrapper (uses the stored JWT).
-const TOKEN = localStorage.getItem('token');
-const PROTECTED_PATHS = ['/admin-dashboard', '/teacher-dashboard', '/student-dashboard'];
+const PROTECTED_PATHS = [
+  '/admin-dashboard', '/teacher-dashboard', '/student-dashboard', '/parent-dashboard', '/staff-dashboard', '/attendance',
+  '/timetable', '/timetable-teacher', '/timetable-student', '/promotion',
+  '/teachers', '/students', '/subjects', '/allocations',
+];
 
-// Only redirect when the user is on a protected page and has no session.
-if (!TOKEN && PROTECTED_PATHS.includes(window.location.pathname)) {
-  window.location.replace('/login');
+function getToken() {
+  return localStorage.getItem('token');
 }
+
+function tokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
+  } catch (_) {
+    return false;
+  }
+}
+
+function clearSession() {
+  for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
+}
+
+function endSession(reason) {
+  clearSession();
+  window.location.replace('/login' + (reason ? '?reason=' + encodeURIComponent(reason) : ''));
+}
+
+(function guard() {
+  const token = getToken();
+  if (!PROTECTED_PATHS.includes(window.location.pathname)) return;
+  if (!token) return window.location.replace('/login');
+  if (tokenExpired(token)) endSession('expired');
+})();
 
 // call the JSON API with the bearer token attached
 async function api(path, options = {}) {
+  const token = getToken();
+  if (token && tokenExpired(token)) { endSession('expired'); return { ok: false, status: 401, data: {} }; }
   const res = await fetch('/api/v1' + path, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + TOKEN,
+      ...(token ? { Authorization: 'Bearer ' + token } : {}),
       ...(options.headers || {}),
     },
   });
   const data = await res.json().catch(() => ({}));
-  if (res.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-  }
+  if (res.status === 401) endSession('expired');
   return { ok: res.ok, status: res.status, data };
 }
 
+// Print buttons: <button data-print> (no inline handlers; the CSP forbids them).
+document.addEventListener('click', (e) => {
+  if (e.target.closest && e.target.closest('[data-print]')) window.print();
+});
+
 async function logout() {
   try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  clearSession();
+  sessionStorage.clear();
   window.location.href = '/login';
 }
 
-// wire any element with id="logoutBtn"
+// wire any element with id="logoutBtn" (the header's navLogout is handled by nav.js)
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('logoutBtn')?.addEventListener('click', logout);
 });
@@ -43,7 +74,8 @@ function esc(v) {
   return String(v)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 // Render a professional profile card into `el`.

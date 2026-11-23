@@ -1,0 +1,7 @@
+<%- include('shell',{pageTitle:'Review entry'}) %>
+<h1><%= status===403?'Access needed':'Review entry' %></h1>
+<p class="form-error" role="alert" data-entry-error><%= message %></p>
+<% if(status===403){ %><p><%= {library:'The library is open to administrators and to staff an administrator has given the librarian duty.',laboratory:'The laboratory is open to administrators and to staff an administrator has given the laboratory attendant duty.',requests:'Laboratory requests are made by teachers from their own account.'}[area] %></p>
+<% if(area!=='requests'){ %><p>Duties are granted under Personnel → Duties and sign-in.</p><% } %><a class="button secondary" href="<%= home %>">Back to my dashboard</a>
+<% }else{ %><p>Your entry was not completed. Reopen the page to check the latest records before retrying.</p><a class="button secondary" href="<%= paths[area] %>">Reopen</a><% } %>
+<%- include('end') %>

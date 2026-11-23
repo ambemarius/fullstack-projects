@@ -11,12 +11,14 @@ const ENDPOINT = {
   teacher: '/api/v1/teachers/login',
   student: '/api/v1/students/login',
   parent: '/api/v1/parents/login',
+  auxiliary: '/api/v1/auxiliary/login',
 };
 const HOME = {
   admin: '/admin-dashboard',
   teacher: '/teacher-dashboard',
   student: '/student-dashboard',
   parent: '/parent-dashboard',
+  auxiliary: '/staff-dashboard',
 };
 
 const IDENT_CONFIG = {
@@ -24,6 +26,7 @@ const IDENT_CONFIG = {
   teacher: { label: 'Email',     type: 'email', placeholder: 'Enter your email',     field: 'email' },
   student: { label: 'Matricule', type: 'text',  placeholder: 'Enter your matricule', field: 'matricule' },
   parent:  { label: 'Phone',     type: 'tel',   placeholder: 'Enter your phone number', field: 'phone' },
+  auxiliary: { label: 'Email',   type: 'email', placeholder: 'Enter your school email', field: 'email' },
 };
 
 function updateIdentLabel() {
@@ -34,6 +37,16 @@ function updateIdentLabel() {
 }
 roleSel.addEventListener('change', updateIdentLabel);
 updateIdentLabel();
+
+const savedRole = localStorage.getItem('role');
+if (savedRole && IDENT_CONFIG[savedRole]) { roleSel.value = savedRole; updateIdentLabel(); }
+
+const reason = new URLSearchParams(window.location.search).get('reason');
+if (reason === 'expired') {
+  msg.textContent = 'Your session expired. Please sign in again.';
+  msg.className = 'msg error';
+  for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
+}
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -73,7 +86,9 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.data));
     localStorage.setItem('role', role);
-    window.location.href = HOME[role];
+    // Return to the page that asked for sign-in, but only a same-site path.
+    const next = new URLSearchParams(window.location.search).get('next');
+    window.location.href = next && /^\/(?!\/)[\w\-/?=&%.]*$/.test(next) ? next : HOME[role];
   } catch (err) {
     msg.textContent = 'Network error — please check your connection.';
     msg.className = 'msg error';

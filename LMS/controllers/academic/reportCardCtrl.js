@@ -132,7 +132,7 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
             avg,
             grade: gradeResult ? gradeResult.grade : null,
             remark: gradeResult ? gradeResult.remark : null,
-            passmark: r.passmark || 50,
+            passmark: r.passmark || (section === 'Francophone' ? 10 : 50),
             maxScore: max1,
         });
 
@@ -142,16 +142,30 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
         }
     }
 
+    // Absence hours ("heures d'absence") for the bulletin, from the term's attendance registers.
+    const attendance = classInfo.school_id
+        ? await require('../../model/attendance/attendanceService').createAttendanceService()
+            .classTotals({ schoolId: classInfo.school_id }, { classId: +classId, yearId: +academicYearId, term })
+        : new Map();
+    const noAbsence = { periods: 0, absences: 0, absentHours: 0, justifiedHours: 0, unjustifiedHours: 0, lates: 0, lateMinutes: 0 };
+
     const students = Array.from(studentMap.values()).map(s => ({
         ...s,
         overallAvg: s.totalCoefficient > 0 ? s.weightedTotal / s.totalCoefficient : null,
+        attendance: attendance.get(s.studentId) || noAbsence,
     }));
 
     // Sort by overall average descending
     students.sort((a, b) => (b.overallAvg ?? -1) - (a.overallAvg ?? -1));
 
-    // Assign positions
-    students.forEach((s, i) => { s.position = i + 1; });
+    // Positions only for students with an average; equal averages share a place (ex aequo: 1, 2, 2, 4).
+    let lastAvg = null, lastPosition = 0;
+    students.forEach((s, i) => {
+        if (s.overallAvg === null) { s.position = null; return; }
+        const rounded = Math.round(s.overallAvg * 100) / 100;
+        s.position = rounded === lastAvg ? lastPosition : i + 1;
+        lastAvg = rounded; lastPosition = s.position;
+    });
 
     // KPIs
     const classGeneralAvg = students.length > 0

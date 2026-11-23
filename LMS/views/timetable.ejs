@@ -33,7 +33,7 @@
       </label>
       <button type="submit" class="btn">Add Entry</button>
     </form>
-    <div id="ttMsg" class="msg"></div>
+    <div id="ttMsg" class="msg" role="status" aria-live="polite"></div>
   </div>
 
   <div class="card" style="overflow-x:auto">
@@ -62,7 +62,7 @@
       <button class="btn btn-secondary" id="refreshBtn">Load</button>
       <button class="btn" id="generateBtn" title="Auto-build this class's timetable from its subject allocations">Generate</button>
     </div>
-    <div id="genMsg" class="msg"></div>
+    <div id="genMsg" class="msg" role="status" aria-live="polite"></div>
     <div id="periodSummary" class="muted" style="margin-bottom:12px"></div>
     <div id="ttGrid"></div>
   </div>

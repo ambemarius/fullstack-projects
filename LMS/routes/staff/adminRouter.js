@@ -16,6 +16,7 @@ const {
 } = require("../../controllers/staff/adminCtrl");
 
 const isLogin = require('../../middlewares/isLogin');
+const { loginRateLimit } = require('../../middlewares/loginRateLimit');
 
 
 // ---- public ----
@@ -23,7 +24,7 @@ const isLogin = require('../../middlewares/isLogin');
 adminRouter.post('/register', isLogin, registeradminCtrl)
 
 // login
-adminRouter.post('/login', loginadminCtrl)
+adminRouter.post('/login', loginRateLimit, loginadminCtrl)
 
 // ---- protected (admin must be logged in) ----
 // get all admins

@@ -1,0 +1,19 @@
+<%- include('shell',{pageTitle:'Charge details',active:'charges'}) %>
+<h1><%= charge.student %></h1><p><%= charge.matricule %> · <%= charge.year %> · <%= charge.description %></p>
+<p><a href="<%= base %>/statements?student=<%= charge.student_id %>&amp;year=<%= charge.year_id %>">View this student’s statement</a></p>
+<% if(saved){ %><p class="notice" role="status">Entry saved.</p><% } %>
+<% if(charge.cancelled){ %><p class="notice">Cancelled: <%= charge.cancelled %></p><% } %>
+<div class="cards"><section><h3>Charge</h3><p><%= formatMoney(charge.amount) %></p></section><section><h3>Collected</h3><p><%= formatMoney(charge.paid) %></p></section><section><h3>Outstanding</h3><p><%= charge.cancelled?'Cancelled':formatMoney(charge.balance) %></p></section></div>
+<% if(!charge.cancelled&&BigInt(charge.balance)>0n){ %><h2>Receive a payment</h2><form method="post" action="<%= base %>">
+<%- include('operation') %><input type="hidden" name="action" value="pay"><input type="hidden" name="charge" value="<%= charge.id %>">
+<div class="fields"><label>Amount received (whole XAF)<input type="number" name="amount" min="1" max="<%= charge.balance %>" step="1" required></label>
+<label>Payment date<input type="date" name="paidOn" value="<%= today %>" max="<%= today %>" required></label>
+<label>Method<select name="method"><option value="cash">Cash</option><option value="bank">Bank transfer</option><option value="mobile">Mobile money</option><option value="other">Other</option></select></label>
+<label>Transaction reference (required except cash)<input name="reference" maxlength="100"></label></div><button>Save payment and open receipt</button></form><% } %>
+<h2>Payment history</h2><p>Reversals correct recorded entries; they do not send money or record a refund.</p>
+<div class="table-wrap"><table><thead><tr><th>Date</th><th>Amount</th><th>Method / reference</th><th>Status</th><th>Receipt / correction</th></tr></thead><tbody>
+<% payments.forEach(p=>{ %><tr><td><%= p.paidOn %></td><td><%= formatMoney(p.amount) %></td><td><%= methodLabel(p.method) %><br><%= p.reference %></td><td><%= p.reversed?'Reversed: '+p.reversed:'Recorded' %></td><td><a href="<%= base %>/receipt/<%= p.id %>">View receipt</a>
+<% if(admin&&!p.reversed&&!charge.cancelled){ %><details class="danger-zone"><summary>Reverse mistaken entry</summary><form method="post" action="<%= base %>"><%- include('operation') %><input type="hidden" name="action" value="reverse"><input type="hidden" name="charge" value="<%= charge.id %>"><input type="hidden" name="payment" value="<%= p.id %>"><label>Reason<input name="reason" maxlength="300" required></label><button class="danger">Reverse payment entry</button></form></details><% } %></td></tr><% }) %>
+<% if(!payments.length){ %><tr><td colspan="5">No payments recorded.</td></tr><% } %></tbody></table></div>
+<% if(admin&&!charge.cancelled&&BigInt(charge.paid)===0n){ %><details class="danger-zone"><summary>Cancel charge</summary><form method="post" action="<%= base %>"><%- include('operation') %><input type="hidden" name="action" value="cancel"><input type="hidden" name="charge" value="<%= charge.id %>"><label>Reason<input name="reason" maxlength="300" required></label><button class="danger">Cancel charge and retain history</button></form></details><% } %>
+<%- include('end') %>

@@ -84,7 +84,7 @@
             <div class="teacher-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="teacherSubmitBtn">Create Teacher</button>
             </div>
-            <p id="teacherFormMsg" class="msg"></p>
+            <p id="teacherFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar for Teacher -->
@@ -108,10 +108,10 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th class="col-secondary">Email</th>
+                    <th class="col-secondary">Phone</th>
                     <th>Section</th>
-                    <th>Employment</th>
+                    <th class="col-secondary">Employment</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -127,4 +127,3 @@
             </div>
           </div>
         </div>
-

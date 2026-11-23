@@ -36,6 +36,19 @@ function databaseConfiguration(env = process.env) {
     return env.DB_STRING;
 }
 
+// Optional deployment settings with their defaults (see config/.env.example).
+function runtimeConfiguration(env = process.env) {
+    return {
+        nodeEnv: env.NODE_ENV || 'development',
+        port: Number(env.PORT) || 2026,
+        publicOrigin: env.PUBLIC_ORIGIN || '',
+        workspaceBaseUrl: env.WORKSPACE_BASE_URL || '',
+        jwtExpiresIn: env.JWT_EXPIRES_IN || '1h',
+        uploadDir: env.UPLOAD_DIR || '',
+        trustProxy: env.TRUST_PROXY === 'true',
+    };
+}
+
 let policyCache = null;
 function getFeatureFlag(key, defaultValue = false) {
     if (!policyCache) {
@@ -44,4 +57,4 @@ function getFeatureFlag(key, defaultValue = false) {
     return key in policyCache ? policyCache[key] : defaultValue;
 }
 
-module.exports = { isTestEnvironment, loadEnvironment, databaseConfiguration, getFeatureFlag };
+module.exports = { isTestEnvironment, loadEnvironment, databaseConfiguration, runtimeConfiguration, getFeatureFlag };

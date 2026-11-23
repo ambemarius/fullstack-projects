@@ -10,6 +10,10 @@ function globalErrHandler(err, req, res, next) {
         : err.type === 'entity.parse.failed' ? 'Invalid JSON request'
         : err.message || 'Request failed';
     const requestId = randomUUID();
+    // The client only sees the request id; the operator needs the cause. Never log the request body.
+    if (statusCode >= 500 && process.env.NODE_ENV !== 'test') {
+        console.error(`[${new Date().toISOString()}] ${requestId} ${req.method} ${req.originalUrl.split('?')[0]} -> ${statusCode}: ${err.stack || err.message}`);
+    }
     if (wantsErrorPage(req)) return renderErrorPage(res, statusCode, requestId);
     res.status(statusCode).json({ status: 'failed', message, requestId });
 }

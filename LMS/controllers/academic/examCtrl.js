@@ -13,6 +13,28 @@ const httpError = (status, message) => {
 const gradeFromScore = (s) => (s >= 80 ? 'A' : s >= 70 ? 'B' : s >= 60 ? 'C' : s >= 50 ? 'D' : 'F');
 const remarksFromScore = (s) => (s >= 80 ? 'Excellent' : s >= 50 ? 'Good' : 'Poor');
 
+// Teachers may only work on exams they created; administrators see all.
+async function loadOwnedExam(req, examId) {
+    const exam = await Exam.findById(examId);
+    if (!exam) throw httpError(404, 'Exam not found');
+    const isAdmin = req.auth?.accountType === 'admin';
+    if (!isAdmin && Number(exam.createdBy) !== Number(req.userAuth.id)) {
+        throw httpError(403, 'You can only manage exams you created');
+    }
+    return exam;
+}
+
+// Students may only open exams set for their current class.
+async function loadExamForStudent(req, examId) {
+    const exam = await Exam.findById(examId);
+    if (!exam) throw httpError(404, 'Exam not found');
+    if (Number(exam.classLevel) !== Number(req.userAuth.currentClassLevel)) {
+        throw httpError(403, 'This exam is not set for your class');
+    }
+    if (exam.examStatus !== 'Live') throw httpError(403, 'Exam is not live');
+    return exam;
+}
+
 //@desc   Teacher creates an exam
 //@route  POST /api/v1/exams
 //@access Private (teacher)
@@ -44,8 +66,7 @@ exports.getAllExamsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/exams/:id
 //@access Private (teacher)
 exports.singleExamCtrl = asyncHandler(async (req, res) => {
-    const exam = await Exam.findById(req.params.id);
-    if (!exam) throw httpError(404, 'Exam not found');
+    const exam = await loadOwnedExam(req, req.params.id);
     res.status(200).json({ status: 'success', data: exam });
 });
 
@@ -57,8 +78,7 @@ exports.updateExamStatusCtrl = asyncHandler(async (req, res) => {
     if (!['Pending', 'Live', 'Completed'].includes(status)) {
         throw httpError(400, 'status must be Pending, Live or Completed');
     }
-    const exam = await Exam.findById(req.params.id);
-    if (!exam) throw httpError(404, 'Exam not found');
+    await loadOwnedExam(req, req.params.id);
     await Exam.setStatus(req.params.id, status);
     res.status(200).json({ status: 'success', message: `Exam set to ${status}` });
 });
@@ -67,8 +87,7 @@ exports.updateExamStatusCtrl = asyncHandler(async (req, res) => {
 //@route  POST /api/v1/exams/:examId/questions
 //@access Private (teacher)
 exports.addQuestionCtrl = asyncHandler(async (req, res) => {
-    const exam = await Exam.findById(req.params.examId);
-    if (!exam) throw httpError(404, 'Exam not found');
+    await loadOwnedExam(req, req.params.examId);
 
     const { questionText, optionA, optionB, optionC, optionD, correctOption, marks } = req.body || {};
     if (!questionText || !optionA || !optionB || !optionC || !optionD || !correctOption) {
@@ -89,6 +108,7 @@ exports.addQuestionCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/exams/:examId/questions
 //@access Private (teacher)
 exports.getExamQuestionsCtrl = asyncHandler(async (req, res) => {
+    await loadOwnedExam(req, req.params.examId);
     const questions = await Question.getByExam(req.params.examId);
     res.status(200).json({ status: 'success', results: questions.length, data: questions });
 });
@@ -97,9 +117,7 @@ exports.getExamQuestionsCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/exams/:examId/take
 //@access Private (student)
 exports.studentExamQuestionsCtrl = asyncHandler(async (req, res) => {
-    const exam = await Exam.findById(req.params.examId);
-    if (!exam) throw httpError(404, 'Exam not found');
-    if (exam.examStatus !== 'Live') throw httpError(403, 'Exam is not live');
+    const exam = await loadExamForStudent(req, req.params.examId);
     const questions = await Question.getByExamForStudent(req.params.examId);
     res.status(200).json({ status: 'success', exam: exam.name, results: questions.length, data: questions });
 });
@@ -111,9 +129,7 @@ exports.takeExamCtrl = asyncHandler(async (req, res) => {
     const examId = req.params.examId;
     const studentId = req.userAuth.id;
 
-    const exam = await Exam.findById(examId);
-    if (!exam) throw httpError(404, 'Exam not found');
-    if (exam.examStatus !== 'Live') throw httpError(403, 'Exam is not live');
+    const exam = await loadExamForStudent(req, examId);
 
     const already = await ExamResult.findForStudentExam(studentId, examId);
     if (already) throw httpError(409, 'You have already taken this exam');

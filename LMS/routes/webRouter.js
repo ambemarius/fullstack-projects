@@ -1,9 +1,28 @@
 const express = require('express');
 const { clearAuthCookie } = require('../utils/authCookie');
+const { authenticateRequest } = require('../middlewares/roleAuth');
+const { resolveUploadPath } = require('../middlewares/upload');
+const { version } = require('../package.json');
 const webRouter = express.Router();
 
 // Server-rendered EJS pages (the frontend)
 webRouter.get('/', (req, res) => res.render('landing'));
+
+webRouter.get('/health', async (_req, res) => {
+    const body = { status: 'ok', version, uptime: Math.round(process.uptime()) };
+    try {
+        const { pool, poolConnect } = require('../config/database');
+        await poolConnect;
+        await pool.request().query('SELECT 1 AS ok');
+        body.database = 'ok';
+        res.status(200);
+    } catch {
+        body.status = 'degraded';
+        body.database = 'unavailable';
+        res.status(503);
+    }
+    res.set('Cache-Control', 'no-store').json(body);
+});
 
 webRouter.post('/logout', (req, res) => {
     clearAuthCookie(res);
@@ -26,5 +45,24 @@ for (const page of ['timetable-teacher','timetable-student']) {
 }
 webRouter.get('/promotion', (req, res) => res.render('promotion'));
 webRouter.get('/parent-dashboard', (req, res) => res.render('parent-dashboard'));
+webRouter.get('/staff-dashboard', (req, res) => res.render('staff-dashboard'));
+webRouter.get('/attendance', (req, res) => res.render('attendance-register'));
+
+// Uploaded student photos and staff documents: any signed-in account, never anonymous.
+webRouter.get('/files/:name', (req, res, next) => {
+    try {
+        if (!authenticateRequest(req)) {
+            return next(Object.assign(new Error('Authentication required'), { statusCode: 401 }));
+        }
+        const filePath = resolveUploadPath(req.params.name);
+        if (!filePath) return next(Object.assign(new Error('Resource not found'), { statusCode: 404 }));
+        res.set('Cache-Control', 'private, no-store');
+        res.sendFile(filePath, { dotfiles: 'deny' }, err => {
+            if (err) next(Object.assign(new Error('Resource not found'), { statusCode: 404 }));
+        });
+    } catch (err) {
+        next(err);
+    }
+});
 
 module.exports = webRouter;

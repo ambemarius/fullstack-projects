@@ -1,0 +1,114 @@
+<%- include('shell',{pageTitle:area==='requests'?'My requests':'Stock and requests'}) %>
+<% const teacher=area==='requests';
+   const here=paths[area];
+   const keep=subject?'?subject='+encodeURIComponent(subject):'';
+   const hazardLabel={none:'',flammable:'Flammable',corrosive:'Corrosive',toxic:'Toxic',oxidising:'Oxidising',irritant:'Irritant',environmental:'Harmful to environment',biohazard:'Biohazard'};
+   const kindLabel={equipment:'Equipment',consumable:'Consumable',reagent:'Reagent'};
+   const statusClass=s=>s==='pending'||s==='approved'?'open':['declined','damaged'].includes(s)?'overdue':s==='issued'?'open':'paid';
+   const num=v=>v===null||v===undefined?'':Number(v);
+   const op=()=>`<input type="hidden" name="operation" value="${uuid()}"><input type="hidden" name="returnTo" value="${keep}">`; %>
+
+<div class="page-heading"><div><h1><%= teacher?'Laboratory requests':'Laboratory' %></h1>
+<p><%= teacher?'Request equipment, reagents and consumables before your practical. The laboratory attendant approves and issues them; equipment must come back by its return date.':'Physics, Chemistry, Biology, Geology and General laboratory stock, teacher requests, issues and returns.' %></p></div>
+<% if(!teacher){ %><div class="heading-actions"><a class="button" href="#add-item" data-open-panel="add-item">+ Add an item</a></div><% } %></div>
+<% if(saved){ %><p class="notice" role="status"><%= teacher?'Request sent to the laboratory.':'Saved.' %></p><% } %>
+
+<nav class="subject-filter" aria-label="Laboratory subject"><span>Subject:</span>
+<a href="<%= here %>" <%- !subject?'aria-current="page" class="button"':'class="button secondary"' %>>All</a>
+<% subjects.forEach(s=>{ %><a href="<%= here %>?subject=<%= encodeURIComponent(s) %>" <%- subject===s?'aria-current="page" class="button"':'class="button secondary"' %>><%= s %></a><% }) %></nav>
+
+<% if(teacher){ const mineOverdue=requests.filter(r=>r.overdue); if(mineOverdue.length){ %>
+<p class="form-error" role="alert"><strong>Equipment overdue:</strong> <%= mineOverdue.map(r=>r.name+' (due '+r.returnBy+')').join(', ') %>. Return it to the laboratory; new equipment requests are blocked until it is checked in.</p><% } } %>
+
+<% if(!teacher){ %><div class="cards">
+<section><h3>Pending requests</h3><p><%= alerts.pending %></p><p>Waiting for approval</p></section>
+<section><h3>Equipment out</h3><p><%= alerts.awaitingReturn %></p><p><%= alerts.overdue %> past return date</p></section>
+<section><h3>Low stock</h3><p><%= alerts.low %></p><p>At or below reorder level</p></section>
+<section><h3>Expiring in 30 days</h3><p><%= alerts.expiringSoon %></p><p><%= alerts.expired %> already expired</p></section></div>
+
+<% const out=requests.filter(r=>r.status==='issued'&&r.kind==='equipment'); %>
+<h2>Equipment to check in</h2>
+<div class="table-wrap"><table><thead><tr><th>Equipment</th><th>Teacher / class</th><th>Return by</th><th>Still out</th><th>Check in</th></tr></thead><tbody>
+<% out.forEach(r=>{ %><tr><td><span class="cell-primary"><%= r.name %></span><span class="cell-meta"><%= r.subject %> · issued <%= num(r.quantity) %> <%= r.unit %></span></td>
+<td><span class="cell-primary"><%= r.requester||'—' %></span><span class="cell-meta"><%= r.className||'' %> <%= r.purpose %></span></td>
+<td><% if(r.overdue){ %><span class="status status-overdue">Overdue · <%= r.returnBy %></span><% }else{ %><%= r.returnBy||'—' %><% } %></td>
+<td><%= r.outstanding %> <%= r.unit %><% if(num(r.returnedQty)||num(r.damagedQty)||num(r.missingQty)){ %><span class="cell-meta">Back so far: <%= num(r.returnedQty)||0 %> good, <%= num(r.damagedQty)||0 %> damaged, <%= num(r.missingQty)||0 %> missing</span><% } %></td>
+<td><details><summary>Check in</summary><form method="post"><%- op() %><input type="hidden" name="request" value="<%= r.id %>">
+<div class="fields"><label>Good condition<input type="number" name="good" min="0" max="<%= r.outstanding %>" step="1" value="<%= r.outstanding %>"></label>
+<label>Damaged<input type="number" name="damaged" min="0" max="<%= r.outstanding %>" step="1" value="0"></label>
+<label>Missing<input type="number" name="missing" min="0" max="<%= r.outstanding %>" step="1" value="0"></label>
+<label>Note (required if damaged or missing)<input name="note" maxlength="200" placeholder="e.g. 1 beaker cracked during heating"></label></div>
+<button name="action" value="return">Record check-in</button></form></details></td></tr><% }) %>
+<% if(!out.length){ %><tr><td colspan="5" class="empty">No equipment is out on loan.</td></tr><% } %>
+</tbody></table></div><% } %>
+
+<h2><%= teacher?'My requests':'Request register' %></h2>
+<div class="table-wrap"><table><thead><tr><th>Item</th><th>Practical</th><% if(!teacher){ %><th>Requested by</th><% } %><th>Status</th><% if(!teacher){ %><th>Action</th><% } %></tr></thead><tbody>
+<% const shown=teacher?requests:requests.filter(r=>!(r.status==='issued'&&r.kind==='equipment'));
+shown.forEach(r=>{ %><tr><td><span class="cell-primary"><%= r.name %></span><span class="cell-meta"><%= r.subject %> · <%= kindLabel[r.kind] %> · <%= num(r.quantity) %> <%= r.unit %><%= r.hazard&&r.hazard!=='none'?' · ⚠ '+hazardLabel[r.hazard]:'' %></span></td>
+<td><span class="cell-primary"><%= r.needed %><%= r.className?' · '+r.className:'' %></span><span class="cell-meta"><%= r.purpose %><%= r.returnBy?' · return by '+r.returnBy:'' %></span></td>
+<% if(!teacher){ %><td><%= r.requester||'—' %></td><% } %>
+<td><span class="status status-<%= r.overdue?'overdue':statusClass(r.status) %>"><%= r.overdue?'Overdue return':r.status==='damaged'?'Closed with loss':r.status %></span>
+<% if(r.status==='issued'&&r.kind==='equipment'){ %><span class="cell-meta"><%= r.outstanding %> still out</span><% } %>
+<% if(r.status==='consumed'){ %><span class="cell-meta"><%= Number((num(r.quantity)-(num(r.returnedQty)||0)).toFixed(3)) %> used<%= num(r.returnedQty)?', '+num(r.returnedQty)+' returned unused':'' %></span><% } %>
+<% if(['returned','damaged'].includes(r.status)){ %><span class="cell-meta"><%= num(r.returnedQty)||0 %> good<%= num(r.damagedQty)?', '+num(r.damagedQty)+' damaged':'' %><%= num(r.missingQty)?', '+num(r.missingQty)+' missing':'' %></span><% } %>
+<% if(r.closeNote){ %><span class="cell-meta"><%= r.closeNote %></span><% } %></td>
+<% if(!teacher){ %><td><% if(r.status==='pending'){ %><form method="post"><%- op() %><input type="hidden" name="request" value="<%= r.id %>"><button name="action" value="approve">Approve</button>
+<details><summary>Decline</summary><label>Reason<input name="note" maxlength="200" placeholder="e.g. not enough in stock that day"></label><button class="secondary" name="action" value="decline">Decline request</button></details></form>
+<% }else if(r.status==='approved'){ %><form method="post"><%- op() %><input type="hidden" name="request" value="<%= r.id %>"><button name="action" value="issue">Issue to teacher</button></form>
+<% }else if(r.status==='issued'){ %><details><summary>Record use</summary><form method="post"><%- op() %><input type="hidden" name="request" value="<%= r.id %>">
+<label>Unused quantity returned (<%= r.unit %>)<input type="number" name="unused" min="0" max="<%= num(r.quantity) %>" step="0.001" value="0"></label>
+<label>Note (optional)<input name="note" maxlength="200"></label><button name="action" value="consume">Close request</button></form></details>
+<% }else{ %>—<% } %></td><% } %></tr><% }) %>
+<% if(!shown.length){ %><tr><td colspan="<%= teacher?3:5 %>" class="empty">No requests<%= subject?' for '+subject:'' %> yet.</td></tr><% } %>
+</tbody></table></div>
+
+<h2><%= teacher?'Request an item':'Stock' %></h2>
+<div class="table-wrap"><table><thead><tr><th>Item</th><th>Type / location</th><th>Available</th><th>Status</th><th><%= teacher?'Request':'Manage' %></th></tr></thead><tbody>
+<% items.forEach(i=>{ %><tr><td><span class="cell-primary"><%= i.name %></span><span class="cell-meta"><%= i.subject %><% if(i.batch){ %> · batch <%= i.batch %><% } %></span></td>
+<td><span class="cell-primary"><%= kindLabel[i.kind] %></span><span class="cell-meta"><%= i.location %></span></td>
+<td><%= Number(i.available) %> <%= i.unit %><% if(i.kind==='equipment'&&Number(i.onLoan)){ %><span class="cell-meta"><%= Number(i.onLoan) %> out on loan</span><% } %></td>
+<td><% if(i.hazard&&i.hazard!=='none'){ %><span class="status status-overdue">⚠ <%= hazardLabel[i.hazard] %></span><% } %>
+<% if(i.expired){ %><span class="status status-overdue">Expired <%= i.expiryDate %></span><% }else if(i.expiringSoon){ %><span class="status status-open">Expires <%= i.expiryDate %></span><% } %>
+<% if(!teacher&&i.low){ %><span class="status status-overdue">Reorder</span><% } %><% if(i.restricted){ %><span class="status">Restricted</span><% } %>
+<% if((!i.hazard||i.hazard==='none')&&!i.expired&&!i.expiringSoon&&!(i.low&&!teacher)&&!i.restricted){ %><span class="status status-paid">OK</span><% } %></td>
+<td><% if(teacher){ %><details><summary>Request</summary><form method="post"><%- op() %><input type="hidden" name="item" value="<%= i.id %>">
+<div class="fields"><label>Quantity (<%= i.unit %>)<input type="number" name="quantity" min="<%= i.kind==='equipment'?1:0.001 %>" step="<%= i.kind==='equipment'?1:0.001 %>" required></label>
+<label>Practical date<input type="date" min="<%= today %>" <% if(i.expiryDate){ %>max="<%= i.expiryDate %>"<% } %> name="needed" required></label>
+<% if(i.kind==='equipment'){ %><label>Return by<input type="date" min="<%= today %>" name="returnBy" required></label><% } %>
+<label>Class<select name="classId"><option value="">Not class-specific</option><% classes.forEach(c=>{ %><option value="<%= c.id %>"><%= c.label %></option><% }) %></select></label>
+<label>Practical / purpose<input name="purpose" maxlength="200" required placeholder="e.g. Form 4 titration practical"></label></div>
+<button name="action" value="request">Send request</button></form></details>
+<% }else{ %><details><summary>Manage</summary>
+<form method="post"><%- op() %><input type="hidden" name="item" value="<%= i.id %>"><div class="fields"><label>Received quantity (<%= i.unit %>)<input type="number" name="quantity" min="<%= i.kind==='equipment'?1:0.001 %>" step="<%= i.kind==='equipment'?1:0.001 %>" required></label>
+<label>Supplier / delivery note<input name="note" maxlength="200"></label></div><button name="action" value="receive">Receive stock</button></form>
+<form method="post"><%- op() %><input type="hidden" name="item" value="<%= i.id %>"><div class="fields"><label>Counted on shelf (<%= i.unit %>)<input type="number" name="counted" min="0" step="<%= i.kind==='equipment'?1:0.001 %>" required></label>
+<label>Reason<input name="reason" maxlength="200" required placeholder="e.g. termly stock count"></label></div><button class="secondary" name="action" value="adjust">Record stock count</button></form>
+<form method="post"><%- op() %><input type="hidden" name="item" value="<%= i.id %>"><div class="fields"><label>Dispose quantity (<%= i.unit %>)<input type="number" name="quantity" min="<%= i.kind==='equipment'?1:0.001 %>" max="<%= Number(i.available) %>" step="<%= i.kind==='equipment'?1:0.001 %>" required></label>
+<label>Reason<input name="reason" maxlength="200" required placeholder="e.g. expired, broken beyond repair"></label></div><button class="danger" name="action" value="dispose">Dispose</button></form>
+</details><% } %></td></tr><% }) %>
+<% if(!items.length){ %><tr><td colspan="5" class="empty"><strong>No items<%= subject?' in '+subject:'' %>.</strong><%= teacher?'The laboratory attendant has not added requestable items yet.':'Add the first item or batch.' %></td></tr><% } %>
+</tbody></table></div>
+
+<% if(!teacher){ %>
+<details id="add-item"><summary>Add an inventory item or batch</summary><form method="post"><%- op() %>
+<div class="fields"><label>Item name<input name="name" maxlength="120" required placeholder="e.g. Beaker 250 mL, Hydrochloric acid 1M"></label>
+<label>Subject laboratory<select name="subject" required><% subjects.forEach(s=>{ %><option <%= subject===s?'selected':'' %>><%= s %></option><% }) %></select></label>
+<label>Type<select name="kind"><option value="equipment">Equipment (must be returned)</option><option value="consumable">Consumable</option><option value="reagent">Reagent / chemical</option></select></label>
+<label>Hazard class<select name="hazard"><% hazards.forEach(h=>{ %><option value="<%= h %>"><%= h==='none'?'None':hazardLabel[h] %></option><% }) %></select></label>
+<label>Unit<input name="unit" placeholder="pieces, mL, g" maxlength="30" required></label><label>Storage location<input name="location" required maxlength="80" placeholder="e.g. Chemistry store, cabinet B"></label>
+<label>Batch / lot (optional)<input name="batch" maxlength="60"></label><label>Reorder level<input type="number" name="minimum" step=".001" min="0" required></label>
+<label>Expiry (optional)<input type="date" name="expiry"></label><label><span><input type="checkbox" name="restricted"> Restricted (not requestable by teachers)</span></label></div>
+<button name="action" value="add">Add item</button></form></details>
+
+<h2>Usage by subject (last 90 days)</h2>
+<div class="table-wrap"><table><thead><tr><th>Subject laboratory</th><th>Requests issued</th><th>Equipment damaged or missing</th></tr></thead><tbody>
+<% usage.forEach(u=>{ %><tr><td><%= u.subject %></td><td><%= u.requests %></td><td><%= Number(u.equipmentLost) %></td></tr><% }) %>
+<% if(!usage.length){ %><tr><td colspan="3" class="empty">No issued requests in the last 90 days.</td></tr><% } %></tbody></table></div>
+
+<h2>Recent stock movements</h2>
+<div class="table-wrap"><table><thead><tr><th>When (UTC)</th><th>Item</th><th>Action</th><th>Stock change</th><th>Note</th><th>Recorded by</th></tr></thead><tbody>
+<% movements.forEach(m=>{ %><tr><td><%= m.occurredAt.toISOString().replace('T',' ').slice(0,16) %></td><td><%= m.name %></td><td><%= m.action %><%= m.requestId?' · request '+m.requestId:'' %></td><td><%= Number(m.delta) %> <%= m.unit %></td><td><%= m.note||'—' %></td><td><%= m.editor||'—' %></td></tr><% }) %>
+<% if(!movements.length){ %><tr><td colspan="6" class="empty">No movements yet.</td></tr><% } %>
+</tbody></table></div><p>Showing the latest 50 movements.</p><% } %>
+<%- include('end') %>

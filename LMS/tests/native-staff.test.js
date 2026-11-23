@@ -8,7 +8,7 @@ test('native staff endpoints reject privilege/credential injection and invalid p
  await assert.rejects(service.issue('T'.repeat(43),{schoolId:1,profileId:2,profileVersion:'a'.repeat(64),role:'librarian'}),e=>e.statusCode===403);
  for(const password of ['short','é'.repeat(37)])await assert.rejects(service.accept('T'.repeat(43),password),e=>e.statusCode===422);
 });
-function element(){return{value:'',hidden:false,children:[],append(...rows){this.children.push(...rows);},replaceChildren(...rows){this.children=rows;}};}
+function element(){return{focus(){this.focused=true;},value:'',hidden:false,children:[],append(...rows){this.children.push(...rows);},replaceChildren(...rows){this.children=rows;}};}
 async function settle(){for(let i=0;i<15;i++)await new Promise(resolve=>setImmediate(resolve));}
 async function fixture(accountType='staff'){const elements=new Map(),calls=[],locations=[];const document={getElementById(id){if(!elements.has(id))elements.set(id,element());return elements.get(id);},querySelectorAll(){return[];},createElement:element};document.getElementById('purpose').value='activate';
  const fetch=async(path,options)=>{calls.push({path,options});return path.endsWith('/session')?{status:403,ok:false,json:async()=>({message:'Sign in'})}:{status:200,ok:true,json:async()=>({data:{created:true,signedOut:true,accountType}})};};

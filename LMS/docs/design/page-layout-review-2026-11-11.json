@@ -1,0 +1,324 @@
+[
+  {
+    "page": "landing",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "login",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "admin-layout",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "m1-original-registration",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-school",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 2,
+    "overflow": false
+  },
+  {
+    "page": "canonical-academic",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-auxiliary",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-courses",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-invitations",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-staff-accounts",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "m1-preview",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 2,
+    "overflow": false
+  },
+  {
+    "page": "attendance",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "teachers",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "students",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "subjects",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "allocations",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable-teacher",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable-student",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "teacher-dashboard",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "student-dashboard",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "promotion",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "page-error",
+    "width": 320,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "landing",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "login",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "admin-layout",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "m1-original-registration",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-school",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 2,
+    "overflow": false
+  },
+  {
+    "page": "canonical-academic",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-auxiliary",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-courses",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-invitations",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "canonical-staff-accounts",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "m1-preview",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 2,
+    "overflow": false
+  },
+  {
+    "page": "attendance",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "teachers",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "students",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "subjects",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "allocations",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable-teacher",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "timetable-student",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "teacher-dashboard",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "student-dashboard",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "promotion",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  },
+  {
+    "page": "page-error",
+    "width": 1440,
+    "emptyButtons": [],
+    "h1": 1,
+    "overflow": false
+  }
+]

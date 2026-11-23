@@ -1,5 +1,6 @@
 <%- include('partials/header', { title: 'Teacher Dashboard' }) %>
-<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Teaching assignments, rosters and raw marks are now in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing teacher account. Legacy academic and exam tools are paused pending their scoped replacement.</div><% } %>
+<% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
+<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Teaching assignments, rosters and raw marks are managed in the <% if (wsBase) { %><a href="<%= wsBase %>/courses">school course workspace</a><% } else { %>school course workspace<% } %>. Sign in there with your existing teacher account.</div><% } %>
 
 <div class="card">
   <div class="page-head">
@@ -10,6 +11,32 @@
     <button id="logoutBtn" class="btn btn-secondary">Logout</button>
   </div>
   <div id="profile"></div>
+</div>
+
+<div class="card" id="attendanceCard">
+  <h2>Take attendance</h2>
+  <p class="muted">Your timetabled lessons for the day. Record a register up to 7 days back; the discipline master corrects older ones.</p>
+  <div class="attendance-filters">
+    <label>Date<input type="date" id="attDate"></label>
+    <label>Term<select id="attTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+  </div>
+  <div id="attLessons" class="duty-list"><p class="muted">Loading&hellip;</p></div>
+  <div id="attRegister"></div>
+</div>
+
+<div class="card">
+  <div class="page-head">
+    <div>
+      <h2>Laboratory requests</h2>
+      <p class="muted" style="margin:0">Request Physics, Chemistry, Biology, Geology or General lab equipment, reagents and consumables before your practical. Borrowed equipment must be returned by its return date.</p>
+    </div>
+    <a class="btn btn-secondary" href="/lab-requests">Open requests</a>
+  </div>
+</div>
+
+<div class="card" id="dutyCard" hidden>
+  <h2>My school duties</h2>
+  <div id="dutyLinks" class="duty-list"></div>
 </div>
 
 <div class="card">
@@ -67,7 +94,7 @@
     </div>
     <div class="marks-actions">
       <button id="msSaveBtn" class="btn">Save all scores</button>
-      <span id="msMsg" class="msg"></span>
+      <span id="msMsg" class="msg" role="status" aria-live="polite"></span>
     </div>
   </div>
 </div>
@@ -75,4 +102,7 @@
 <script src="/js/app.js"></script>
 <script src="/js/toast.js"></script>
 <script src="/js/teacher-dashboard.js"></script>
+<script src="/js/duty-links.js"></script>
+<script src="/js/attendance-register.js"></script>
+<script src="/js/teacher-attendance.js"></script>
 <%- include('partials/footer') %>

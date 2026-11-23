@@ -127,7 +127,7 @@ document.getElementById('msLoadBtn').addEventListener('click', async () => {
 
   const tbody = document.getElementById('marksRows');
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="muted">No students in this class</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="muted">No students are enrolled in this subject for this year yet. Ask the administrator to enrol the class under Evaluation → Course review; their names appear here once enrolled.</td></tr>';
     return;
   }
 

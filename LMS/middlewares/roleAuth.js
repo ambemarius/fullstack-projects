@@ -1,20 +1,54 @@
 const verifyToken = require('../utils/verifyToken');
 const {isLegacyAdministrator}=require('../utils/legacyAccountRole');
 
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
 function extractToken(req) {
     const match = /^Bearer ([^\s]+)$/.exec(req.headers.authorization || '');
-    if (match) return match[1];
+    if (match) return { token: match[1], source: 'bearer' };
     const cookies = req.headers.cookie;
     if (!cookies) return null;
     const tokenCookie = cookies.split(';').map(c => c.trim()).find(c => c.startsWith('lms_token='));
-    return tokenCookie ? tokenCookie.slice('lms_token='.length) : null;
+    return tokenCookie ? { token: tokenCookie.slice('lms_token='.length), source: 'cookie' } : null;
+}
+
+function originOf(value) {
+    try { return new URL(value).origin; } catch { return null; }
+}
+
+// Cookie credentials are sent automatically by browsers, so state-changing
+// requests must prove they came from this site (Origin/Referer check).
+function sameOriginRequest(req) {
+    const header = req.headers.origin || req.headers.referer;
+    if (!header) return false;
+    const requestOrigin = originOf(header);
+    if (!requestOrigin) return false;
+    const configured = originOf(req.app?.locals?.publicOrigin || '');
+    if (configured) return requestOrigin === configured;
+    const host = req.headers.host;
+    return Boolean(host) && new URL(requestOrigin).host === host;
+}
+
+function crossSiteError() {
+    const err = new Error('Cross-site request blocked');
+    err.statusCode = 403;
+    return err;
+}
+
+function authenticateRequest(req, expectedType) {
+    const credential = extractToken(req);
+    const claims = credential && verifyToken(credential.token, expectedType);
+    if (!claims) return null;
+    if (credential.source === 'cookie' && !SAFE_METHODS.has(req.method) && !sameOriginRequest(req)) {
+        throw crossSiteError();
+    }
+    return claims;
 }
 
 function createRoleAuth({ accountType, findById }) {
     return async (req, _res, next) => {
         try {
-            const token = extractToken(req);
-            const claims = token && verifyToken(token, accountType);
+            const claims = authenticateRequest(req, accountType);
             if (!claims) {
                 const err = new Error('Authentication required');
                 err.statusCode = 401;
@@ -28,7 +62,9 @@ function createRoleAuth({ accountType, findById }) {
             }
             if ((accountType === 'admin' && !isLegacyAdministrator(account.role)) ||
                 (accountType === 'teacher' && account.status !== 'active') ||
-                (accountType === 'student' && account.isWithdrawn)) {
+                (accountType === 'student' && account.isWithdrawn) ||
+                (accountType === 'parent' && account.status && account.status !== 'active') ||
+                (accountType === 'auxiliary' && (account.status !== 'active' || !account.canSignIn))) {
                 const err = new Error('This account is inactive');
                 err.statusCode = 403;
                 return next(err);
@@ -47,4 +83,4 @@ function createRoleAuth({ accountType, findById }) {
     };
 }
 
-module.exports = { createRoleAuth };
+module.exports = { createRoleAuth, extractToken, authenticateRequest, sameOriginRequest };

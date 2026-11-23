@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LYCEE BATOURI &middot; School Management</title>
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
   <%- include('partials/workspace-assets') %>
   <style>
     .lms-landing { background: var(--bg); }
@@ -13,7 +13,11 @@
       padding: 0 24px; height: 64px; background: var(--surface);
       border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
     }
-    .lms-landing .brand span { font-weight: 400; font-size: 14px; color: var(--muted); margin-left: 6px; }
+    .lms-landing header .brand { color: var(--primary); }
+    .lms-landing header .brand span { font-weight: 400; font-size: 14px; color: var(--muted); margin-left: 6px; }
+    .lms-landing header .nav a { color: var(--text-secondary); }
+    .lms-landing header .nav a:hover { background: var(--primary-light); color: var(--primary); }
+    .lms-landing header .nav a:focus-visible { box-shadow: var(--focus-ring); }
 
     .lms-hero {
       max-width: 960px; margin: 0 auto; padding: 64px 24px 48px;
@@ -113,7 +117,7 @@
         <article class="card">
           <%- include('partials/hub-icon', { icon: 'people' }) %>
           <h3>People &amp; Registration</h3>
-          <p>Manage pupil, teacher and support-staff records with role-based access control.</p>
+          <p>Manage student, teacher and support-staff records with role-based access control.</p>
         </article>
         <article class="card">
           <%- include('partials/hub-icon', { icon: 'book' }) %>

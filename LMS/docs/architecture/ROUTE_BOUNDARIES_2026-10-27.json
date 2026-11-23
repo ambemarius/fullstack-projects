@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-28T06:45:31.381Z",
+  "generatedAt": "2026-11-11T07:20:39.010Z",
   "scope": "Source declarations and gate interception only; downstream auth/data scope is not certified.",
-  "policySha256": "afa5e948a57cdab38d32987e537b30c67b8647c09f689aa6a6c7ce8ce27a6502",
-  "routeCount": 107,
-  "apiCount": 94,
+  "policySha256": "82782e695c189e93ce1c785b8772d31fd3427d35e4bb0983f5d5bc7240ff2be8",
+  "routeCount": 116,
+  "apiCount": 101,
   "routes": [
     {
       "method": "GET",
@@ -171,6 +171,19 @@
         "admin": "moved_409",
         "teacher": "moved_409",
         "student": "moved_409"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/admin/analytics",
+      "auth": "admin",
+      "source": "routes/staff/adminRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
       },
       "dataBoundary": "not-assessed-by-this-inventory"
     },
@@ -787,6 +800,84 @@
     },
     {
       "method": "GET",
+      "path": "/api/v1/parents/children",
+      "auth": "unclassified",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/parents/children/:studentId/report",
+      "auth": "unclassified",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/parents/children/link",
+      "auth": "unclassified",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/parents/login",
+      "auth": "credential-endpoint",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/parents/profile",
+      "auth": "unclassified",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/parents/register",
+      "auth": "unclassified",
+      "source": "routes/parents/parentRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
       "path": "/api/v1/report-cards/:classId/:term/:academicYearId",
       "auth": "admin",
       "source": "routes/academic/reportCardRouter.js",
@@ -1276,6 +1367,32 @@
         "admin": "public_shell",
         "teacher": "public_shell",
         "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "POST",
+      "path": "/logout",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "public_shell",
+        "admin": "public_shell",
+        "teacher": "public_shell",
+        "student": "public_shell"
+      },
+      "dataBoundary": "not-assessed-by-this-inventory"
+    },
+    {
+      "method": "GET",
+      "path": "/parent-dashboard",
+      "auth": "public-shell",
+      "source": "routes/webRouter.js",
+      "gates": {
+        "anonymous": "moved_404",
+        "admin": "moved_404",
+        "teacher": "moved_404",
+        "student": "moved_404"
       },
       "dataBoundary": "not-assessed-by-this-inventory"
     },

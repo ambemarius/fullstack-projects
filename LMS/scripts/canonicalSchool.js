@@ -36,6 +36,7 @@ function guardedIdentity(database,{staffAccounts=false}={}){
 }
 function createSchoolApp(database,{identityService,personnelWrites=false,academicWrites=false,auxiliaryWrites=false,membershipInvitations=false,academicLinks=false,staffAccounts=false,schoolAdministration=false,academicHistoryReview=false}={}){
  identityService??=guardedIdentity(database,{staffAccounts});
+ if(schoolAdministration&&!staffAccounts)throw new Error('School administration requires staff-account workflows');
  if(academicWrites&&!personnelWrites)throw new Error('Academic workspace requires personnel context');
  if(academicHistoryReview&&!personnelWrites)throw new Error('Academic history review requires registration');
  if(auxiliaryWrites&&!personnelWrites)throw new Error('Auxiliary workspace requires personnel context');
@@ -128,7 +129,7 @@ async function readiness(database,{personnelWrites=false,academicWrites=false,au
   if(Number(unresolved)!==0)throw new Error('Academic ownership requires review');
  }
 }
-async function main(){loadEnvironment();const database=createDatabase();const policy=require('../config/runtimePolicy.json');const personnelWrites=policy.canonicalPersonnelWrites===true,academicWrites=policy.canonicalAcademicWrites===true,auxiliaryWrites=policy.canonicalAuxiliaryWrites===true,membershipInvitations=policy.canonicalMembershipInvitations===true,academicLinks=policy.canonicalAcademicLinks===true,staffAccounts=policy.canonicalStaffAccounts===true;try{await readiness(database,{personnelWrites,academicWrites,auxiliaryWrites,academicLinks,staffAccounts});
+async function main(){loadEnvironment();const database=createDatabase();const policy=require('../config/runtimePolicy.json');const personnelWrites=policy.canonicalPersonnelWrites===true,academicWrites=policy.canonicalAcademicWrites===true,auxiliaryWrites=policy.canonicalAuxiliaryWrites===true,membershipInvitations=policy.canonicalMembershipInvitations===true,academicLinks=policy.canonicalAcademicLinks===true,staffAccounts=policy.canonicalStaffAccounts===true;try{await readiness(database,{personnelWrites,academicWrites,auxiliaryWrites,academicLinks,staffAccounts});if(policy.canonicalSchoolAdministration===true)await require('./activateSchoolAdministration').readiness(database);
  const directory=path.join(__dirname,'../backups/runtime');
  const server=https.createServer({key:fs.readFileSync(path.join(directory,'tls/localhost.key')),cert:fs.readFileSync(path.join(directory,'tls/localhost.crt'))},createSchoolApp(database,{personnelWrites,academicWrites,auxiliaryWrites,membershipInvitations,academicLinks,staffAccounts,schoolAdministration:policy.canonicalSchoolAdministration===true,academicHistoryReview:policy.canonicalAcademicHistoryReview===true}));
  server.listen(2027,'127.0.0.1',()=>console.log(`LYCEE BATOURI workspace: https://localhost:2027 (${personnelWrites?'personnel workflows':'read-only'})`));

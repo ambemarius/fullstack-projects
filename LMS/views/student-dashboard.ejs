@@ -1,5 +1,6 @@
 <%- include('partials/header', { title: 'Student Dashboard' }) %>
-<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">View your subject memberships in the <a href="https://localhost:2027/courses">school course workspace</a>. Sign in there with your existing pupil account. Legacy academic and exam tools are paused pending their scoped replacement.</div><% } %>
+<% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
+<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Your subject memberships are managed in the <% if (wsBase) { %><a href="<%= wsBase %>/courses">school course workspace</a><% } else { %>school course workspace<% } %>. Sign in there with your existing student account.</div><% } %>
 
 <div class="card">
   <div class="page-head">
@@ -7,12 +8,69 @@
       <h1>Student Dashboard</h1>
       <p id="welcome" class="welcome">Loading&hellip;</p>
     </div>
-    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+    <button id="logoutBtn" class="btn btn-secondary">Sign out</button>
   </div>
   <div id="profile"></div>
+</div>
+
+<div class="card">
+  <div class="page-head">
+    <h2>My results</h2>
+    <label class="inline-label">Term
+      <select id="resultsTerm">
+        <option value="">All terms</option>
+        <option>First</option><option>Second</option><option>Third</option>
+      </select>
+    </label>
+  </div>
+  <p class="muted" id="resultsNote">Sequence marks entered by your teachers. Ask your class master if a mark is missing.</p>
+  <div class="table-wrap">
+    <table id="resultsTable">
+      <thead><tr><th>Subject</th><th>Term</th><th>Sequence</th><th>Score</th><th>Out of</th><th>Grade</th></tr></thead>
+      <tbody><tr><td colspan="6" class="muted">Loading&hellip;</td></tr></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+  <div id="resultsEmpty" class="empty-state" style="display:none">
+    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'book' }) %></div>
+    <h3>No results published yet</h3>
+    <p>Your marks appear here once your teachers publish them.</p>
+  </div>
+</div>
+
+<div class="card" id="myAttendance">
+  <div class="page-head">
+    <h2>My attendance</h2>
+    <label class="inline-label">Term
+      <select id="attTerm"><option value="">Whole year</option><option>First</option><option>Second</option><option>Third</option></select>
+    </label>
+  </div>
+  <div class="profile-grid" id="attTotals"><p class="muted">Loading&hellip;</p></div>
+  <h3 style="margin-top:16px">Recent absences and lateness</h3>
+  <div id="attRecent"></div>
+</div>
+
+<div class="card">
+  <h2>My library loans</h2>
+  <div id="myLoans"><p class="muted">Loading&hellip;</p></div>
+</div>
+
+<div class="card">
+  <div class="page-head">
+    <h2>My timetable</h2>
+    <label class="inline-label">Term
+      <select id="ttTerm">
+        <option value="First">First</option><option value="Second">Second</option><option value="Third">Third</option>
+      </select>
+    </label>
+  </div>
+  <div class="table-wrap" id="ttGrid"><p class="muted">Loading&hellip;</p></div>
+  <p><a class="btn btn-ghost" href="/timetable-student">Open full timetable</a></p>
 </div>
 
 <script src="/js/app.js"></script>
 <script src="/js/toast.js"></script>
 <script src="/js/student-dashboard.js"></script>
+<script src="/js/attendance-summary.js"></script>
+<script src="/js/library-loans.js"></script>
 <%- include('partials/footer') %>

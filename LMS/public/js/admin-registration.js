@@ -37,9 +37,9 @@
         <td>${esc(hoursPerWeek)}</td>
         <td>${esc(hasLab)}</td>
         <td class="action-col">
-          <button type="button" class="action-btn edit" onclick="editSubject(${s.id})" title="Edit Subject">📝</button>
-          <button type="button" class="action-btn delete" onclick="deleteSubject(${s.id})" title="Delete Subject">❌</button>
-          <button type="button" class="action-btn accept" onclick="acceptSubject(${s.id})" title="Accept Subject">✅</button>
+          <button type="button" class="action-btn edit" data-action="editSubject" data-id="${s.id}" aria-label="Edit Subject">Edit</button>
+          <button type="button" class="action-btn delete" data-action="deleteSubject" data-id="${s.id}" aria-label="Delete Subject">Delete</button>
+          <button type="button" class="action-btn accept" data-action="acceptSubject" data-id="${s.id}" aria-label="Accept Subject">Accept</button>
         </td>
       </tr>`;
     }).join('');
@@ -109,7 +109,7 @@
 
   window.editSubject = async function (id) {
     const { ok, data } = await api(`/subjects/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch subject details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch subject details.'); return; }
     const s = data.data;
     document.getElementById('subjectEditId').value = s.id;
     document.getElementById('subjectHeaderBar').textContent = `Edit Subject: ${s.code}`;
@@ -129,13 +129,15 @@
   };
 
   window.deleteSubject = async function (id) {
-    if (!confirm('Are you sure you want to permanently delete this subject?')) return;
+    const subject = allSubjectsList.find(s => s.id === id);
+    const subjectLabel = subject ? `${subject.name} (${subject.code})` : 'this subject';
+    if (!confirm(`Delete ${subjectLabel}? This cannot be undone.`)) return;
     const { ok, data } = await api(`/subjects/${id}`, { method: 'DELETE' });
     if (ok) { loadSubjectTable(); loadStats(); }
-    else alert(data.message || 'Failed to delete subject.');
+    else toast(data.message || 'Failed to delete subject.');
   };
 
-  window.acceptSubject = function () { alert('Subject entry accepted successfully!'); };
+  window.acceptSubject = function () { toast('Subject entry accepted successfully!'); };
 
   document.getElementById('subjectSearch')?.addEventListener('input', function () {
     const q = this.value.toLowerCase().trim();
@@ -226,9 +228,9 @@
         <td class="reg-text-right">${Number(c.registration_fee || 0).toLocaleString()}</td>
         <td class="reg-text-right">${Number(c.tuition_fee || 0).toLocaleString()}</td>
         <td class="action-col">
-          <button type="button" class="action-btn edit" onclick="event.stopPropagation(); inlineEditClass(${c.id})" title="Edit Class Details">📝</button>
-          <button type="button" class="action-btn delete" onclick="event.stopPropagation(); inlineDeleteClass(${c.id})" title="Reset/Clear Class">❌</button>
-          <button type="button" class="action-btn accept" onclick="event.stopPropagation(); inlineAcceptClass(${c.id})" title="Accept/Save Class">✅</button>
+          <button type="button" class="action-btn edit" data-action="inlineEditClass" data-id="${c.id}" aria-label="Edit Class Details">Edit</button>
+          <button type="button" class="action-btn delete" data-action="inlineDeleteClass" data-id="${c.id}" aria-label="Reset/Clear Class">Reset</button>
+          <button type="button" class="action-btn accept" data-action="inlineAcceptClass" data-id="${c.id}" aria-label="Accept/Save Class">Accept</button>
         </td>
       </tr>`;
     }).join('');
@@ -261,7 +263,8 @@
   };
 
   window.inlineDeleteClass = async function (id) {
-    if (!confirm('Remove class master and reset fees for this class?')) return;
+    const cls = allClasses.find(c => c.id === id);
+    if (!confirm(`Remove the class master and reset all fees for ${cls ? cls.name + (cls.stream ? ' (' + cls.stream + ')' : '') : 'this class'}?`)) return;
     const body = { class_master_id: null, registration_fee: 0, tuition_fee: 0, pta_fee: 0, caution_fee: 0, practicals_fee: 0, option_name: null };
     const { ok } = await api(`/classes/${id}`, { method: 'PUT', body: JSON.stringify(body) });
     if (ok) {
@@ -337,7 +340,7 @@
 
   document.getElementById('regSaveBtn')?.addEventListener('click', async () => {
     const id = parseInt(document.getElementById('regClassId').value);
-    if (!id) { alert('Select a class from the table first.'); return; }
+    if (!id) { toast('Select a class from the table first.'); return; }
     const streamVal = document.getElementById('regStream').value;
     const body = {
       class_master_id: parseInt(document.getElementById('regMaster').value) || null,
@@ -352,9 +355,9 @@
     if (ok) {
       await loadClassesForReg();
       selectClass(id);
-      alert('Class fees and master updated and accepted!');
+      toast('Class fees and master updated and accepted!');
     } else {
-      alert('Failed to save class updates.');
+      toast('Failed to save class updates.');
     }
   });
 
@@ -392,7 +395,7 @@
   });
 
   document.getElementById('regDeleteBtn')?.addEventListener('click', () => {
-    if (!selectedClassId) { alert('Select a class first.'); return; }
+    if (!selectedClassId) { toast('Select a class first.'); return; }
     inlineDeleteClass(selectedClassId);
   });
 
@@ -428,9 +431,9 @@
         <td>${esc(s.role)}</td>
         <td><span class="badge ${s.status === 'active' ? 'no' : 'yes'}">${esc(s.status)}</span></td>
         <td class="action-col">
-          <button type="button" class="action-btn edit" onclick="editAuxiliary(${s.id})" title="Edit Staff">📝</button>
-          <button type="button" class="action-btn delete" onclick="deleteAuxiliary(${s.id})" title="Delete Staff">❌</button>
-          <button type="button" class="action-btn accept" onclick="acceptAuxiliary(${s.id})" style="${acceptStyle}" title="${acceptTitle}">✅</button>
+          <button type="button" class="action-btn edit" data-action="editAuxiliary" data-id="${s.id}" aria-label="Edit Staff">Edit</button>
+          <button type="button" class="action-btn delete" data-action="deleteAuxiliary" data-id="${s.id}" aria-label="Delete Staff">Delete</button>
+          <button type="button" class="action-btn accept" data-action="acceptAuxiliary" data-id="${s.id}" style="${acceptStyle}" aria-label="${acceptTitle}">Accept</button>
         </td>
       </tr>`;
     }).join('');
@@ -473,7 +476,7 @@
 
   window.editAuxiliary = async function (id) {
     const { ok, data } = await api(`/auxiliary/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch staff details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch staff details.'); return; }
     const s = data.data;
     document.getElementById('auxiliaryEditId').value = s.id;
     document.getElementById('auxiliaryHeaderBar').textContent = `Edit Staff: ${[s.firstName, s.lastName].filter(Boolean).join(' ')}`;
@@ -491,16 +494,18 @@
   };
 
   window.deleteAuxiliary = async function (id) {
-    if (!confirm('Are you sure you want to permanently delete this staff member?')) return;
+    const staff = allAuxiliaryList.find(s => s.id === id);
+    const staffLabel = staff ? [staff.firstName, staff.lastName].filter(Boolean).join(' ') + (staff.role ? ' (' + staff.role + ')' : '') : 'this staff member';
+    if (!confirm(`Delete ${staffLabel}? This cannot be undone.`)) return;
     const { ok, data } = await api(`/auxiliary/${id}`, { method: 'DELETE' });
     if (ok) loadAuxiliaryTable();
-    else alert(data.message || 'Failed to delete staff.');
+    else toast(data.message || 'Failed to delete staff.');
   };
 
   window.acceptAuxiliary = async function (id) {
     const { ok, data } = await api(`/auxiliary/set-status/${id}`, { method: 'PUT', body: JSON.stringify({ status: 'active' }) });
-    if (ok) { loadAuxiliaryTable(); alert('Auxiliary staff accepted and activated successfully!'); }
-    else alert(data.message || 'Failed to accept staff.');
+    if (ok) { loadAuxiliaryTable(); toast('Auxiliary staff accepted and activated successfully!'); }
+    else toast(data.message || 'Failed to accept staff.');
   };
 
   document.getElementById('auxiliarySearch')?.addEventListener('input', function () {
@@ -546,8 +551,8 @@
         <td>${y.numberOfStudents ?? 0}</td>
         <td>${y.numberOfTeachers ?? 0}</td>
         <td class="action-col">
-          <button type="button" class="action-btn accept" onclick="event.stopPropagation(); setCurrentAY(${y.id})" title="Set as Current" ${y.isCurrent ? 'disabled style="opacity:0.4"' : ''}>⭐</button>
-          <button type="button" class="action-btn delete" onclick="event.stopPropagation(); deleteAY(${y.id})" title="Delete">❌</button>
+          <button type="button" class="action-btn accept" data-action="setCurrentAY" data-id="${y.id}" aria-label="Set as Current" ${y.isCurrent ? 'disabled style="opacity:0.4"' : ''}>Set current</button>
+          <button type="button" class="action-btn delete" data-action="deleteAY" data-id="${y.id}" aria-label="Delete">Delete</button>
         </td>
       </tr>`;
     }).join('');
@@ -605,15 +610,16 @@
   window.setCurrentAY = async function (id) {
     if (!confirm('Set this as the current academic year?')) return;
     const { ok, data } = await api(`/academic-years/${id}/current`, { method: 'PUT' });
-    if (ok) { loadAcademicYears(); alert('Academic year set as current.'); }
-    else alert(data.message || 'Failed to set current year.');
+    if (ok) { loadAcademicYears(); toast('Academic year set as current.'); }
+    else toast(data.message || 'Failed to set current year.');
   };
 
   window.deleteAY = async function (id) {
-    if (!confirm('Permanently delete this academic year?')) return;
+    const yearName = document.querySelector(`#ayTableBody tr[data-id="${id}"] td`)?.textContent?.trim() || 'this academic year';
+    if (!confirm(`Delete academic year ${yearName}? Enrolments and marks recorded in it will no longer be reachable. This cannot be undone.`)) return;
     const { ok, data } = await api(`/academic-years/${id}`, { method: 'DELETE' });
     if (ok) { selectedAYId = null; highlightAYRow(null); loadAcademicYears(); }
-    else alert(data.message || 'Failed to delete academic year.');
+    else toast(data.message || 'Failed to delete academic year.');
   };
 
   document.getElementById('ayResetBtn')?.addEventListener('click', () => {
@@ -628,7 +634,7 @@
     if (!selectedAYId) {
       const firstRow = document.querySelector('#ayTableBody tr[data-id]');
       if (firstRow) selectedAYId = parseInt(firstRow.dataset.id);
-      else { alert('Select a year first.'); return; }
+      else { toast('Select a year first.'); return; }
     }
     const y = allAcademicYearsList.find(x => x.id === selectedAYId);
     if (y) fillAYForm(y);
@@ -642,7 +648,7 @@
     if (!selectedAYId) {
       const firstRow = document.querySelector('#ayTableBody tr[data-id]');
       if (firstRow) selectedAYId = parseInt(firstRow.dataset.id);
-      else { alert('Select a year first.'); return; }
+      else { toast('Select a year first.'); return; }
     }
     await deleteAY(selectedAYId);
   });
@@ -667,9 +673,14 @@
     tbody.innerHTML = data.data.map(t => {
       const name = esc([t.firstName, t.middleName, t.lastName].filter(Boolean).join(' '));
       const statusBadge = `<span class="badge ${t.status === 'active' ? 'no' : 'yes'}">${esc(t.status)}</span>`;
-      const suspendBtn = t.status === 'active'
-        ? `<button class="btn btn-secondary btn-sm" onclick="toggleStatus(${t.id},'suspended')">Suspend</button>`
-        : `<button class="btn btn-secondary btn-sm" onclick="toggleStatus(${t.id},'active')">Activate</button>`;
+      const workspaceBase = (document.body.dataset.workspaceBase || '').replace(/\/+$/, '');
+      const suspendBtn = document.querySelector('[data-canonical-personnel]')
+        ? (workspaceBase
+          ? `<a class="btn btn-secondary btn-sm" href="${esc(workspaceBase)}/registration">Manage teacher</a>`
+          : '<span class="muted">Managed in the school workspace</span>')
+        : t.status === 'active'
+        ? `<button class="btn btn-secondary btn-sm" data-action="toggleStatus" data-id="${t.id}" data-arg="suspended">Suspend</button>`
+        : `<button class="btn btn-secondary btn-sm" data-action="toggleStatus" data-id="${t.id}" data-arg="active">Activate</button>`;
       return `<tr><td>${t.id}</td><td>${name}</td><td>${esc(t.email)}</td><td>${esc(t.phone || '')}</td><td>${esc(t.section)}</td><td>${esc(t.employmentType)}</td><td>${statusBadge}</td><td>${suspendBtn}</td></tr>`;
     }).join('');
   }
@@ -682,7 +693,7 @@
       if (window.LMS.loadTeacherTable) window.LMS.loadTeacherTable();
       loadPersonnel();
     } else {
-      alert(data.message || 'Failed to update status');
+      toast(data.message || 'Failed to update status');
     }
   };
 })();

@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard — LMS</title>
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
 <%- include('partials/workspace-assets') %></head>
-<body class="lms-ui  admin-body"<% if (typeof canonicalAcademicEnabled !== 'undefined' && canonicalAcademicEnabled) { %> data-canonical-academic="true"<% } %><% if (typeof canonicalAuxiliaryEnabled !== 'undefined' && canonicalAuxiliaryEnabled) { %> data-canonical-auxiliary="true"<% } %>>
+<% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
+<body class="lms-ui  admin-body" data-workspace-base="<%= wsBase %>"<% if (typeof canonicalPersonnelEnabled !== 'undefined' && canonicalPersonnelEnabled) { %> data-canonical-personnel="true"<% } %><% if (typeof canonicalAcademicEnabled !== 'undefined' && canonicalAcademicEnabled) { %> data-canonical-academic="true"<% } %><% if (typeof canonicalAuxiliaryEnabled !== 'undefined' && canonicalAuxiliaryEnabled) { %> data-canonical-auxiliary="true"<% } %>>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
       <span class="sidebar-logo">LYCEE BATOURI
@@ -14,25 +15,46 @@
       </span>
       <span class="sidebar-sub">Admin Panel</span>
     </div>
-    <nav class="sidebar-nav">
-      <button class="sidebar-tab" data-tab="home">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'grid'}) %></span> Home
-      </button>
-      <button class="sidebar-tab" data-tab="registration">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'people'}) %></span> Registration
-      </button>
-      <button class="sidebar-tab" data-tab="finance">
+    <nav class="sidebar-nav" aria-label="Admin sections">
+      <div role="tablist" aria-orientation="vertical" aria-label="Admin panels">
+        <button class="sidebar-tab" role="tab" id="tabbtn-home" data-tab="home" aria-controls="tab-home" aria-selected="true">
+          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'grid'}) %></span> Home
+        </button>
+        <button class="sidebar-tab" role="tab" id="tabbtn-registration" data-tab="registration" aria-controls="tab-registration" aria-selected="false" tabindex="-1">
+          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'people'}) %></span> Registration
+        </button>
+        <button class="sidebar-tab" role="tab" id="tabbtn-finance" data-tab="finance" aria-controls="tab-finance" aria-selected="false" tabindex="-1">
+          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'wallet'}) %></span> Finance
+        </button>
+        <button class="sidebar-tab" role="tab" id="tabbtn-evaluation" data-tab="evaluation" aria-controls="tab-evaluation" aria-selected="false" tabindex="-1">
+          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'book'}) %></span> Evaluation
+        </button>
+        <button class="sidebar-tab" role="tab" id="tabbtn-personnel" data-tab="personnel" aria-controls="tab-personnel" aria-selected="false" tabindex="-1">
+          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'shield'}) %></span> Personnel
+        </button>
+      </div>
+      <p class="sidebar-section">School tools</p>
+      <a class="sidebar-tab" href="/timetable">
+        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'calendar'}) %></span> Timetable
+      </a>
+      <a class="sidebar-tab" href="/promotion">
+        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'arrow'}) %></span> Promotion
+      </a>
+      <a class="sidebar-tab" href="/attendance">
+        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'people'}) %></span> Attendance
+      </a>
+      <a class="sidebar-tab" href="/finance">
         <span class="tab-icon"><%- include('partials/hub-icon',{icon:'wallet'}) %></span> Finance
-      </button>
-      <button class="sidebar-tab" data-tab="evaluation">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'book'}) %></span> Evaluation
-      </button>
-      <button class="sidebar-tab" data-tab="personnel">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'shield'}) %></span> Personnel
-      </button>
+      </a>
+      <a class="sidebar-tab" href="/library">
+        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'book'}) %></span> Library
+      </a>
+      <a class="sidebar-tab" href="/laboratory">
+        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'flask'}) %></span> Laboratory
+      </a>
     </nav>
     <div class="sidebar-footer">
-      <button id="sidebarLogout" class="sidebar-logout">&#x1F6AA; Logout</button>
+      <button id="sidebarLogout" class="sidebar-logout">Sign out</button>
     </div>
   </aside>
 
@@ -44,14 +66,14 @@
       </div>
       <div class="admin-topbar-right">
         <span id="adminInfo" class="admin-info">Loading&hellip;</span>
-        <button id="topLogout" class="btn btn-secondary btn-sm">Logout</button>
+        <button id="topLogout" class="btn btn-secondary btn-sm">Sign out</button>
       </div>
     </header>
 
-    <div class="admin-content"><% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><p data-canonical-courses="true">Manage subject memberships, explicit teaching assignments and raw marks in the <a href="https://localhost:2027/courses">school course workspace</a>.</p><% } %>
-<%- include('partials/workspace-wayfinding',{workspaceMode:'Original application',workspaceHome:'https://localhost:2027/school'}) %>
+    <div class="admin-content"><% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><p data-canonical-courses="true">Manage subject memberships, teaching assignments and raw marks in the <% if (wsBase) { %><a href="<%= wsBase %>/courses">school course workspace</a><% } else { %>school course workspace<% } %>.</p><% } %>
+<%- include('partials/workspace-wayfinding',{workspaceMode:'Original application',workspaceHome:'/school'}) %>
       <% if (typeof canonicalPersonnelEnabled !== 'undefined' && canonicalPersonnelEnabled) { %>
-      <p class="card">Student and teacher registration now uses your school workspace. <a href="https://localhost:2027/registration">Open registration</a>. Other registration tools: <a href="#registration/subject">Subjects</a> · <a href="#registration/classes">Classes</a> · <a href="#registration/academic-years">Academic years</a> · <a href="#registration/auxiliary">Auxiliary staff</a>.</p>
+      <p class="card">Student and teacher registration uses your school workspace.<% if (wsBase) { %> <a href="<%= wsBase %>/registration">Open registration</a>.<% } %> Other registration tools: <a href="#registration/subject">Subjects</a>, <a href="#registration/classes">Classes</a>, <a href="#registration/academic-years">Academic years</a>, <a href="#registration/auxiliary">Auxiliary staff</a>.</p>
       <% } %>
       <!-- ===== HOME TAB ===== -->
       <section class="tab-panel active" id="tab-home">
@@ -73,13 +95,13 @@
       <!-- ===== REGISTRATION TAB ===== -->
       <section class="tab-panel" id="tab-registration">
         <!-- Sub-tabs -->
-        <div class="reg-subtabs">
-          <button class="reg-subtab active" data-sub="student">Student</button>
-          <button class="reg-subtab" data-sub="teacher">Teacher</button>
-          <button class="reg-subtab" data-sub="subject">Subject</button>
-          <button class="reg-subtab" data-sub="classes">Classes</button>
-          <button class="reg-subtab" data-sub="auxiliary">Auxiliary Staff</button>
-          <button class="reg-subtab" data-sub="academic-years">Academic Years</button>
+        <div class="reg-subtabs" role="tablist" aria-label="Registration">
+          <button class="reg-subtab active" role="tab" data-sub="student" aria-controls="sub-student" aria-selected="true">Students</button>
+          <button class="reg-subtab" role="tab" data-sub="teacher" aria-controls="sub-teacher" aria-selected="false" tabindex="-1">Teachers</button>
+          <button class="reg-subtab" role="tab" data-sub="subject" aria-controls="sub-subject" aria-selected="false" tabindex="-1">Subjects</button>
+          <button class="reg-subtab" role="tab" data-sub="classes" aria-controls="sub-classes" aria-selected="false" tabindex="-1">Classes</button>
+          <button class="reg-subtab" role="tab" data-sub="auxiliary" aria-controls="sub-auxiliary" aria-selected="false" tabindex="-1">Auxiliary staff</button>
+          <button class="reg-subtab" role="tab" data-sub="academic-years" aria-controls="sub-academic-years" aria-selected="false" tabindex="-1">Academic years</button>
         </div>
 
         <!-- ===== STUDENT SUB-TAB ===== -->
@@ -150,28 +172,25 @@
 
               <!-- Right: Fees section -->
               <div class="reg-student-fees">
-                <div class="reg-fees-header">Fees Details</div>
-                <div class="reg-fees-body" id="studentFeesBody">
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Registration" aria-label="Registration selected" /> <span>Registration</span><input type="number" class="sf-amt" data-fee="Registration" aria-label="Registration amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IDCard" aria-label="ID card selected" /> <span>ID Card</span><input type="number" class="sf-amt" data-fee="IDCard" aria-label="ID card amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Tuition" aria-label="Tuition selected" /> <span>Tuition</span><input type="number" class="sf-amt" data-fee="Tuition" aria-label="Tuition amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="PTA" aria-label="PTA selected" /> <span>PTA</span><input type="number" class="sf-amt" data-fee="PTA" aria-label="PTA amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Sportware" aria-label="Sportswear selected" /> <span>Sportswear</span><input type="number" class="sf-amt" data-fee="Sportware" aria-label="Sportswear amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Practicals" aria-label="Practicals selected" /> <span>Practicals</span><input type="number" class="sf-amt" data-fee="Practicals" aria-label="Practicals amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IT" aria-label="IT selected" /> <span>IT</span><input type="number" class="sf-amt" data-fee="IT" aria-label="IT amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Examination" aria-label="Examination selected" /> <span>Examination</span><input type="number" class="sf-amt" data-fee="Examination" aria-label="Examination amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Textbook" aria-label="Textbook selected" /> <span>Textbook</span><input type="number" class="sf-amt" data-fee="Textbook" aria-label="Textbook amount" value="0" /></div>
+                <div class="reg-fees-header">Fees</div>
+                <div class="reg-fees-body" id="studentFinanceBody">
+                  <p class="muted" id="studentFinanceNote">Fees are charged and paid in Finance. After saving, charge this student there, or charge the whole class from its fee schedule.</p>
+                  <dl class="reg-finance-summary" id="studentFinanceSummary" hidden>
+                    <dt>Charged</dt><dd id="sfCharged">—</dd>
+                    <dt>Paid</dt><dd id="sfPaid">—</dd>
+                    <dt>Outstanding</dt><dd id="sfBalance">—</dd>
+                    <dt>Overdue</dt><dd id="sfOverdue">—</dd>
+                  </dl>
                 </div>
                 <div class="reg-fees-total">
-                  <span>Total Fees</span>
-                  <span id="studentFeesTotal">0 XAF</span>
+                  <a id="studentFinanceLink" href="/finance">Open Finance</a>
                 </div>
               </div>
             </div>
             <div class="student-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="studentSubmitBtn">Register Student</button>
             </div>
-            <p id="studentFormMsg" class="msg"></p>
+            <p id="studentFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar -->
@@ -196,17 +215,17 @@
                   <tr>
                     <th>Matricule</th>
                     <th>Name</th>
-                    <th>Gender</th>
-                    <th>Address</th>
-                    <th>Date of Birth</th>
-                    <th>Region</th>
-                    <th>Division</th>
-                    <th>Place of Birth</th>
+                    <th class="col-secondary">Sex</th>
+                    <th class="col-secondary">Address</th>
+                    <th class="col-secondary">Date of birth</th>
+                    <th class="col-secondary">Region</th>
+                    <th class="col-secondary">Division</th>
+                    <th class="col-secondary">Place of birth</th>
                     <th>Class</th>
-                    <th>Acc Year</th>
-                    <th>Parent/Guardian</th>
-                    <th>Tel</th>
-                    <th>Medical</th>
+                    <th class="col-secondary">Year</th>
+                    <th class="col-secondary">Parent / guardian</th>
+                    <th class="col-secondary">Phone</th>
+                    <th class="col-secondary">Medical</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -308,7 +327,7 @@
             <div class="teacher-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="teacherSubmitBtn">Create Teacher</button>
             </div>
-            <p id="teacherFormMsg" class="msg"></p>
+            <p id="teacherFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar for Teacher -->
@@ -332,10 +351,10 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
+                    <th class="col-secondary">Email</th>
+                    <th class="col-secondary">Phone</th>
                     <th>Section</th>
-                    <th>Employment</th>
+                    <th class="col-secondary">Employment</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -407,7 +426,7 @@
             <div class="teacher-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="subjectSubmitBtn">Create Subject</button>
             </div>
-            <p id="subjectFormMsg" class="msg"></p>
+            <p id="subjectFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar for Subject -->
@@ -565,8 +584,11 @@
               <label>Role
                 <select id="auxRole" required>
                   <option value="">-- Choose Role --</option>
+                  <option>Bursar</option>
                   <option>Accountant</option>
                   <option>Librarian</option>
+                  <option>Laboratory attendant</option>
+                  <option>Discipline master</option>
                   <option>Security</option>
                   <option>Cleaner</option>
                   <option>Driver</option>
@@ -587,7 +609,7 @@
               <label>&nbsp;</label>
             </div>
             <button class="reg-btn reg-btn-blue" type="submit" id="auxSubmitBtn" style="padding:10px 24px;font-size:14px;margin-top:12px">Register Staff</button>
-            <p id="auxiliaryFormMsg" class="msg"></p>
+            <p id="auxiliaryFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar for Auxiliary Staff -->
@@ -648,7 +670,7 @@
             <div class="teacher-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="aySubmitBtn">Create Year</button>
             </div>
-            <p id="ayFormMsg" class="msg"></p>
+            <p id="ayFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <div class="reg-action-bar" style="margin-top: 16px;">
@@ -695,22 +717,24 @@
       <section class="tab-panel" id="tab-finance">
         <div class="card">
           <h3>Finance</h3>
-          <p class="muted">Manage pupil charges, partial payments, receipts and outstanding balances in CFA francs (XAF).</p>
-          <p>The practice workspace uses fictional records and has separate administrator and bursar / cashier access.</p>
-          <a href="https://localhost:2030/#finance">Open financial management practice</a>
+          <p class="muted">Manage student charges, partial payments, receipts and outstanding balances in CFA francs (XAF).</p>
+          <p>Administrators can charge classes, record payments, reverse mistaken entries and cancel charges. Staff with the bursar duty (Personnel → Duties and sign-in) can view everything and record payments.</p>
+          <p>Fee amounts set on each class (Registration → Classes) appear as ready-made fees when you charge a class.</p>
+          <p><a class="btn" href="/finance">Open financial management</a> <a class="btn btn-secondary" href="/finance/collections">Collection report</a> <a class="btn btn-secondary" href="/finance/statements">Student statements</a></p>
         </div>
       </section>
 
       <!-- ===== EVALUATION TAB ===== -->
       <section class="tab-panel" id="tab-evaluation">
-        <div class="reg-subtabs">
-          <button class="reg-subtab active" data-sub="marks">Marks Entry</button>
-          <button class="reg-subtab" data-sub="course-review">Course Review</button>
-          <button class="reg-subtab" data-sub="report-cards">Report Cards</button>
+        <div class="reg-subtabs" role="tablist" aria-label="Evaluation">
+          <button class="reg-subtab active" role="tab" data-sub="marks" aria-controls="sub-marks" aria-selected="true">Marks entry</button>
+          <button class="reg-subtab" role="tab" data-sub="course-review" aria-controls="sub-course-review" aria-selected="false" tabindex="-1">Course review</button>
+          <button class="reg-subtab" role="tab" data-sub="report-cards" aria-controls="sub-report-cards" aria-selected="false" tabindex="-1">Report cards</button>
         </div>
 
         <!-- ===== MARKS ENTRY SUB-TAB ===== -->
-        <div class="reg-subpanel active" id="sub-marks">
+        <div class="reg-subpanel active" id="sub-marks" role="tabpanel"><% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="card"><h3>Enter and review marks</h3><p>This task is available in your school course workspace.</p><% if (wsBase) { %><a class="btn" href="<%= wsBase %>/courses">Open school courses</a><% } %></div><% } %>
+<div<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %> hidden inert<% } %>>
           <div class="reg-header-bar">Marks Entry</div>
           <form id="marksForm" style="max-width:900px">
             <div class="reg-form-split">
@@ -754,7 +778,7 @@
               </div>
             </div>
           </form>
-          <p id="mkMsg" class="msg"></p>
+          <p id="mkMsg" class="msg" role="status" aria-live="polite"></p>
           <div class="reg-table-wrap" id="marksTableWrap" style="display:none">
             <div class="reg-table-scroll">
               <table class="marks-table">
@@ -772,9 +796,11 @@
             </div>
           </div>
         </div>
+        </div>
 
         <!-- ===== COURSE REVIEW SUB-TAB ===== -->
-        <div class="reg-subpanel" id="sub-course-review">
+        <div class="reg-subpanel" id="sub-course-review" role="tabpanel"><% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="card"><h3>Review courses and enrolments</h3><p>This task is available in your school course workspace.</p><% if (wsBase) { %><a class="btn" href="<%= wsBase %>/courses">Open school courses</a><% } %></div><% } %>
+<div<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %> hidden inert<% } %>>
           <div class="reg-header-bar">Course Review</div>
           <form id="courseReviewForm" style="max-width:900px">
             <div class="reg-row-3">
@@ -783,7 +809,7 @@
               <label>Academic Year <select id="crYear"><option value="">-- select --</option></select></label>
             </div>
           </form>
-          <p id="crMsg" class="msg"></p>
+          <p id="crMsg" class="msg" role="status" aria-live="polite"></p>
           <div class="reg-form-split" id="crSplit" style="margin-top:12px;display:none">
             <div>
               <div class="reg-section-divider" style="margin-top:0">All Class Students</div>
@@ -822,6 +848,7 @@
             </div>
           </div>
         </div>
+        </div>
 
         <!-- ===== REPORT CARDS SUB-TAB ===== -->
         <div class="reg-subpanel" id="sub-report-cards">
@@ -841,7 +868,7 @@
               <button type="button" class="reg-btn reg-btn-blue" id="rcGenerateBtn">Generate Report Card</button>
             </div>
           </form>
-          <p id="rcMsg" class="msg"></p>
+          <p id="rcMsg" class="msg" role="status" aria-live="polite"></p>
           <div id="reportCardOutput" style="display:none">
             <div class="reg-action-bar">
               <div class="reg-search-group">
@@ -880,18 +907,56 @@
             <tbody id="personnelRows"><tr><td colspan="8" class="muted">Loading&hellip;</td></tr></tbody>
           </table>
         </div>
+
+        <div class="card" id="dutiesCard">
+          <div class="page-head">
+            <div>
+              <h3>Duties and sign-in</h3>
+              <p class="muted">Give a teacher or auxiliary staff member a school duty. Duties decide who can use finance, library, laboratory and attendance tools as each is switched on.</p>
+            </div>
+          </div>
+          <form id="dutyForm" class="assign-form">
+            <label>Staff member
+              <select id="dutyStaff" required><option value="">Loading&hellip;</option></select>
+            </label>
+            <label>Duty
+              <select id="dutyName" required><option value="">Choose a duty</option></select>
+            </label>
+            <button type="submit" class="btn">Grant duty</button>
+          </form>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Duty</th><th>Staff member</th><th>Email</th><th>Since</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="dutyRows"><tr><td colspan="5" class="muted">Loading&hellip;</td></tr></tbody>
+            </table>
+          </div>
+
+          <h3 style="margin-top:24px">Auxiliary staff sign-in</h3>
+          <p class="muted">Auxiliary staff sign in with their email under "Non-teaching staff"; teachers with a duty keep signing in as Teacher. Their status must be Active. Passwords are 12 characters or more; share them in person.</p>
+          <form id="auxPasswordForm" class="assign-form" autocomplete="off">
+            <label>Auxiliary staff member
+              <select id="auxPasswordStaff" required><option value="">Loading&hellip;</option></select>
+            </label>
+            <label>New password
+              <input id="auxPasswordValue" type="password" minlength="12" maxlength="72" required autocomplete="new-password" />
+            </label>
+            <button type="submit" class="btn btn-secondary">Set password</button>
+          </form>
+        </div>
       </section>
     </div>
   </div>
 
   <% if (typeof canonicalPersonnelEnabled !== 'undefined' && canonicalPersonnelEnabled) { %><script src="/js/legacy-personnel-handoff.js"></script><% } %>
   <script src="/js/app.js"></script>
+  <script src="/js/toast.js"></script>
   <script src="/js/admin-layout.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-core.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-students.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-teachers.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-registration.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-evaluation.js?v=<%= Date.now() %>"></script>
+  <script src="/js/admin-duties.js?v=<%= Date.now() %>"></script>
   <script src="/js/location-picker.js"></script>
 </body>
 </html>

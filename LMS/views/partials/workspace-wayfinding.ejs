@@ -1,4 +1,5 @@
-<nav class="lms-wayfinding" aria-label="Workspace navigation">
- <a href="<%= workspaceHome %>"><span aria-hidden="true">←</span> <%= workspaceMode==='Practice'?'Practice workspaces':'School dashboard' %></a>
+<% const wfBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
+<% if (wfBase) { %><nav class="lms-wayfinding" aria-label="Workspace navigation">
+ <a href="<%= wfBase + (typeof workspaceHome !== 'undefined' && workspaceHome ? workspaceHome : '/school') %>"><span aria-hidden="true">←</span> <%= workspaceMode==='Practice'?'Practice workspaces':'School dashboard' %></a>
  <span class="lms-mode"><%= workspaceMode %></span>
-</nav>
+</nav><% } %>

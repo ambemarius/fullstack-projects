@@ -1,43 +1,12 @@
 const { sql, pool, poolConnect } = require('../../config/database');
 
+async function requestFor(transaction) {
+    if (transaction) return new sql.Request(transaction);
+    await poolConnect;
+    return pool.request();
+}
+
 const SubjectScoreModel = {
-    async createTable() {
-        await poolConnect;
-        await pool.request().query(`
-            IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'subject_scores')
-            CREATE TABLE subject_scores (
-                id               INT IDENTITY(1,1) PRIMARY KEY,
-                student_id       INT NOT NULL,
-                class_subject_id INT NOT NULL,
-                academic_year_id INT NOT NULL,
-                term             NVARCHAR(10) NOT NULL,
-                sequence         TINYINT NOT NULL,
-                score            DECIMAL(5,2) NOT NULL,
-                max_score        DECIMAL(5,2) NOT NULL DEFAULT 50,
-                created_by       INT NOT NULL,
-                created_at       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-                updated_at       DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
-                CONSTRAINT CK_ss_term     CHECK (term IN ('First', 'Second', 'Third')),
-                CONSTRAINT CK_ss_sequence CHECK (sequence IN (1, 2)),
-                CONSTRAINT UQ_ss UNIQUE (student_id, class_subject_id, academic_year_id, term, sequence),
-                CONSTRAINT FK_ss_student  FOREIGN KEY (student_id)       REFERENCES students(id)       ON DELETE CASCADE,
-                CONSTRAINT FK_ss_cs       FOREIGN KEY (class_subject_id) REFERENCES class_subjects(id) ON DELETE CASCADE,
-                CONSTRAINT FK_ss_year     FOREIGN KEY (academic_year_id) REFERENCES academic_years(id)
-            );
-        `);
-        await this.migrate();
-    },
-
-    // created_by may be a teacher OR an admin (both enter marks), so it is not
-    // FK-constrained. Drop the old teacher-only FK if it exists.
-    async migrate() {
-        await poolConnect;
-        await pool.request().query(`
-            IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_ss_teacher')
-                ALTER TABLE subject_scores DROP CONSTRAINT FK_ss_teacher;
-        `);
-    },
-
     // Get scores for one class-subject-term-sequence
     async getScores(classSubjectId, academicYearId, term, sequence) {
         await poolConnect;
@@ -57,19 +26,34 @@ const SubjectScoreModel = {
         return result.recordset;
     },
 
-    // Upsert a single student's score for a class-subject-term-sequence
-    async upsertScore(studentId, classSubjectId, academicYearId, term, sequence, score, maxScore, teacherId) {
-        await poolConnect;
-        const result = await pool.request()
-            .input('studentId', sql.Int, studentId)
-            .input('classSubjectId', sql.Int, classSubjectId)
-            .input('academicYearId', sql.Int, academicYearId)
-            .input('term', sql.NVarChar(10), term)
-            .input('sequence', sql.TinyInt, sequence)
-            .input('score', sql.Decimal(5, 2), score)
-            .input('maxScore', sql.Decimal(5, 2), maxScore)
-            .input('teacherId', sql.Int, teacherId)
+    // Upsert one mark and record the change. Accepts an object
+    // ({ studentId, classSubjectId, academicYearId, term, sequence, score, maxScore, actorId, actorType })
+    // or the older positional form; pass { transaction } to join a caller's transaction.
+    async upsertScore(data, ...rest) {
+        let row, options = {};
+        if (data && typeof data === 'object') {
+            row = data;
+            options = rest[0] || {};
+        } else {
+            const [classSubjectId, academicYearId, term, sequence, score, maxScore, actorId] = rest;
+            row = { studentId: data, classSubjectId, academicYearId, term, sequence, score, maxScore, actorId };
+        }
+        const request = await requestFor(options.transaction);
+        const result = await request
+            .input('studentId', sql.Int, row.studentId)
+            .input('classSubjectId', sql.Int, row.classSubjectId)
+            .input('academicYearId', sql.Int, row.academicYearId)
+            .input('term', sql.NVarChar(10), row.term)
+            .input('sequence', sql.TinyInt, row.sequence)
+            .input('score', sql.Decimal(5, 2), row.score)
+            .input('maxScore', sql.Decimal(5, 2), row.maxScore)
+            .input('actorId', sql.Int, row.actorId)
+            .input('actorType', sql.NVarChar(20), row.actorType || 'teacher')
             .query(`
+                DECLARE @old DECIMAL(5,2) = (
+                    SELECT score FROM subject_scores
+                    WHERE student_id = @studentId AND class_subject_id = @classSubjectId
+                      AND academic_year_id = @academicYearId AND term = @term AND sequence = @sequence);
                 MERGE subject_scores AS target
                 USING (SELECT @studentId AS student_id, @classSubjectId AS class_subject_id,
                               @academicYearId AS academic_year_id, @term AS term, @sequence AS sequence) AS source
@@ -79,12 +63,34 @@ const SubjectScoreModel = {
                     AND target.term = source.term
                     AND target.sequence = source.sequence)
                 WHEN MATCHED THEN
-                    UPDATE SET score = @score, max_score = @maxScore, created_by = @teacherId, updated_at = SYSUTCDATETIME()
+                    UPDATE SET score = @score, max_score = @maxScore, updated_by = @actorId, updated_at = SYSUTCDATETIME()
                 WHEN NOT MATCHED THEN
-                    INSERT (student_id, class_subject_id, academic_year_id, term, sequence, score, max_score, created_by)
-                    VALUES (@studentId, @classSubjectId, @academicYearId, @term, @sequence, @score, @maxScore, @teacherId);
+                    INSERT (student_id, class_subject_id, academic_year_id, term, sequence, score, max_score, created_by, updated_by)
+                    VALUES (@studentId, @classSubjectId, @academicYearId, @term, @sequence, @score, @maxScore, @actorId, @actorId);
+                IF @old IS NULL OR @old <> @score
+                INSERT INTO subject_score_history
+                    (score_id, class_subject_id, student_id, academic_year_id, term, sequence, old_score, new_score, changed_by, changed_by_type)
+                SELECT id, class_subject_id, student_id, academic_year_id, term, sequence, @old, @score, @actorId, @actorType
+                FROM subject_scores
+                WHERE student_id = @studentId AND class_subject_id = @classSubjectId
+                  AND academic_year_id = @academicYearId AND term = @term AND sequence = @sequence;
             `);
-        return result.rowsAffected[0] > 0;
+        return (result.rowsAffected || []).some(count => count > 0);
+    },
+
+    async getHistory(studentId, classSubjectId, academicYearId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('studentId', sql.Int, studentId)
+            .input('classSubjectId', sql.Int, classSubjectId)
+            .input('academicYearId', sql.Int, academicYearId)
+            .query(`
+                SELECT term, sequence, old_score, new_score, changed_by, changed_by_type, changed_at
+                FROM subject_score_history
+                WHERE student_id = @studentId AND class_subject_id = @classSubjectId AND academic_year_id = @academicYearId
+                ORDER BY changed_at DESC
+            `);
+        return result.recordset;
     },
 
     // Get students in a class with their scores (both sequences) for a subject
@@ -111,8 +117,25 @@ const SubjectScoreModel = {
                     AND ss2.term = @term
                     AND ss2.sequence = 2
                 WHERE s.currentClassLevel = @classId AND s.isWithdrawn = 0
+                  -- Only students enrolled in this subject for the year: the same rule saving enforces.
+                  AND EXISTS (SELECT 1 FROM class_subject_students css
+                              WHERE css.class_subject_id = @classSubjectId AND css.student_id = s.id AND css.academic_year_id = @academicYearId)
                 ORDER BY s.lastName, s.firstName
             `);
+        return result.recordset;
+    },
+
+    async getReportForStudent(studentId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('studentId', sql.Int, studentId)
+            .query(`SELECT ss.term, ss.sequence, ss.score, ss.max_score,
+                           subj.name AS subjectName, subj.code AS subjectCode
+                    FROM subject_scores ss
+                    JOIN class_subjects cs ON cs.id = ss.class_subject_id
+                    JOIN subjects subj ON subj.id = cs.subject_id
+                    WHERE ss.student_id = @studentId
+                    ORDER BY ss.term, subj.name, ss.sequence`);
         return result.recordset;
     },
 };

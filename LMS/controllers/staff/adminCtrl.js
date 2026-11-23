@@ -133,6 +133,15 @@ exports.updateadminCtrl = asyncHandler(async (req, res) => {
 //@desc delete admin
 //@route DELETE /api/v1/admin/:id
 exports.deleteadminCtrl = asyncHandler(async (req, res) => {
+    const targetId = Number(req.params.id);
+    if (targetId === Number(req.userAuth.id)) {
+        throw httpError(409, 'You cannot delete the account you are signed in with');
+    }
+    const admins = await Admin.getAll();
+    const remaining = admins.filter(a => isLegacyAdministrator(a.role) && Number(a.id) !== targetId);
+    if (remaining.length === 0) {
+        throw httpError(409, 'At least one administrator account must remain');
+    }
     const ok = await Admin.remove(req.params.id);
     if (!ok) throw httpError(404, 'Admin not found');
     res.status(200).json({ status: 'success', message: 'Admin deleted' });

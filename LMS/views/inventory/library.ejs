@@ -1,0 +1,40 @@
+<%- include('shell',{pageTitle:'Catalogue and loans'}) %>
+<% const qs = new URLSearchParams({ ...(search?{search}:{}), ...(status?{status}:{}), ...(classId?{classId:String(classId)}:{}) }).toString(); %>
+<div class="page-heading"><div><h1>Library</h1><p>Catalogue, lending, renewals and returns. Students may hold <%= loanLimit %> book<%= loanLimit===1?'':'s' %> at a time.</p></div><div class="heading-actions"><a class="button" href="#add-copy" data-open-panel="add-copy">+ Add a copy</a></div></div>
+<% if(saved){ %><p class="notice" role="status">Saved.</p><% } %>
+<div class="cards">
+<section><h3>Copies</h3><p><%= totals.total %></p><p>In the catalogue</p></section>
+<section><h3>On loan</h3><p><%= totals.onLoan %></p><p><a href="?status=loan">Show loans</a></p></section>
+<section><h3>Overdue</h3><p><%= totals.overdue %></p><p><a href="?status=overdue">Show overdue</a></p></section>
+<section><h3>Needs review</h3><p><%= totals.review %></p><p><a href="?status=review">Lost or damaged</a></p></section>
+</div>
+<form method="get" class="toolbar"><label>Search title, author, barcode, ISBN, shelf or student<input name="search" maxlength="120" value="<%= search %>" placeholder="Find a book or borrower…"></label>
+<label>Status<select name="status"><% for(const [v,l] of [['','All copies'],['available','Available'],['loan','On loan'],['overdue','Overdue'],['review','Lost or damaged']]){ %><option value="<%= v %>" <%= status===v?'selected':'' %>><%= l %></option><% } %></select></label>
+<label>Borrower's class<select name="classId"><option value="">Any class</option><% classes.forEach(c=>{ %><option value="<%= c.id %>" <%= classId===c.id?'selected':'' %>><%= c.label %></option><% }) %></select></label>
+<button>Show</button><a href="<%= paths.library %>">Clear</a></form>
+<% if(moreCopies){ %><p class="notice">Showing the first 300 copies. Search or filter to narrow the list.</p><% } %>
+<div class="table-wrap"><table><thead><tr><th>Book</th><th>Accession / shelf</th><th>Status</th><th>Borrower / due</th><th>Action</th></tr></thead><tbody>
+<% copies.forEach(c=>{ const loan=['checkout','renew'].includes(c.action),review=['lost','damaged'].includes(c.action),overdue=loan&&c.due<today;
+   const label=loan?(overdue?'Overdue':'On loan'):review?(c.action==='lost'?'Lost':'Damaged'):'Available'; %>
+<tr><td><span class="cell-primary"><%= c.title %></span><span class="cell-meta"><%= c.author %><% if(c.isbn){ %> · ISBN <%= c.isbn %><% } %></span></td>
+<td><span class="cell-primary"><%= c.accession %></span><span class="cell-meta"><%= c.shelf %></span></td>
+<td><span class="status status-<%= overdue?'overdue':loan?'open':review?'cancelled':'paid' %>"><%= label %></span></td>
+<td><% if(loan){ %><span class="cell-primary"><%= c.borrower %></span><span class="cell-meta"><%= c.borrowerClass?c.borrowerClass+' · ':'' %>Due <%= c.due %></span><% }else{ %>—<% } %></td>
+<td><details><summary><%= loan?'Return or renew':review?'Review':'Lend' %></summary>
+<form method="post"><input type="hidden" name="operation" value="<%= uuid() %>"><input type="hidden" name="copy" value="<%= c.id %>"><input type="hidden" name="version" value="<%= c.version %>"><input type="hidden" name="returnTo" value="?<%= qs %>">
+<% if(!loan&&!review){ %><label>Borrower<select name="borrower" required><option value="">Choose a borrower</option><optgroup label="Students"><% students.forEach(p=>{ %><option value="student:<%= p.id %>"><%= p.label %></option><% }) %></optgroup><optgroup label="Staff"><% staff.forEach(s=>{ %><option value="<%= s.id %>"><%= s.label %></option><% }) %></optgroup></select></label><% } %>
+<% if(!review){ %><label>Due date<input type="date" name="due" min="<%= today %>" required></label>
+<button name="action" value="<%= loan?'renew':'checkout' %>"><%= loan?'Renew loan':'Check out' %></button>
+<% if(loan){ %><button class="secondary" name="action" value="return" formnovalidate>Return copy</button><% } %>
+<button class="danger" name="action" value="damaged" formnovalidate>Record damage</button><button class="danger" name="action" value="lost" formnovalidate>Record loss</button>
+<% }else{ %><button name="action" value="repair">Restore to circulation</button><% } %></form></details></td></tr><% }) %>
+<% if(!copies.length){ %><tr><td colspan="5" class="empty"><strong>No copies found.</strong><%= search||status||classId?'Try a different search or filter.':'Add the first copy to start lending.' %></td></tr><% } %>
+</tbody></table></div>
+<details id="add-copy"><summary>Add a book copy</summary><form method="post"><input type="hidden" name="operation" value="<%= uuid() %>">
+<div class="fields"><label>Title<input name="title" maxlength="160" required></label><label>Author<input name="author" maxlength="120" required></label>
+<label>Accession number or barcode<input name="accession" maxlength="60" required></label><label>Shelf<input name="shelf" maxlength="80" required></label><label>ISBN (optional)<input name="isbn" maxlength="30"></label></div>
+<button name="action" value="add">Add copy</button></form></details>
+<h2>Recent circulation</h2>
+<% if(!history.length){ %><p>No circulation recorded yet.</p><% }else{ %><div class="table-wrap"><table><thead><tr><th>When (UTC)</th><th>Copy</th><th>Action</th><th>Recorded by</th></tr></thead><tbody>
+<% history.forEach(e=>{ %><tr><td><%= e.occurredAt.toISOString().replace('T',' ').slice(0,16) %></td><td><%= e.accession %> · <%= e.title %></td><td><%= e.action %></td><td><%= e.editor||'—' %></td></tr><% }) %></tbody></table></div><% } %>
+<%- include('end') %>

@@ -1,7 +1,27 @@
 const express = require('express');
 const morgan = require('morgan');
+const helmet = require('helmet');
 const path = require('node:path');
 const { globalErrHandler, notFoundErr } = require('../middlewares/globalErrHandler');
+
+// Pages are server-rendered with self-hosted assets and no inline scripts or event handlers.
+// Inline style attributes remain in some views, so styles keep 'unsafe-inline'.
+const CONTENT_SECURITY_POLICY = {
+    useDefaults: false,
+    directives: {
+        'default-src': ["'self'"],
+        'script-src': ["'self'"],
+        'script-src-attr': ["'none'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
+        'img-src': ["'self'", 'data:', 'blob:'],
+        'font-src': ["'self'", 'data:'],
+        'connect-src': ["'self'"],
+        'object-src': ["'none'"],
+        'frame-ancestors': ["'none'"],
+        'base-uri': ["'self'"],
+        'form-action': ["'self'"],
+    },
+};
 
 const ROUTES = [
     ['/', '../routes/webRouter'],
@@ -22,6 +42,11 @@ const ROUTES = [
     ['/api/v1/report-cards', '../routes/academic/reportCardRouter'],
     ['/api/v1/auxiliary', '../routes/staff/auxiliaryRouter'],
     ['/api/v1/parents', '../routes/parents/parentRouter'],
+    ['/api/v1/staff-duties', '../routes/staff/staffDutyRouter'],
+    ['/finance', '../routes/finance/financeRouter'],
+    ['/api/v1/attendance', '../routes/attendance/attendanceRouter'],
+    ['/api/v1/library', '../routes/inventory/loansRouter'],
+    ['/', '../routes/inventory/inventoryRouter'],
 ];
 
 function createApp({ routes, requestContext, logging = true, legacyPersonnelReadOnly = false, legacyAcademicReadOnly = false, legacyAuxiliaryReadOnly = false, legacyCredentialVersionsEnabled = false, legacyAcademicLinksReadOnly = false, legacyScopedExamResultsEnabled = false, legacyScopedPersonnelReadsEnabled = false, legacyScopedTimetablesEnabled = false, legacyScopedAllocationsEnabled = false, legacyScopedReferencesEnabled = false, legacyScopedReportsEnabled = false, legacyScopedSelfEnabled = false } = {}) {
@@ -29,6 +54,13 @@ function createApp({ routes, requestContext, logging = true, legacyPersonnelRead
     app.set('view engine', 'ejs');
     app.set('views', path.join(__dirname, '..', 'views'));
     app.disable('x-powered-by');
+    app.set('trust proxy', process.env.TRUST_PROXY === 'true' ? 1 : false);
+    app.use(helmet({ contentSecurityPolicy: CONTENT_SECURITY_POLICY, crossOriginEmbedderPolicy: false }));
+    app.locals.publicOrigin = process.env.PUBLIC_ORIGIN || '';
+    app.locals.workspaceBaseUrl = process.env.WORKSPACE_BASE_URL || '';
+    // Changes on every start, so browsers fetch new stylesheets after an upgrade.
+    app.locals.assetVersion = Date.now().toString(36);
+    app.use(require('../middlewares/stagedFeaturesGate').stagedFeaturesGate);
     app.locals.legacyCredentialVersionsEnabled = legacyCredentialVersionsEnabled;
     app.locals.legacyScopedExamResultsEnabled = legacyScopedExamResultsEnabled;
     app.locals.legacyScopedPersonnelReadsEnabled=legacyScopedPersonnelReadsEnabled;
@@ -55,8 +87,8 @@ function createApp({ routes, requestContext, logging = true, legacyPersonnelRead
         next();
     });
     app.use(express.static(path.join(__dirname, '..', 'public')));
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.json({ limit: '200kb' }));
+    app.use(express.urlencoded({ extended: true, limit: '200kb' }));
     app.locals.canonicalPersonnelEnabled = legacyPersonnelReadOnly;
     app.locals.canonicalAcademicEnabled = legacyAcademicReadOnly;
     app.locals.canonicalAuxiliaryEnabled = legacyAuxiliaryReadOnly;

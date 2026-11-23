@@ -21,7 +21,7 @@
  document.addEventListener('submit',async event=>{
   const form=event.target;if(!(form instanceof HTMLFormElement)||(form.getAttribute('method')||'get').toLowerCase()!=='post')return;
   event.preventDefault();if(form.getAttribute('aria-busy')==='true')return;
-  const body=new URLSearchParams(new FormData(form));
+  const body=new URLSearchParams(new FormData(form,event.submitter));
   const buttons=Array.from(form.querySelectorAll('button[type=submit],button:not([type])'));form.setAttribute('aria-busy','true');buttons.forEach(b=>b.disabled=true);
   form.querySelector('.form-error')?.remove();
   const showError=message=>{const error=document.createElement('p');error.className='form-error';error.setAttribute('role','alert');error.tabIndex=-1;error.textContent=message;form.prepend(error);error.focus();};
@@ -29,7 +29,7 @@
    const response=await fetch(form.getAttribute('action')||window.location.href,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/x-www-form-urlencoded',Accept:'text/html'},body});
    if(response.redirected&&response.ok){window.location.assign(response.url);return;}
    const html=await response.text(),parsed=new DOMParser().parseFromString(html,'text/html');
-   if(response.status===401||response.status===403){document.getElementById('finance-main').replaceChildren();window.location.assign('/');return;}
+   if(response.status===401||response.status===403){document.getElementById('finance-main').replaceChildren();window.location.assign(document.body.dataset.signin||'/');return;}
    if(!response.ok){showError([404,409,422].includes(response.status)?parsed.querySelector('[data-entry-error]')?.textContent||'Review this entry and try again.':'Could not save the entry. Your values are still here; retry when the service is available.');return;}
    if(!parsed.body.classList.contains('finance-app'))throw Error('Unexpected response');
    document.title=parsed.title;document.body.replaceWith(parsed.body);enhance();document.getElementById('finance-main')?.focus();

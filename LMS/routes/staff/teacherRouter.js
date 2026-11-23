@@ -17,12 +17,13 @@ const {
 const isLogin = require('../../middlewares/isLogin');               // admin auth
 const isTeacherLogin = require('../../middlewares/isTeacherLogin'); // teacher auth
 const { uploadSingle } = require('../../middlewares/upload');
+const { loginRateLimit } = require('../../middlewares/loginRateLimit');
 
 // admin registers a teacher (with optional matricule file upload)
 teacherRouter.post('/register', isLogin, ...uploadSingle('matriculeFile', { category: 'document', subDir: 'matricules' }), registerTeacherCtrl);
 
 // teacher login (public)
-teacherRouter.post('/login', loginTeacherCtrl);
+teacherRouter.post('/login', loginRateLimit, loginTeacherCtrl);
 
 // admin lists all teachers
 teacherRouter.get('/', isLogin, getAllTeachersCtrl);

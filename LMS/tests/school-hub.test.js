@@ -6,7 +6,9 @@ const {serve}=require('./helpers/http');
 const enabled={personnelWrites:true,academicWrites:true,auxiliaryWrites:true,membershipInvitations:true,academicLinks:true,staffAccounts:true};
 const items=hub=>hub.groups.flatMap(g=>g.items.map(i=>i[2]));
 test('hub navigation honours backend roles and enabled workflows without presenting practice as live',()=>{
- const hub=roles=>liveHub({roles},{name:'Verified school'},[{name:'2026/27'}],enabled);
+ const urls={practiceUrls:{modules:'https://modules.example.test',attendance:'https://attendance.example.test'}};
+ const hub=roles=>liveHub({roles},{name:'Verified school'},[{name:'2026/27'}],enabled,urls);
+ assert.deepEqual(liveHub({roles:['bursar']},{name:'S'},[],enabled).modules,[],'modules without a configured server are not linked');
  assert.equal(items(hub(['admin'])).length,8);
  assert.deepEqual(items(hub(['teacher'])),['/courses','/invitations']);
  assert.deepEqual(items(hub(['student'])),['/courses']);

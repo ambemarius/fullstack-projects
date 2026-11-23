@@ -1,0 +1,8 @@
+<%- include('shell',{pageTitle:'Batch charges',active:'charges'}) %>
+<h1><%= confirmed?'Batch charges saved':'Review batch charges' %></h1>
+<p><%= confirmed?result.year:result.year.name %> · <%= result.description %></p><p><strong>Total: <%= formatMoney(result.total) %></strong></p>
+<% if(confirmed){ %><p class="notice" role="status">All <%= result.charges.length %> charges were saved. No payments were recorded.</p><ul><% result.charges.forEach(c=>{ %><li><a href="<%= base %>?charge=<%= c.id %>"><%= c.student %> · <%= c.matricule %></a></li><% }) %></ul>
+<% }else{ %><p>No charges have been saved yet. Confirm within 15 minutes in this session. Preparing another batch replaces this review.</p><p><%= result.students.length %> students · <%= formatMoney(result.amount) %> each · Due: <%= result.due||'Not set' %></p>
+<div class="table-wrap"><table><thead><tr><th>Student</th><th>Matricule</th><th>Charge</th></tr></thead><tbody><% result.students.forEach(p=>{ %><tr><td><%= p.firstName %> <%= p.lastName %></td><td><%= p.matricule %></td><td><%= formatMoney(result.amount) %></td></tr><% }) %></tbody></table></div>
+<form method="post" action="<%= base %>/bulk/confirm"><input type="hidden" name="review" value="<%= result.token %>"><button>Confirm and save all charges</button> <a href="<%= base %>">Return without saving</a></form><% } %>
+<%- include('end') %>

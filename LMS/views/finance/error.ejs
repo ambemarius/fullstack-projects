@@ -1,0 +1,6 @@
+<%- include('shell',{pageTitle:'Review entry',active:'charges'}) %>
+<h1><%= status===403?'Finance access needed':'Review entry' %></h1>
+<p class="form-error" role="alert" data-entry-error><%= message %></p>
+<% if(status===403){ %><p>Finance is open to administrators and to staff an administrator has given the bursar duty (Personnel → Duties and sign-in).</p><a class="button secondary" href="<%= home %>">Back to my dashboard</a>
+<% }else{ %><p>Your entry was not completed. Return to finance to review the records before retrying.</p><a class="button secondary" href="<%= base %>">Back to finance</a><% } %>
+<%- include('end') %>

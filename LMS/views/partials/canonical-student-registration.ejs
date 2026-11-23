@@ -66,28 +66,25 @@
 
               <!-- Right: Fees section -->
               <div class="reg-student-fees">
-                <div class="reg-fees-header">Fees Details</div>
-                <div class="reg-fees-body" id="studentFeesBody">
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Registration" aria-label="Registration selected" /> <span>Registration</span><input type="number" class="sf-amt" data-fee="Registration" aria-label="Registration amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IDCard" aria-label="ID card selected" /> <span>ID Card</span><input type="number" class="sf-amt" data-fee="IDCard" aria-label="ID card amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Tuition" aria-label="Tuition selected" /> <span>Tuition</span><input type="number" class="sf-amt" data-fee="Tuition" aria-label="Tuition amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="PTA" aria-label="PTA selected" /> <span>PTA</span><input type="number" class="sf-amt" data-fee="PTA" aria-label="PTA amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Sportware" aria-label="Sportswear selected" /> <span>Sportswear</span><input type="number" class="sf-amt" data-fee="Sportware" aria-label="Sportswear amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Practicals" aria-label="Practicals selected" /> <span>Practicals</span><input type="number" class="sf-amt" data-fee="Practicals" aria-label="Practicals amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="IT" aria-label="IT selected" /> <span>IT</span><input type="number" class="sf-amt" data-fee="IT" aria-label="IT amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Examination" aria-label="Examination selected" /> <span>Examination</span><input type="number" class="sf-amt" data-fee="Examination" aria-label="Examination amount" value="0" /></div>
-                  <div class="reg-fee-chk-row"><input type="checkbox" class="sf-chk" data-fee="Textbook" aria-label="Textbook selected" /> <span>Textbook</span><input type="number" class="sf-amt" data-fee="Textbook" aria-label="Textbook amount" value="0" /></div>
+                <div class="reg-fees-header">Fees</div>
+                <div class="reg-fees-body" id="studentFinanceBody">
+                  <p class="muted" id="studentFinanceNote">Fees are charged and paid in Finance. After saving, charge this student there, or charge the whole class from its fee schedule.</p>
+                  <dl class="reg-finance-summary" id="studentFinanceSummary" hidden>
+                    <dt>Charged</dt><dd id="sfCharged">—</dd>
+                    <dt>Paid</dt><dd id="sfPaid">—</dd>
+                    <dt>Outstanding</dt><dd id="sfBalance">—</dd>
+                    <dt>Overdue</dt><dd id="sfOverdue">—</dd>
+                  </dl>
                 </div>
                 <div class="reg-fees-total">
-                  <span>Total Fees</span>
-                  <span id="studentFeesTotal">0 XAF</span>
+                  <a id="studentFinanceLink" href="/finance">Open Finance</a>
                 </div>
               </div>
             </div>
             <div class="student-action-row">
               <button class="reg-btn reg-btn-blue" type="submit" id="studentSubmitBtn">Register Student</button>
             </div>
-            <p id="studentFormMsg" class="msg"></p>
+            <p id="studentFormMsg" class="msg" role="status" aria-live="polite"></p>
           </form>
 
           <!-- Search bar -->
@@ -112,17 +109,17 @@
                   <tr>
                     <th>Matricule</th>
                     <th>Name</th>
-                    <th>Gender</th>
-                    <th>Address</th>
-                    <th>Date of Birth</th>
-                    <th>Region</th>
-                    <th>Division</th>
-                    <th>Place of Birth</th>
+                    <th class="col-secondary">Sex</th>
+                    <th class="col-secondary">Address</th>
+                    <th class="col-secondary">Date of birth</th>
+                    <th class="col-secondary">Region</th>
+                    <th class="col-secondary">Division</th>
+                    <th class="col-secondary">Place of birth</th>
                     <th>Class</th>
-                    <th>Acc Year</th>
-                    <th>Parent/Guardian</th>
-                    <th>Tel</th>
-                    <th>Medical</th>
+                    <th class="col-secondary">Year</th>
+                    <th class="col-secondary">Parent / guardian</th>
+                    <th class="col-secondary">Phone</th>
+                    <th class="col-secondary">Medical</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -137,4 +134,3 @@
             </div>
           </div>
         </div>
-

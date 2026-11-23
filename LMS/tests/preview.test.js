@@ -24,8 +24,8 @@ test('M1 preview serves an isolated shell/catalog without legacy API exposure or
     assert.equal(html.includes('id="transferForm"'),false);
     assert.equal(html.includes('id="pupilStatusForm"'),false);
     assert.equal((await fetch(base+'/api/pupil-placements/1/transfers',{method:'POST'})).status,404);
-    const source=fs.readFileSync(require.resolve('../views/admin-layout.ejs'),'utf8');
-    for(const kind of ['student','teacher'])assert.equal(source.includes(fs.readFileSync(require.resolve(`../views/partials/canonical-${kind}-registration.ejs`),'utf8')),true);
+    const source=fs.readFileSync(require.resolve('../views/admin-layout.ejs'),'utf8').replace(/\r\n/g,'\n');
+    for(const kind of ['student','teacher'])assert.equal(source.includes(fs.readFileSync(require.resolve(`../views/partials/canonical-${kind}-registration.ejs`),'utf8').replace(/\r\n/g,'\n')),true);
 });
 test('pupil status preview renders its form and requires a session at both mutation routes',async t=>{
     const origin='https://localhost:2028',db={connect(){throw Error('Unexpected database access');}},samples={schools:[],accounts:[]};

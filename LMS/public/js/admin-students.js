@@ -36,36 +36,44 @@
   }
   loadAcademicYearOptions();
 
-  // ===== Fees total calculator =====
-  function updateStudentFeesTotal() {
-    let total = 0;
-    document.querySelectorAll('.sf-amt').forEach(inp => {
-      total += parseFloat(inp.value) || 0;
-    });
-    document.getElementById('studentFeesTotal').textContent = total.toLocaleString() + ' XAF';
+  // ===== Fees: Finance is the record; the form only shows the student's balance =====
+  async function showStudentFinance(studentId) {
+    const summary = document.getElementById('studentFinanceSummary');
+    const note = document.getElementById('studentFinanceNote');
+    const link = document.getElementById('studentFinanceLink');
+    if (!summary) return;
+    if (!studentId) {
+      summary.hidden = true;
+      note.textContent = 'Fees are charged and paid in Finance. After saving, charge this student there, or charge the whole class from its fee schedule.';
+      link.href = '/finance';
+      link.textContent = 'Open Finance';
+      return;
+    }
+    link.href = '/finance/statements?student=' + encodeURIComponent(studentId);
+    link.textContent = 'Open this student’s statement';
+    try {
+      const res = await fetch('/finance/balance/' + encodeURIComponent(studentId), {
+        headers: { Accept: 'application/json', Authorization: 'Bearer ' + (localStorage.getItem('token') || '') },
+      });
+      if (!res.ok) throw new Error();
+      const b = (await res.json()).data;
+      document.getElementById('sfCharged').textContent = b.charged;
+      document.getElementById('sfPaid').textContent = b.paid;
+      document.getElementById('sfBalance').textContent = b.balance;
+      document.getElementById('sfOverdue').textContent = b.overdue;
+      note.textContent = b.charges ? `${b.charges} active charge(s) in Finance.` : 'No charges recorded in Finance yet.';
+      summary.hidden = false;
+    } catch (_) {
+      summary.hidden = true;
+      note.textContent = 'The finance balance could not be loaded. Open Finance to see this student’s charges.';
+    }
   }
-  document.querySelectorAll('.sf-amt').forEach(el => el.addEventListener('input', updateStudentFeesTotal));
-  document.querySelectorAll('.sf-chk').forEach(el => {
-    el.addEventListener('change', function () {
-      const amt = document.querySelector(`.sf-amt[data-fee="${this.dataset.fee}"]`);
-      if (amt) amt.disabled = !this.checked;
-      updateStudentFeesTotal();
-    });
-  });
 
   // ===== Submit form (Create / Update) =====
   document.getElementById('studentForm')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const msg = document.getElementById('studentFormMsg');
     msg.className = 'msg';
-
-    const fees = [];
-    document.querySelectorAll('.sf-chk').forEach(chk => {
-      if (chk.checked) {
-        const amt = document.querySelector(`.sf-amt[data-fee="${chk.dataset.fee}"]`);
-        fees.push({ fee_type: chk.dataset.fee, amount: parseFloat(amt?.value) || 0, paid: true });
-      }
-    });
 
     const body = {
       firstName: document.getElementById('sFirstName').value,
@@ -87,7 +95,6 @@
       parentPhone: document.getElementById('sParentPhone').value,
       parentPhone2: document.getElementById('sParentPhone2')?.value || '',
       medicalStatus: document.getElementById('sMedicalStatus').value,
-      fees,
     };
 
     const editId = document.getElementById('studentEditId').value;
@@ -117,8 +124,7 @@
     document.getElementById('studentHeaderBar').textContent = 'Register New Student';
     document.getElementById('studentSubmitBtn').textContent = 'Register Student';
     document.getElementById('sPassword').required = true;
-    updateStudentFeesTotal();
-    document.querySelectorAll('.sf-amt').forEach(a => a.disabled = false);
+    showStudentFinance(null);
   }
 
   // ===== Load table =====
@@ -158,21 +164,21 @@
       return `<tr data-id="${s.id}">
         <td>${esc(s.matricule)}</td>
         <td>${name}</td>
-        <td>${esc(s.sex || '')}</td>
-        <td>${esc(s.address || '')}</td>
-        <td>${dob}</td>
-        <td>${esc(s.regionOfOrigin || '')}</td>
-        <td>${esc(s.division || '')}</td>
-        <td>${esc(s.placeOfBirth || '')}</td>
+        <td class="col-secondary">${esc(s.sex || '')}</td>
+        <td class="col-secondary">${esc(s.address || '')}</td>
+        <td class="col-secondary">${dob}</td>
+        <td class="col-secondary">${esc(s.regionOfOrigin || '')}</td>
+        <td class="col-secondary">${esc(s.division || '')}</td>
+        <td class="col-secondary">${esc(s.placeOfBirth || '')}</td>
         <td>${className}</td>
-        <td>${esc(s.academicYearName || s.yearOfEnrollment || '')}</td>
-        <td>${parentName}</td>
-        <td>${parentPhone}</td>
-        <td>${medical}</td>
+        <td class="col-secondary">${esc(s.academicYearName || s.yearOfEnrollment || '')}</td>
+        <td class="col-secondary">${parentName}</td>
+        <td class="col-secondary">${parentPhone}</td>
+        <td class="col-secondary">${medical}</td>
         <td class="action-col">
-          <button type="button" class="action-btn edit" onclick="event.stopPropagation(); editStudent(${s.id})" title="Edit Student">📝</button>
-          <button type="button" class="action-btn delete" onclick="event.stopPropagation(); deleteStudent(${s.id})" title="Delete Student">❌</button>
-          <button type="button" class="action-btn accept" onclick="event.stopPropagation(); acceptStudent(${s.id})" style="${acceptStyle}" title="${acceptTitle}">✅</button>
+          <button type="button" class="action-btn edit" data-action="editStudent" data-id="${s.id}" aria-label="Edit Student">Edit</button>
+          <button type="button" class="action-btn delete" data-action="deleteStudent" data-id="${s.id}" aria-label="Delete Student">Delete</button>
+          <button type="button" class="action-btn accept" data-action="acceptStudent" data-id="${s.id}" style="${acceptStyle}" aria-label="${acceptTitle}">Accept</button>
         </td>
       </tr>`;
     }).join('');
@@ -216,30 +222,13 @@
     document.getElementById('sParentPhone2').value = s.parentPhone2 || '';
     document.getElementById('sMedicalStatus').value = s.medicalStatus || '';
 
-    document.querySelectorAll('.sf-chk').forEach(chk => {
-      chk.checked = false;
-      const amt = document.querySelector(`.sf-amt[data-fee="${chk.dataset.fee}"]`);
-      if (amt) { amt.value = 0; amt.disabled = true; }
-    });
-
-    if (s.fees && Array.isArray(s.fees)) {
-      s.fees.forEach(f => {
-        const chk = document.querySelector(`.sf-chk[data-fee="${f.fee_type}"]`);
-        const amt = document.querySelector(`.sf-amt[data-fee="${f.fee_type}"]`);
-        if (chk && amt) {
-          chk.checked = true;
-          amt.value = f.amount;
-          amt.disabled = false;
-        }
-      });
-    }
-    updateStudentFeesTotal();
+    showStudentFinance(s.id);
   }
 
   // ===== Inline Action Handlers =====
   window.editStudent = async function (id) {
     const { ok, data } = await api(`/students/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch student details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch student details.'); return; }
     fillStudentForm(data.data);
     switchTab('registration');
     document.querySelector('.reg-subtab[data-sub="student"]').click();
@@ -248,20 +237,22 @@
 
   window.inlineEditStudent = async function (id) {
     const { ok, data } = await api(`/students/${id}`);
-    if (!ok || !data.data) { alert('Failed to fetch student details.'); return; }
+    if (!ok || !data.data) { toast('Failed to fetch student details.'); return; }
     fillStudentForm(data.data);
     selectedStudentId = data.data.id;
     highlightStudentRow(selectedStudentId);
   };
 
   window.deleteStudent = async function (id) {
-    if (!confirm('Are you sure you want to permanently delete this student?')) return;
+    const student = allStudents.find(s => s.id === id);
+    const studentLabel = student ? `${[student.firstName, student.middleName, student.lastName].filter(Boolean).join(' ')} (${student.matricule})` : 'this student';
+    if (!confirm(`Delete ${studentLabel}? Their marks and enrolment records will be removed. This cannot be undone.`)) return;
     const { ok, data } = await api(`/students/${id}`, { method: 'DELETE' });
     if (ok) {
       loadStudentTable();
       loadStats();
     } else {
-      alert(data.message || 'Failed to delete student.');
+      toast(data.message || 'Failed to delete student.');
     }
   };
 
@@ -272,9 +263,9 @@
     });
     if (ok) {
       loadStudentTable();
-      alert('Student accepted and activated successfully!');
+      toast('Student accepted and activated successfully!');
     } else {
-      alert(data.message || 'Failed to accept student.');
+      toast(data.message || 'Failed to accept student.');
     }
   };
 
@@ -304,7 +295,7 @@
       if (firstRow) {
         selectedStudentId = parseInt(firstRow.dataset.id);
       } else {
-        alert('Select a student first.');
+        toast('Select a student first.');
         return;
       }
     }
@@ -321,7 +312,7 @@
       if (firstRow) {
         selectedStudentId = parseInt(firstRow.dataset.id);
       } else {
-        alert('Select a student first.');
+        toast('Select a student first.');
         return;
       }
     }

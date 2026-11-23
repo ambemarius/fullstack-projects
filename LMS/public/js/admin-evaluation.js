@@ -92,6 +92,7 @@
     });
   }
 
+  if (!document.querySelector('[data-canonical-courses="true"]')) {
   // ===== MARKS ENTRY =====
   let marksStudents = [];
   let selectedClassSubjectId = null;
@@ -120,7 +121,7 @@
     const yearId = document.getElementById('mkYear').value;
     const term = document.getElementById('mkTerm').value;
     if (!classId || !subjectId || !yearId || !term) {
-      alert('Select class, subject, year and term first.');
+      toast('Select class, subject, year and term first.');
       return;
     }
 
@@ -168,7 +169,7 @@
     const maxScore = parseInt(document.getElementById('mkMaxScore').value) || 50;
 
     if (!classId || !subjectId || !yearId || !term) {
-      alert('Select class, subject, year and term first.');
+      toast('Select class, subject, year and term first.');
       return;
     }
 
@@ -182,7 +183,7 @@
     });
 
     if (!scores.length) {
-      alert('No scores to save for Sequence ' + seq + '.');
+      toast('No scores to save for Sequence ' + seq + '.');
       return;
     }
 
@@ -202,7 +203,7 @@
 
   document.getElementById('mkExportBtn')?.addEventListener('click', () => {
     const rows = document.querySelectorAll('#marksTableBody tr');
-    if (!rows.length) { alert('No data to export.'); return; }
+    if (!rows.length) { toast('No data to export.'); return; }
     let csv = 'Student,Matricule,Sequence 1,Sequence 2\n';
     rows.forEach(row => {
       const cells = row.querySelectorAll('td');
@@ -224,7 +225,7 @@
 
   document.getElementById('mkPrintBtn')?.addEventListener('click', () => {
     const wrap = document.getElementById('marksTableWrap');
-    if (wrap.style.display === 'none') { alert('Load students first.'); return; }
+    if (wrap.style.display === 'none') { toast('Load students first.'); return; }
     const win = window.open('', '_blank');
     win.document.write(`<html><head><title>Marks Print</title><style>
       body{font-family:sans-serif;padding:20px}
@@ -235,7 +236,7 @@
     document.querySelectorAll('#marksTableBody tr').forEach(row => {
       const cells = row.querySelectorAll('td');
       if (cells.length < 4) return;
-      win.document.write(`<tr><td>${cells[0].textContent}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].querySelector('input')?.value || ''}</td><td>${cells[4].querySelector('input')?.value || ''}</td></tr>`);
+      win.document.write(`<tr><td>${esc(cells[0].textContent)}</td><td>${esc(cells[1].textContent)}</td><td>${esc(cells[2].textContent)}</td><td>${esc(cells[3].querySelector('input')?.value || '')}</td><td>${esc(cells[4].querySelector('input')?.value || '')}</td></tr>`);
     });
     win.document.write('</tbody></table></body></html>');
     win.document.close();
@@ -328,11 +329,11 @@
     const classId = document.getElementById('crClass').value;
     const subjectId = document.getElementById('crSubject').value;
     const yearId = document.getElementById('crYear').value;
-    if (!classId || !subjectId || !yearId) { alert('Select class, subject and year.'); return; }
+    if (!classId || !subjectId || !yearId) { toast('Select class, subject and year.'); return; }
     const classSubjectId = await findClassSubjectId(classId, subjectId);
     if (!classSubjectId) return;
     const ids = Array.from(document.querySelectorAll('.cr-unenroll-chk:checked')).map(chk => parseInt(chk.value));
-    if (!ids.length) { alert('Select students to enroll.'); return; }
+    if (!ids.length) { toast('Select students to enroll.'); return; }
     const { ok, data } = await api('/class-subject-students/bulk-enroll', { method: 'POST', body: JSON.stringify({ classSubjectId, academicYearId: parseInt(yearId), studentIds: ids }) });
     if (ok) { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg ok'; loadCourseReview(); }
     else { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg error'; }
@@ -341,11 +342,12 @@
   document.getElementById('crUnenrollSelectedBtn')?.addEventListener('click', async () => {
     const classId = document.getElementById('crClass').value;
     const subjectId = document.getElementById('crSubject').value;
-    if (!classId || !subjectId) { alert('Select class and subject.'); return; }
+    if (!classId || !subjectId) { toast('Select class and subject.'); return; }
     const classSubjectId = await findClassSubjectId(classId, subjectId);
     if (!classSubjectId) return;
     const ids = Array.from(document.querySelectorAll('.cr-enroll-chk:checked')).map(chk => parseInt(chk.value));
-    if (!ids.length) { alert('Select students to unenroll.'); return; }
+    if (!ids.length) { toast('Select students to unenroll.'); return; }
+    if (!confirm(`Unenroll ${ids.length} student(s) from this subject? They disappear from the teacher's mark sheet; marks already saved are kept.`)) return;
     const { ok, data } = await api('/class-subject-students/bulk-unenroll', { method: 'POST', body: JSON.stringify({ classSubjectId, studentIds: ids }) });
     if (ok) { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg ok'; loadCourseReview(); }
     else { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg error'; }
@@ -355,11 +357,11 @@
     const classId = document.getElementById('crClass').value;
     const subjectId = document.getElementById('crSubject').value;
     const yearId = document.getElementById('crYear').value;
-    if (!classId || !subjectId || !yearId) { alert('Select class, subject and year.'); return; }
+    if (!classId || !subjectId || !yearId) { toast('Select class, subject and year.'); return; }
     const classSubjectId = await findClassSubjectId(classId, subjectId);
     if (!classSubjectId) return;
     const ids = crAllUnenrolled.map(s => s.studentId);
-    if (!ids.length) { alert('No unenrolled students.'); return; }
+    if (!ids.length) { toast('No unenrolled students.'); return; }
     const { ok, data } = await api('/class-subject-students/bulk-enroll', { method: 'POST', body: JSON.stringify({ classSubjectId, academicYearId: parseInt(yearId), studentIds: ids }) });
     if (ok) { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg ok'; loadCourseReview(); }
     else { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg error'; }
@@ -368,11 +370,12 @@
   document.getElementById('crUnenrollAllBtn')?.addEventListener('click', async () => {
     const classId = document.getElementById('crClass').value;
     const subjectId = document.getElementById('crSubject').value;
-    if (!classId || !subjectId) { alert('Select class and subject.'); return; }
+    if (!classId || !subjectId) { toast('Select class and subject.'); return; }
     const classSubjectId = await findClassSubjectId(classId, subjectId);
     if (!classSubjectId) return;
     const ids = crAllEnrolled.map(s => s.studentId);
-    if (!ids.length) { alert('No enrolled students.'); return; }
+    if (!ids.length) { toast('No enrolled students.'); return; }
+    if (!confirm(`Unenroll ALL ${ids.length} student(s) from this subject? They disappear from the teacher's mark sheet; marks already saved are kept.`)) return;
     const { ok, data } = await api('/class-subject-students/bulk-unenroll', { method: 'POST', body: JSON.stringify({ classSubjectId, studentIds: ids }) });
     if (ok) { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg ok'; loadCourseReview(); }
     else { document.getElementById('crMsg').textContent = data.message; document.getElementById('crMsg').className = 'msg error'; }
@@ -381,6 +384,7 @@
   document.getElementById('crSearchUnenrolled')?.addEventListener('input', () => renderCrLists());
   document.getElementById('crSearchEnrolled')?.addEventListener('input', () => renderCrLists());
 
+  }
   // ===== REPORT CARDS =====
   let reportCardData = null;
 
@@ -388,7 +392,7 @@
     const classId = document.getElementById('rcClass').value;
     const term = document.getElementById('rcTerm').value;
     const yearId = document.getElementById('rcYear').value;
-    if (!classId || !term || !yearId) { alert('Select class, term and year.'); return; }
+    if (!classId || !term || !yearId) { toast('Select class, term and year.'); return; }
 
     const { ok, data } = await api(`/report-cards/${classId}/${term}/${yearId}`);
     if (!ok || !data.data) {
@@ -404,6 +408,13 @@
     document.getElementById('rcMsg').className = 'msg';
   });
 
+  // "4 (1)" = 4 hours absent, 1 of them unjustified.
+  function absenceCell(s) {
+    const a = s.attendance;
+    if (!a || !a.periods) return '—';
+    return esc(a.absentHours) + ' (' + esc(a.unjustifiedHours) + ')';
+  }
+
   function renderReportCard(data) {
     const students = data.students || [];
     const subjects = students[0]?.subjects || [];
@@ -414,7 +425,7 @@
       headerHtml += `<th>${esc(sub.subjectCode)}<br/><span style="font-weight:400;font-size:10px">Avg</span></th>`;
     });
     headerHtml += '<th>Total<br/><span style="font-weight:400;font-size:10px">Coef</span></th>';
-    headerHtml += '<th>Average</th><th>Grade</th><th>Position</th></tr>';
+    headerHtml += '<th>Average</th><th>Grade</th><th>Position</th><th>Absence hours<br/><span style="font-weight:400;font-size:10px">Unjustified</span></th></tr>';
     thead.innerHTML = headerHtml;
 
     const tbody = document.getElementById('rcTbody');
@@ -427,7 +438,7 @@
       });
       const wt = s.totalCoefficient > 0 ? (s.weightedTotal / s.totalCoefficient).toFixed(2) : '—';
       const overallGrade = s.overallAvg !== null ? gradeFromScore(s.overallAvg, 100) : '—';
-      row += `<td style="text-align:center">${wt}</td><td style="text-align:center">${overallGrade}</td><td style="text-align:center">${s.position}</td></tr>`;
+      row += `<td style="text-align:center">${wt}</td><td style="text-align:center">${overallGrade}</td><td style="text-align:center">${s.position ?? '—'}</td><td style="text-align:center">${absenceCell(s)}</td></tr>`;
       return row;
     }).join('');
 
@@ -437,7 +448,7 @@
       const stat = (data.subjectAverages || []).find(x => x.classSubjectId === sub.classSubjectId);
       footHtml += `<th style="text-align:center;background:#f1f5f9">${stat ? stat.classAvg.toFixed(2) : '—'}</th>`;
     });
-    footHtml += `<th style="text-align:center;background:#f1f5f9">${data.classGeneralAvg.toFixed(2)}</th><th></th><th></th></tr>`;
+    footHtml += `<th style="text-align:center;background:#f1f5f9">${data.classGeneralAvg.toFixed(2)}</th><th></th><th></th><th></th></tr>`;
     tfoot.innerHTML = footHtml;
 
     document.getElementById('rcSummary').textContent = `Class General Average: ${data.classGeneralAvg.toFixed(2)} | Enrolled: ${data.totalEnrolled} | Best: ${data.bestSubject?.subjectCode || '—'} | Worst: ${data.worstSubject?.subjectCode || '—'}`;
@@ -452,20 +463,22 @@
   }
 
   document.getElementById('rcExportBtn')?.addEventListener('click', () => {
-    if (!reportCardData) { alert('Generate report card first.'); return; }
+    if (!reportCardData) { toast('Generate report card first.'); return; }
     const students = reportCardData.students || [];
     const subjects = students[0]?.subjects || [];
     let csv = 'Position,Name,Matricule,Sex';
     subjects.forEach(sub => { csv += `,${sub.subjectCode} Avg`; });
-    csv += ',Overall Avg,Grade\n';
+    csv += ',Overall Avg,Grade,Absence hours,Unjustified hours,Lates\n';
     students.forEach(s => {
-      const row = [s.position, s.name, s.matricule, s.sex];
+      const row = [s.position ?? '', s.name, s.matricule, s.sex];
       subjects.forEach(sub => {
         const found = s.subjects.find(x => x.classSubjectId === sub.classSubjectId);
         row.push(found?.avg !== null && found?.avg !== undefined ? found.avg.toFixed(2) : '');
       });
       row.push(s.overallAvg !== null ? s.overallAvg.toFixed(2) : '', gradeFromScore(s.overallAvg, 100));
-      csv += row.map(v => `"${v}"`).join(',') + '\n';
+      const a = s.attendance || {};
+      row.push(a.absentHours ?? 0, a.unjustifiedHours ?? 0, a.lates ?? 0);
+      csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n';
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -477,7 +490,7 @@
   });
 
   document.getElementById('rcPrintBtn')?.addEventListener('click', () => {
-    if (!reportCardData) { alert('Generate report card first.'); return; }
+    if (!reportCardData) { toast('Generate report card first.'); return; }
     const win = window.open('', '_blank');
     const students = reportCardData.students || [];
     const subjects = students[0]?.subjects || [];
@@ -489,29 +502,29 @@
       tfoot tr td{background:#f1f5f9;font-weight:700}
       h2{text-align:center}
     </style></head><body>
-      <h2>Report Card — ${document.getElementById('rcTerm').value} Term</h2>
-      <p><strong>Class General Average:</strong> ${reportCardData.classGeneralAvg.toFixed(2)} | <strong>Enrolled:</strong> ${reportCardData.totalEnrolled} | <strong>Best Subject:</strong> ${reportCardData.bestSubject?.subjectCode || '—'} | <strong>Worst Subject:</strong> ${reportCardData.worstSubject?.subjectCode || '—'}</p>
+      <h2>Report Card — ${esc(document.getElementById('rcTerm').value)} Term</h2>
+      <p><strong>Class General Average:</strong> ${esc(reportCardData.classGeneralAvg.toFixed(2))} | <strong>Enrolled:</strong> ${esc(reportCardData.totalEnrolled)} | <strong>Best Subject:</strong> ${esc(reportCardData.bestSubject?.subjectCode || '—')} | <strong>Worst Subject:</strong> ${esc(reportCardData.worstSubject?.subjectCode || '—')}</p>
       <table><thead><tr><th>#</th><th>Name</th><th>Matricule</th><th>Sex</th>`);
     subjects.forEach(sub => {
-      win.document.write(`<th>${sub.subjectCode}<br/>Avg</th>`);
+      win.document.write(`<th>${esc(sub.subjectCode)}<br/>Avg</th>`);
     });
-    win.document.write(`<th>Total</th><th>Grade</th><th>Position</th></tr></thead><tbody>`);
+    win.document.write(`<th>Total</th><th>Grade</th><th>Position</th><th>Absence hrs (unjust.)</th></tr></thead><tbody>`);
     students.forEach((s, i) => {
-      win.document.write(`<tr><td>${i + 1}</td><td>${s.name}</td><td>${s.matricule}</td><td>${s.sex}</td>`);
+      win.document.write(`<tr><td>${i + 1}</td><td>${esc(s.name)}</td><td>${esc(s.matricule)}</td><td>${esc(s.sex)}</td>`);
       subjects.forEach(sub => {
         const found = s.subjects.find(x => x.classSubjectId === sub.classSubjectId);
         win.document.write(`<td>${found?.avg !== null && found?.avg !== undefined ? found.avg.toFixed(2) : '—'}</td>`);
       });
       const wt = s.totalCoefficient > 0 ? (s.weightedTotal / s.totalCoefficient).toFixed(2) : '—';
       const overallGrade = s.overallAvg !== null ? gradeFromScore(s.overallAvg, 100) : '—';
-      win.document.write(`<td>${wt}</td><td>${overallGrade}</td><td>${s.position}</td></tr>`);
+      win.document.write(`<td>${esc(wt)}</td><td>${esc(overallGrade)}</td><td>${esc(s.position ?? '—')}</td><td>${absenceCell(s)}</td></tr>`);
     });
     win.document.write(`</tbody><tfoot><tr><th colspan="4">Class Average</th>`);
     subjects.forEach(sub => {
       const stat = (reportCardData.subjectAverages || []).find(x => x.classSubjectId === sub.classSubjectId);
       win.document.write(`<th>${stat ? stat.classAvg.toFixed(2) : '—'}</th>`);
     });
-    win.document.write(`<th>${reportCardData.classGeneralAvg.toFixed(2)}</th><th></th><th></th></tr></tfoot></table></body></html>`);
+    win.document.write(`<th>${reportCardData.classGeneralAvg.toFixed(2)}</th><th></th><th></th><th></th></tr></tfoot></table></body></html>`);
     win.document.close();
     win.print();
   });

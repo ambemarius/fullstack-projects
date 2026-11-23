@@ -1,4 +1,4 @@
-const verifyToken = require('../utils/verifyToken');
+const { authenticateRequest } = require('./roleAuth');
 const handlers = {
     admin: require('./isLogin'),
     teacher: require('./isTeacherLogin'),
@@ -7,8 +7,7 @@ const handlers = {
 
 module.exports = async (req, res, next) => {
     try {
-        const match = /^Bearer ([^\s]+)$/.exec(req.headers.authorization || '');
-        const claims = match && verifyToken(match[1]);
+        const claims = authenticateRequest(req);
         if (!claims || !handlers[claims.accountType]) {
             const err = new Error('Authentication required');
             err.statusCode = 401;

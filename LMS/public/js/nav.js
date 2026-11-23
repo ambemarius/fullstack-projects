@@ -9,9 +9,11 @@
     if (!roles.includes(role)) link.style.display = 'none';
   });
 
-  document.getElementById('navLogout')?.addEventListener('click', (e) => {
+  document.getElementById('navLogout')?.addEventListener('click', async (e) => {
     e.preventDefault();
-    localStorage.clear();
+    try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
+    for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
+    sessionStorage.clear();
     window.location.href = '/login';
   });
 })();

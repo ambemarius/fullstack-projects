@@ -61,9 +61,17 @@ async function migrate(database, files = migrationFiles(), driver = sql) {
 }
 
 if (require.main === module) {
-    // A CLI must be given an explicit environment; never default to the existing school DB.
-    if (!process.argv.includes('--approved-synthetic-only')) {
-        console.error('Only explicitly approved synthetic migration runs are enabled.');
+    // A CLI must be given an explicit target; never default to a database by accident.
+    if (process.argv.includes('--production')) {
+        require('../config/environment').loadEnvironment();
+        const database = require('../config/database');
+        const adapter = { connect: database.connect, getPool: () => database.pool };
+        migrate(adapter)
+            .then(result => console.log(result.length ? `Applied ${result.length} migration(s): ${result.join(', ')}` : 'Schema already up to date.'))
+            .catch(err => { console.error(`Migration stopped: ${err.message}`); process.exitCode = 1; })
+            .finally(database.close);
+    } else if (!process.argv.includes('--approved-synthetic-only')) {
+        console.error('Usage: node scripts/migrate.js --production   (uses config/.env)\n       node scripts/migrate.js --approved-synthetic-only   (uses the test database)');
         process.exitCode = 1;
     } else {
         require('./testEnvironment').loadTestEnvironment();

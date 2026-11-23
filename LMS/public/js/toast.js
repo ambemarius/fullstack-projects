@@ -1,30 +1,45 @@
 // toast.js — lightweight toast notification system
 (function () {
-  let container = document.querySelector('.toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'toast-container';
-    document.body.appendChild(container);
+  function container() {
+    let el = document.querySelector('.toast-container');
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'toast-container';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function inferType(message) {
+    if (/fail|error|invalid|cannot|unable|denied|not found|required|too |wrong|expired|missing/i.test(message)) return 'error';
+    if (/success|saved|added|updated|deleted|removed|created|sent|done|linked|generated|published/i.test(message)) return 'success';
+    return 'info';
   }
 
   function show(message, type, duration) {
-    type = type || 'info';
-    duration = duration || 4000;
+    message = String(message == null ? '' : message);
+    type = type || inferType(message);
+    duration = duration || (type === 'error' ? 6000 : 4000);
     var icons = { success: '✓', error: '✗', warning: '⚠', info: 'ℹ' };
 
     var toast = document.createElement('div');
     toast.className = 'toast ' + type;
-    toast.setAttribute('role', 'alert');
-    toast.innerHTML =
-      '<span class="toast-icon">' + (icons[type] || '') + '</span>' +
-      '<span>' + message + '</span>' +
-      '<button class="toast-close" aria-label="Close">&times;</button>';
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    var icon = document.createElement('span');
+    icon.className = 'toast-icon';
+    icon.textContent = icons[type] || '';
+    var text = document.createElement('span');
+    text.textContent = message;
+    var close = document.createElement('button');
+    close.className = 'toast-close';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.innerHTML = '&times;';
+    close.addEventListener('click', function () { dismiss(toast); });
+    toast.append(icon, text, close);
+    container().appendChild(toast);
 
-    toast.querySelector('.toast-close').addEventListener('click', function () { dismiss(toast); });
-    container.appendChild(toast);
-
-    var timer = setTimeout(function () { dismiss(toast); }, duration);
-    toast._timer = timer;
+    toast._timer = setTimeout(function () { dismiss(toast); }, duration);
+    return toast;
   }
 
   function dismiss(toast) {

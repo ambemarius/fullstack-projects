@@ -12,7 +12,7 @@ const httpError = (status, message) => {
 };
 
 exports.registerStudentCtrl = asyncHandler(async (req, res) => {
-    const { firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, fees } = req.body || {};
+    const { firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus } = req.body || {};
     const photo = req.file ? getPublicUrl(req.file.path) : null;
     if (!firstName || !lastName || !matricule || !password || !section || !sex) {
         throw httpError(400, 'firstName, lastName, matricule, password, section and sex are required');
@@ -27,9 +27,7 @@ exports.registerStudentCtrl = asyncHandler(async (req, res) => {
     }
 
     const student = await Student.create({ firstName, middleName, lastName, matricule, password, section, dateOfBirth, sex, yearOfEnrollment: finalYear, academicYearId, currentClassLevel, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, photo });
-    if (fees && Array.isArray(fees) && fees.length) {
-        await Student.saveFees(student.id, fees);
-    }
+    // Fees are charged in Finance (finance_charges); student_fees is read-only history.
     const feesData = await Student.getFees(student.id);
     res.status(201).json({ status: 'success', data: { ...student, fees: feesData } });
 });
@@ -55,6 +53,14 @@ exports.getAllStudentsCtrl = asyncHandler(async (req, res) => {
     res.status(200).json({ status: 'success', results: students.length, data: students });
 });
 
+//@desc   Signed-in student's own sequence marks
+//@route  GET /api/v1/students/my-scores
+//@access Private (student)
+exports.getMyScoresCtrl = asyncHandler(async (req, res) => {
+    const rows = await require('../../model/Academic/subjectScore').getReportForStudent(req.userAuth.id);
+    res.status(200).json({ status: 'success', data: rows });
+});
+
 exports.getStudentProfileCtrl = asyncHandler(async (req, res) => {
     res.status(200).json({ status: 'success', data: req.app.locals.legacyScopedSelfEnabled ? await require('../staff/scopedLegacySelf').profile(req) : req.userAuth });
 });
@@ -78,7 +84,7 @@ exports.singleStudentCtrl = asyncHandler(async (req, res) => {
 exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
     const student = await Student.findById(req.params.id);
     if (!student) throw httpError(404, 'Student not found');
-    const { firstName, middleName, lastName, section, dateOfBirth, sex, yearOfEnrollment, currentClassLevel, academicYearId, isWithdrawn, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus, fees } = req.body || {};
+    const { firstName, middleName, lastName, section, dateOfBirth, sex, yearOfEnrollment, currentClassLevel, academicYearId, isWithdrawn, address, placeOfBirth, regionOfOrigin, division, parentName, parentPhone, parentPhone2, medicalStatus } = req.body || {};
     const photo = req.file ? getPublicUrl(req.file.path) : undefined;
 
     let finalYear = yearOfEnrollment;
@@ -91,9 +97,6 @@ exports.adminUpdateStudentCtrl = asyncHandler(async (req, res) => {
     if (photo) updates.photo = photo;
     const updated = await Student.update(req.params.id, updates);
     if (isWithdrawn !== undefined) await Student.setWithdrawn(req.params.id, isWithdrawn === true || isWithdrawn === 'true');
-    if (fees && Array.isArray(fees) && fees.length) {
-        await Student.saveFees(req.params.id, fees);
-    }
     const feesData = await Student.getFees(req.params.id);
     res.status(200).json({ status: 'success', data: { ...updated, fees: feesData } });
 });

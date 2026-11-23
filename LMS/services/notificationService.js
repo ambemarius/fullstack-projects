@@ -28,10 +28,10 @@ const CHANNELS = {
             await pool.request()
                 .input('recipientId', sql.Int, recipientId)
                 .input('recipientType', sql.NVarChar(20), recipientType)
-                .input('title', sql.NVarChar(255), title)
-                .input('message', sql.NVarChar(sql.MAX), message)
-                .query(`INSERT INTO notifications (recipient_id, recipient_type, title, message, is_read, created_at)
-                        VALUES (@recipientId, @recipientType, @title, @message, 0, GETDATE())`);
+                .input('title', sql.NVarChar(200), title)
+                .input('body', sql.NVarChar(sql.MAX), message ?? null)
+                .query(`INSERT INTO notifications (recipient_id, recipient_type, title, body, is_read, created_at)
+                        VALUES (@recipientId, @recipientType, @title, @body, 0, SYSUTCDATETIME())`);
             return { sent: true, channel: 'inApp', recipientId };
         },
     },

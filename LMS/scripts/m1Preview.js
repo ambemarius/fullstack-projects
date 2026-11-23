@@ -78,7 +78,7 @@ async function sampleAccounts(db,directory) {
     fs.writeFileSync(filename,JSON.stringify(saved),{flag:'wx'});
     return saved;
 }
-function createPreviewApp(db,samples,publicOrigin,{enrolmentLedger=false,currentTransfers=false,pupilLifecycle=false,yearOfferings=false,yearArchive=false}={}) {
+function createPreviewApp(db,samples,publicOrigin,{enrolmentLedger=false,currentTransfers=false,pupilLifecycle=false,yearOfferings=false,yearArchive=false,sampleSignIn=null}={}) {
     if(pupilLifecycle&&!currentTransfers)throw Error('Pupil status requires the placement workspace');
     if(currentTransfers&&!enrolmentLedger)throw Error('Current transfers require the enrolment ledger');
     if(yearOfferings&&!enrolmentLedger)throw Error('Year coverage requires the enrolment ledger');
@@ -94,7 +94,7 @@ function createPreviewApp(db,samples,publicOrigin,{enrolmentLedger=false,current
         if(++rate.count>30) return res.status(429).json({message:'Please try again later'});
         const account=samples.accounts.find(row=>row.schoolCode===req.body?.schoolCode&&row.role===req.body?.role);
         if(!account) return res.status(403).json({message:'Sample account not found'});
-        const session=await identity.login(account.loginKey,account.password,account.schoolCode);
+        const session=sampleSignIn?await sampleSignIn(account,identity):await identity.login(account.loginKey,account.password,account.schoolCode);
         await identity.revokeSession(readSessionToken(req));
         res.cookie(COOKIE,session.token,{httpOnly:true,secure:true,sameSite:'strict',path:'/',expires:session.expiresAt});
         res.json({status:'success',csrfToken:session.csrfToken});

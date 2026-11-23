@@ -1,0 +1,28 @@
+<%- include('partials/header', { title: 'Staff dashboard' }) %>
+
+<div class="card">
+  <div class="page-head">
+    <div>
+      <h1>Staff dashboard</h1>
+      <p id="welcome" class="welcome">Loading&hellip;</p>
+    </div>
+    <button id="logoutBtn" class="btn btn-secondary">Sign out</button>
+  </div>
+  <div id="profile" class="profile-grid"></div>
+</div>
+
+<div class="card">
+  <h2>My duties</h2>
+  <p class="muted">Your administrator assigns duties. Open the tool for each duty below.</p>
+  <div id="duties" class="duty-list"></div>
+  <div id="dutiesEmpty" class="empty-state" hidden>
+    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'shield' }) %></div>
+    <h3>No duties assigned yet</h3>
+    <p>Ask your school administrator to assign your duty (bursar, librarian, laboratory attendant or discipline master).</p>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script src="/js/toast.js"></script>
+<script src="/js/staff-dashboard.js"></script>
+<%- include('partials/footer') %>

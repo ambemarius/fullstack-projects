@@ -9,7 +9,7 @@ function verifyToken(token, expectedType) {
         });
         if (!claims || claims.tokenVersion !== 2 || !Number.isSafeInteger(claims.id) || claims.id < 1 ||
             claims.sub !== String(claims.id) || !Number.isInteger(claims.exp) ||
-            !['admin', 'teacher', 'student', 'parent'].includes(claims.accountType) ||
+            !['admin', 'teacher', 'student', 'parent', 'auxiliary'].includes(claims.accountType) ||
             (claims.credentialVersion !== undefined && (!Number.isSafeInteger(claims.credentialVersion) || claims.credentialVersion < 1)) ||
             (expectedType && claims.accountType !== expectedType)) return false;
         return claims;

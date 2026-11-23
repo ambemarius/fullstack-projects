@@ -1,23 +1,22 @@
-<%- include('partials/header', { title: 'Student Promotion' }) %>
-<div class="page-head"><h1>Student Promotion</h1></div>
+<%- include('partials/header', { title: 'End-of-year promotion' }) %>
+<div class="page-head"><h1>End-of-year promotion</h1></div>
 
 <div class="card">
-  <p>Promote all non-withdrawn students from a class to the next level. Students at the highest level (UpperSixth / Terminale) will be marked as graduated.</p>
+  <p>Moves every active student in a class to the next level once the year's marks are final. Students below the pass average repeat the year; students in Upper Sixth / Terminale graduate. You will see the counts and confirm before anything changes.</p>
 
-  <label style="max-width:300px">Class
-    <select id="promoteClass" required><option value="">-- Select --</option></select>
-  </label>
-  <label style="max-width:300px">Academic Year
-    <select id="promoteYear" required><option value="">-- Select --</option></select>
-  </label>
-  <button class="btn" id="promoteBtn" style="margin-top:10px">Promote Students</button>
-  <div id="promoteMsg" class="msg"></div>
+  <form id="promoteForm" class="assign-form">
+    <label>Class
+      <select id="promoteClass" required><option value="">Select a class</option></select>
+    </label>
+    <label>Academic year
+      <select id="promoteYear" required><option value="">Select a year</option></select>
+    </label>
+    <button type="submit" class="btn" id="promoteBtn">Preview promotion</button>
+  </form>
+  <p id="promoteMsg" class="msg" role="status" aria-live="polite"></p>
 </div>
 
-<div class="card" style="margin-top:20px">
-  <h2>Recent Promotions</h2>
-  <p class="muted">Promotion results will appear here after each run.</p>
-</div>
-
-<%- include('partials/footer') %>
+<script src="/js/app.js"></script>
+<script src="/js/toast.js"></script>
 <script src="/js/promotion.js"></script>
+<%- include('partials/footer') %>
