@@ -169,6 +169,34 @@ exports.generateClassCtrl = asyncHandler(async (req, res) => {
     });
 });
 
+// Whole-school generation. The generator can be swapped through app.locals for tests.
+const { createTimetableGenerator } = require('../../model/Academic/timetableGenerator');
+let defaultGenerator;
+const generatorFor = req => req.app.locals.timetableGenerator || (defaultGenerator ||= createTimetableGenerator());
+const refuseScoped = req => {
+    if (req.app.locals.legacyScopedTimetablesEnabled) throw httpError(409, 'Whole-school generation is not available while scoped timetables are enabled.');
+};
+
+//@desc   Preview a whole-school timetable (writes nothing)
+//@route  POST /api/v1/timetables/generate/school/preview  { academic_year_id, term, study }
+//@access Private (admin)
+exports.previewSchoolCtrl = asyncHandler(async (req, res) => {
+    refuseScoped(req);
+    const { academic_year_id, term, study } = req.body || {};
+    const data = await generatorFor(req).preview({ yearId: academic_year_id, term, study });
+    res.status(200).json({ status: 'success', data });
+});
+
+//@desc   Replace a term's timetable with the previewed whole-school timetable
+//@route  POST /api/v1/timetables/generate/school  { academic_year_id, term, study, fingerprint }
+//@access Private (admin)
+exports.generateSchoolCtrl = asyncHandler(async (req, res) => {
+    refuseScoped(req);
+    const { academic_year_id, term, study, fingerprint } = req.body || {};
+    const data = await generatorFor(req).apply({ id: req.userAuth.id }, { yearId: academic_year_id, term, study, fingerprint });
+    res.status(201).json({ status: 'success', message: `Timetable replaced: ${data.inserted} lessons for ${data.academicYear.name}, ${data.term} term`, data });
+});
+
 //@desc   Delete a timetable entry
 //@route  DELETE /api/v1/timetables/:id
 exports.deleteEntryCtrl = asyncHandler(async (req, res) => {

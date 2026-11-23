@@ -60,13 +60,61 @@
         <select id="filterYear"><option value="">-- Select --</option></select>
       </label>
       <button class="btn btn-secondary" id="refreshBtn">Load</button>
-      <button class="btn" id="generateBtn" title="Auto-build this class's timetable from its subject allocations">Generate</button>
+      <button class="btn btn-secondary" id="generateBtn" title="Rebuild only this class's timetable around the other classes">Generate this class</button>
     </div>
     <div id="genMsg" class="msg" role="status" aria-live="polite"></div>
     <div id="periodSummary" class="muted" style="margin-bottom:12px"></div>
     <div id="ttGrid"></div>
   </div>
 </div>
+
+<section class="card tt-gen" id="schoolGen" aria-labelledby="sgTitle">
+  <h2 id="sgTitle">Generate whole timetable</h2>
+  <p class="muted">Builds a clash-free timetable for every class from the subject allocations and teacher assignments. Preview it first: nothing changes until you confirm, and the current timetable is backed up.</p>
+  <form id="sgForm" class="tt-gen-controls">
+    <label>Term
+      <select id="sgTerm" required>
+        <option value="First">First</option>
+        <option value="Second">Second</option>
+        <option value="Third">Third</option>
+      </select>
+    </label>
+    <label>Academic Year
+      <select id="sgYear" required><option value="">-- Select --</option></select>
+    </label>
+    <label class="inline-label"><input type="checkbox" id="sgStudy" checked> Fill free periods with supervised study</label>
+    <button type="submit" class="btn" id="sgPreviewBtn">Preview timetable</button>
+  </form>
+  <div id="sgMsg" class="msg" role="status" aria-live="polite"></div>
+
+  <div id="sgResult" hidden>
+    <div class="stats-row tt-gen-stats">
+      <div class="stat-card"><div class="stat-num" id="sgPlaced">—</div><div class="stat-label">Required periods placed</div></div>
+      <div class="stat-card"><div class="stat-num" id="sgExact">—</div><div class="stat-label">Subjects at full weekly hours</div></div>
+      <div class="stat-card"><div class="stat-num" id="sgEmpty">—</div><div class="stat-label">Empty class periods</div></div>
+      <div class="stat-card"><div class="stat-num" id="sgStudyCount">—</div><div class="stat-label">Study periods</div></div>
+    </div>
+    <div id="sgVerdict" class="alert" role="status"></div>
+
+    <details id="sgShortfallBox">
+      <summary>Subjects that could not get all their periods (<span id="sgShortfallCount">0</span>)</summary>
+      <div class="table-wrap"><table><thead><tr><th>Class</th><th>Subject</th><th>Needed</th><th>Placed</th><th>Teacher</th></tr></thead><tbody id="sgShortfall"></tbody></table></div>
+    </details>
+    <details>
+      <summary>Teacher loads</summary>
+      <div class="table-wrap"><table><thead><tr><th>Teacher</th><th>Periods needed</th><th>Lessons placed</th><th>Study supervision</th><th>Short by</th></tr></thead><tbody id="sgTeachers"></tbody></table></div>
+    </details>
+
+    <h3>Preview a class</h3>
+    <label class="inline-label">Class <select id="sgClass"></select></label>
+    <div id="sgGrid" class="table-wrap"></div>
+
+    <div class="tt-gen-apply">
+      <button type="button" class="btn btn-danger" id="sgApplyBtn">Replace timetable</button>
+      <span class="muted" id="sgApplyNote"></span>
+    </div>
+  </div>
+</section>
 
 <%- include('partials/footer') %>
 <script src="/js/app.js"></script>

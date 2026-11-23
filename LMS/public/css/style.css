@@ -1349,6 +1349,23 @@ a.sidebar-tab { text-decoration: none; }
 .tt-grid .tt-break td { text-align: center; font-style: italic; color: var(--muted); font-size: 12px; }
 .tt-grid .tt-empty { text-align: center; color: var(--muted); font-size: 12px; background: #f8faf8; }
 .tt-grid .tt-filled { font-size: 12px; line-height: 1.4; min-height: 40px; }
+.tt-grid .tt-study { background: #f4f7fb; font-style: italic; }
+
+/* whole-school timetable generator */
+.tt-gen { margin-top: 24px; }
+.tt-gen-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.tt-gen-controls label:not(.inline-label) { min-width: 160px; }
+.tt-gen-controls .inline-label { align-self: center; }
+.tt-gen-stats { margin: 20px 0 16px; }
+.tt-gen details { margin: 12px 0; border: 1px solid var(--border); border-radius: var(--radius-lg, 8px); padding: 10px 14px; }
+.tt-gen summary { cursor: pointer; font-weight: 600; }
+.tt-gen details[open] summary { margin-bottom: 10px; }
+.tt-gen h3 { margin: 20px 0 10px; font-size: 16px; }
+.tt-gen #sgGrid { margin-top: 12px; }
+.tt-gen-apply { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+@media (max-width: 600px) {
+  .tt-gen-controls label:not(.inline-label), .tt-gen-controls .btn, .tt-gen-apply .btn { width: 100%; }
+}
 
 /* Responsive directories: secondary columns collapse, first column stays visible */
 .reg-table-scroll th:first-child, .reg-table-scroll td:first-child {

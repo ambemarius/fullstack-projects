@@ -33,7 +33,8 @@ test('source-derived boundary ledger records retained admin tools as unresolved 
 test('fully activated M1 policy has an explicit boundary for every retained authenticated API declaration',()=>{
  const rows=dispositions(legacyRoutes(),m1Policy);
  // Added after the M1 inventory was frozen, for the single-application deployment.
- const postM1=new Set(['POST /api/v1/parents/admin/link','GET /api/v1/students/my-scores']);
+ // Whole-school timetable generation refuses (409) while scoped timetables are enabled.
+ const postM1=new Set(['POST /api/v1/parents/admin/link','GET /api/v1/students/my-scores','POST /api/v1/timetables/generate/school/preview','POST /api/v1/timetables/generate/school']);
  const postM1Modules=['/api/v1/staff-duties','/api/v1/attendance','/api/v1/library'];
  for(const route of rows){if(!route.path.startsWith('/api/')||!['admin','teacher','student','any-account'].includes(route.auth)||postM1.has(route.method+' '+route.path)||postM1Modules.some(p=>route.path.startsWith(p)))continue;
   const role=route.auth==='any-account'?'admin':route.auth;

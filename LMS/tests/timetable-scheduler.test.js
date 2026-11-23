@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { buildTimetable, renderReport, toJson } = require('../scripts/timetable/schedule');
+const { buildTimetable, renderReport, toJson } = require('../utils/timetableScheduler');
 const { addTeachers } = require('../scripts/timetable/addTeachers');
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];

@@ -90,10 +90,12 @@
         if (s.is_break) continue;
         slotSel.innerHTML += `<option value="${s.id}">#${s.slot_number} (${s.start_time}-${s.end_time})</option>`;
       }
+      const sgYearSel = document.getElementById('sgYear');
       for (const y of academicYears) {
-        const opt = `<option value="${y.id}">${esc(y.name)}${y.isCurrent ? ' (current)' : ''}</option>`;
+        const opt = `<option value="${y.id}"${y.isCurrent ? ' selected' : ''}>${esc(y.name)}${y.isCurrent ? ' (current)' : ''}</option>`;
         yearSel.innerHTML += opt;
         filterYear.innerHTML += opt;
+        if (sgYearSel) sgYearSel.innerHTML += opt;
       }
     });
 
@@ -162,6 +164,142 @@
       }
       genMsg.textContent = txt; genMsg.className = 'msg ok';
       loadGrid();
+    });
+
+    // ---- Whole-school generator: preview first, then replace on confirmation ----
+    const sg = {
+      form: document.getElementById('sgForm'), term: document.getElementById('sgTerm'), year: document.getElementById('sgYear'),
+      study: document.getElementById('sgStudy'), previewBtn: document.getElementById('sgPreviewBtn'), msg: document.getElementById('sgMsg'),
+      result: document.getElementById('sgResult'), verdict: document.getElementById('sgVerdict'), classSel: document.getElementById('sgClass'),
+      grid: document.getElementById('sgGrid'), applyBtn: document.getElementById('sgApplyBtn'), applyNote: document.getElementById('sgApplyNote'),
+    };
+    let preview = null;
+    const setSgMsg = (text, kind) => { sg.msg.textContent = text; sg.msg.className = 'msg' + (kind ? ' ' + kind : ''); };
+    const invalidatePreview = () => { if (preview) { preview = null; sg.result.hidden = true; setSgMsg('Settings changed: preview again.', ''); } };
+    [sg.term, sg.year, sg.study].forEach(el => el.addEventListener('change', invalidatePreview));
+
+    function renderPreviewGrid() {
+      const cls = preview && preview.classes.find(c => String(c.classId) === sg.classSel.value);
+      if (!cls) { sg.grid.innerHTML = ''; return; }
+      const periodIndex = new Map(preview.periods.map((p, i) => [p.slotId, i]));
+      const slots = allSlots.length ? allSlots : preview.periods.map((p, i) => ({ id: p.slotId, start_time: p.start, end_time: p.end, slot_number: i + 1, is_break: false }));
+      let html = '<table class="tt-grid"><thead><tr><th>Time</th>' + preview.days.map(d => `<th>${esc(d)}</th>`).join('') + '</tr></thead><tbody>';
+      for (const slot of slots) {
+        if (slot.is_break) { html += `<tr class="tt-break"><td class="tt-time">${esc(slot.start_time)}-${esc(slot.end_time)}</td>${preview.days.map(() => '<td class="tt-break-cell">Break</td>').join('')}</tr>`; continue; }
+        const p = periodIndex.get(slot.id);
+        if (p === undefined) continue;
+        html += `<tr><td class="tt-time">#${esc(slot.slot_number)}<br>${esc(slot.start_time)}-${esc(slot.end_time)}</td>`;
+        preview.days.forEach((_, d) => {
+          const c = cls.grid[d][p];
+          if (!c) html += '<td class="tt-empty">—</td>';
+          else if (c.study && !c.teacher) html += '<td class="tt-empty" title="No teacher is free to supervise">— free —</td>';
+          else if (c.study) html += `<td class="tt-filled tt-study">Study period<br><span class="muted">${esc(c.teacher)}</span></td>`;
+          else html += `<td class="tt-filled"><strong>${esc(c.subject)}</strong><br><span class="muted">${esc(c.teacher)}</span></td>`;
+        });
+        html += '</tr>';
+      }
+      sg.grid.innerHTML = html + '</tbody></table>';
+    }
+    sg.classSel.addEventListener('change', renderPreviewGrid);
+
+    function renderPreview() {
+      const v = preview.validation;
+      const pct = v.totalRequired ? Math.round(100 * v.totalPlaced / v.totalRequired) : 0;
+      document.getElementById('sgPlaced').textContent = `${pct}%`;
+      document.getElementById('sgPlaced').title = `${v.totalPlaced} of ${v.totalRequired} periods`;
+      document.getElementById('sgExact').textContent = `${v.exact}/${v.tuples}`;
+      // Study periods with no free supervisor are saved as empty slots, so show them as empty here too.
+      const emptyAfterApply = v.emptySlots + v.studyUnsupervised;
+      const supervisedStudy = v.studySlots - v.studyUnsupervised;
+      document.getElementById('sgEmpty').textContent = emptyAfterApply;
+      document.getElementById('sgStudyCount').textContent = preview.study ? supervisedStudy : '—';
+
+      const missing = v.totalRequired - v.totalPlaced;
+      if (v.complete) {
+        sg.verdict.className = 'alert alert-success';
+        sg.verdict.textContent = `Complete: every class gets its full weekly hours with no clashes and no empty periods (${v.totalPlaced} lessons${preview.study ? ` + ${supervisedStudy} study periods` : ''}).`;
+      } else if (missing > 0) {
+        sg.verdict.className = 'alert alert-warning';
+        sg.verdict.textContent = `${missing} of ${v.totalRequired} required periods cannot be placed without double-booking a teacher, and ${emptyAfterApply} class periods would be left empty. The usual cause is a teacher with more periods than the week has, or a subject with no teacher; see the tables below. What is placed is clash-free.`;
+      } else {
+        sg.verdict.className = 'alert alert-info';
+        sg.verdict.textContent = `All required periods are placed with no clashes. ${emptyAfterApply} class periods stay free${preview.study ? ' because no teacher is free to supervise them' : '; tick "Fill free periods with supervised study" to fill them'}.`;
+      }
+
+      document.getElementById('sgShortfallCount').textContent = preview.shortfall.length;
+      document.getElementById('sgShortfall').innerHTML = preview.shortfall.length
+        ? preview.shortfall.map(s => `<tr><td>${esc(s.className)}</td><td>${esc(s.subject)}</td><td>${s.required}</td><td>${s.placed}</td><td>${s.teachers.length ? esc(s.teachers.join(', ')) : '<span class="badge yes">No teacher assigned</span>'}</td></tr>`).join('')
+        : '<tr><td colspan="5" class="muted">None: every subject gets all its periods.</td></tr>';
+      document.getElementById('sgShortfallBox').open = preview.shortfall.length > 0 && preview.shortfall.length <= 30;
+      document.getElementById('sgTeachers').innerHTML = preview.teacherLoad.map(t =>
+        `<tr><td>${esc(t.name)}</td><td>${t.required}</td><td>${t.lessons}</td><td>${t.supervision}</td><td>${t.shortfall ? `<span class="badge yes">${t.shortfall}</span>` : '<span class="badge no">0</span>'}</td></tr>`).join('');
+
+      const previous = sg.classSel.value;
+      sg.classSel.innerHTML = preview.classes.map(c => `<option value="${c.classId}">${esc(c.section)} — ${esc(c.name)}</option>`).join('');
+      if (preview.classes.some(c => String(c.classId) === previous)) sg.classSel.value = previous;
+      renderPreviewGrid();
+
+      sg.applyBtn.disabled = v.totalPlaced === 0;
+      sg.applyBtn.textContent = `Replace ${preview.academicYear.name} ${preview.term} term timetable`;
+      sg.applyNote.textContent = `${preview.existingLessons} current lessons will be replaced and backed up first.`;
+      sg.result.hidden = false;
+    }
+
+    sg.form.addEventListener('submit', async e => {
+      e.preventDefault();
+      if (!sg.year.value) { setSgMsg('Choose an academic year.', 'error'); return; }
+      sg.previewBtn.disabled = true; sg.result.hidden = true; preview = null;
+      setSgMsg('Building the timetable for every class…', '');
+      try {
+        const res = await api('/timetables/generate/school/preview', {
+          method: 'POST', body: JSON.stringify({ academic_year_id: +sg.year.value, term: sg.term.value, study: sg.study.checked }),
+        });
+        if (!res.ok) { setSgMsg((res.data && res.data.message) || 'Preview failed.', 'error'); return; }
+        preview = res.data.data;
+        setSgMsg('Preview ready. Nothing has been changed yet.', 'ok');
+        renderPreview();
+      } catch (err) {
+        setSgMsg(err.message, 'error');
+      } finally {
+        sg.previewBtn.disabled = false;
+      }
+    });
+
+    sg.applyBtn.addEventListener('click', async () => {
+      if (!preview) return;
+      const v = preview.validation;
+      const lines = [
+        `Replace the timetable for ${preview.academicYear.name}, ${preview.term} term?`,
+        '',
+        `• ${preview.existingLessons} current lessons will be removed (a backup is saved first).`,
+        `• ${v.totalPlaced} lessons${preview.study ? ` and ${v.studySlots - v.studyUnsupervised} study periods` : ''} will be added for ${preview.classes.length} classes.`,
+      ];
+      if (v.totalPlaced < v.totalRequired) lines.push(`• ${v.totalRequired - v.totalPlaced} required periods will be missing.`);
+      lines.push('', 'Past attendance registers are kept.');
+      if (!confirm(lines.join('\n'))) return;
+      sg.applyBtn.disabled = true; sg.previewBtn.disabled = true;
+      setSgMsg('Replacing the timetable…', '');
+      try {
+        const res = await api('/timetables/generate/school', {
+          method: 'POST', body: JSON.stringify({ academic_year_id: preview.academicYear.id, term: preview.term, study: preview.study, fingerprint: preview.fingerprint }),
+        });
+        if (!res.ok) {
+          setSgMsg((res.data && res.data.message) || 'Could not replace the timetable. Nothing was changed.', 'error');
+          sg.applyBtn.disabled = false;
+          return;
+        }
+        const d = res.data.data;
+        setSgMsg(`${res.data.message}. Backup saved as ${d.backup}.`, 'ok');
+        const appliedYear = String(preview.academicYear.id), appliedTerm = preview.term;
+        preview = null; sg.result.hidden = true;
+        filterYear.value = appliedYear; filterTerm.value = appliedTerm;
+        loadGrid();
+      } catch (err) {
+        setSgMsg(err.message, 'error');
+        sg.applyBtn.disabled = false;
+      } finally {
+        sg.previewBtn.disabled = false;
+      }
     });
 
     async function loadGrid() {

@@ -14,9 +14,13 @@ const {
     deleteEntryCtrl,
     getFormDataCtrl,
     generateClassCtrl,
+    previewSchoolCtrl,
+    generateSchoolCtrl,
 } = require('../../controllers/academic/timetableCtrl');
 
 router.get('/form-data', isLogin, getFormDataCtrl);
+router.post('/generate/school/preview', isLogin, previewSchoolCtrl);
+router.post('/generate/school', isLogin, generateSchoolCtrl);
 router.post('/generate/class/:classId', isLogin, generateClassCtrl);
 router.post('/', isLogin, createEntryCtrl);
 router.get('/class/:classId/grid', isLogin, getClassGridCtrl);

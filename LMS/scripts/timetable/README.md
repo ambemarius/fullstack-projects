@@ -2,6 +2,8 @@
 
 Builds a clash-free weekly timetable for every class from the LMS's own allocations and teacher assignments, and reports exactly what cannot be scheduled and why. None of these scripts write to the database: the export only reads, and the other two work on JSON files.
 
+**In the app:** administrators use **Timetable → Generate whole timetable** (`/timetable`). It runs the same scheduler (`utils/timetableScheduler.js`) on live data and shows a preview with every class grid. Only after confirmation does it replace the chosen term, in one transaction, with a JSON backup in `backups/timetable/auto/` (override with `TIMETABLE_BACKUP_DIR`). See `model/Academic/timetableGenerator.js`. These scripts are for "what if" staffing, which the button does not do.
+
 ## Pipeline
 
 ```bash
