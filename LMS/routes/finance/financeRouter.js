@@ -4,7 +4,7 @@ const express = require('express');
 const asyncHandler = require('express-async-handler');
 const { requireStaff } = require('../../middlewares/staffAccess');
 const { createFinanceService, formatMoney, today, methodLabel } = require('../../model/finance/financeService');
-const { financeCollectionsCsv, financeStatementCsv } = require('../../utils/financeCsv');
+const { financeCollectionsCsv, financeStatementCsv, financeOutstandingCsv } = require('../../utils/financeCsv');
 
 const BASE = '/finance';
 const HOME = { admin: '/admin-dashboard', teacher: '/teacher-dashboard', auxiliary: '/staff-dashboard' };
@@ -17,7 +17,7 @@ function createFinanceRouter({ service = createFinanceService() } = {}) {
         const a = req.actor;
         return {
             base: BASE, formatMoney, methodLabel, uuid: crypto.randomUUID, today: today(),
-            actorName: a.name, roleLabel: a.type === 'admin' ? 'Administrator' : 'Bursar / cashier', home: HOME[a.type] || '/',
+            actorName: a.name, roleLabel: a.type === 'admin' ? 'Administrator' : 'Bursar', home: HOME[a.type] || '/',
             ...extra,
         };
     }
@@ -93,6 +93,19 @@ function createFinanceRouter({ service = createFinanceService() } = {}) {
             ...statement,
             exportQuery: new URLSearchParams({ student: statement.student?.id || '', year: statement.yearId || '', format: 'csv' }).toString(),
         }));
+    }));
+
+    // Who still owes: the whole school class by class, or one class student by student.
+    router.get('/outstanding', handle(async (req, res) => {
+        if (req.query.format !== undefined && req.query.format !== 'csv') return res.sendStatus(422);
+        const report = await service.outstanding(req.actor, { year: req.query.year, class: req.query.class, show: req.query.show });
+        if (req.query.format === 'csv') {
+            const cls = report.classId ? report.classes.find(c => c.id === report.classId).label.replace(/[^\w]+/g, '-') : 'whole-school';
+            return res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="outstanding-${cls}-${report.asOf}.csv"` })
+                .send(financeOutstandingCsv(report));
+        }
+        const query = extra => new URLSearchParams({ year: report.yearId || '', ...(report.classId ? { class: report.classId, show: report.show } : {}), ...extra }).toString();
+        res.render('finance/outstanding', locals(req, { ...report, query, exportQuery: query({ format: 'csv' }) }));
     }));
 
     router.post('/bulk/:step', handle(async (req, res) => {

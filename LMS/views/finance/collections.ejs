@@ -3,13 +3,13 @@
 <form method="get" class="no-print"><div class="fields">
 <label>From payment date<input type="date" name="from" value="<%= from %>" required></label><label>To payment date<input type="date" name="to" value="<%= to %>" required></label>
 <label>Payment method<select name="method"><option value="">All methods</option><% for(const m of ['cash','bank','mobile','other']){ %><option value="<%= m %>" <%= method===m?'selected':'' %>><%= methodLabel(m) %></option><% } %></select></label>
-<label>Recorded by<select name="operator"><option value="">All cashiers and administrators</option><% operators.forEach(o=>{ %><option value="<%= o.id %>" <%= operator===o.id?'selected':'' %>><%= o.label %></option><% }) %></select></label></div><button>Show report</button></form>
-<p><strong><%= from %> through <%= to %></strong> (inclusive) · <%= method?methodLabel(method):'All methods' %> · <%= operator?operators.find(o=>o.id===operator).label:'All cashiers and administrators' %></p>
+<label>Recorded by<select name="operator"><option value="">All bursars and administrators</option><% operators.forEach(o=>{ %><option value="<%= o.id %>" <%= operator===o.id?'selected':'' %>><%= o.label %></option><% }) %></select></label></div><button>Show report</button></form>
+<p><strong><%= from %> through <%= to %></strong> (inclusive) · <%= method?methodLabel(method):'All methods' %> · <%= operator?operators.find(o=>o.id===operator).label:'All bursars and administrators' %></p>
 <p>Payment dates determine this report’s period. Reversals reflect current status, including corrections made after that period. This is not a historical closing balance or a bank reconciliation.</p>
 <p>Generated at <%= generatedAt.toISOString() %> (UTC). <%= totals.count %> payment entries.</p>
 <div class="cards"><section><h3>Recorded</h3><p><%= formatMoney(totals.recorded) %></p></section><section><h3>Reversed</h3><p><%= formatMoney(totals.reversed) %></p></section><section><h3>Current net collected</h3><p><%= formatMoney(totals.net) %></p></section></div>
 <p class="no-print"><a href="?<%= exportQuery %>">Download CSV</a> <button type="button" id="print-receipt">Print report</button></p>
-<% for(const [heading,groups]of [['By payment method',methods],['By cashier / administrator',cashiers]]){ %><h2><%= heading %></h2><div class="table-wrap"><table><thead><tr><th>Group</th><th>Entries</th><th>Recorded</th><th>Reversed</th><th>Current net</th></tr></thead><tbody>
+<% for(const [heading,groups]of [['By payment method',methods],['By bursar / administrator',cashiers]]){ %><h2><%= heading %></h2><div class="table-wrap"><table><thead><tr><th>Group</th><th>Entries</th><th>Recorded</th><th>Reversed</th><th>Current net</th></tr></thead><tbody>
 <% groups.forEach(g=>{ %><tr><td><%= g.label %></td><td><%= g.count %></td><td><%= formatMoney(g.recorded) %></td><td><%= formatMoney(g.reversed) %></td><td><%= formatMoney(g.net) %></td></tr><% }) %>
 <% if(!groups.length){ %><tr><td colspan="5">No matching payments.</td></tr><% } %></tbody></table></div><% } %>
 <h2>Payment entries</h2><div class="table-wrap"><table><thead><tr><th>Receipt / date</th><th>Student / fee</th><th>Method / reference</th><th>Recorded by</th><th>Amount</th><th>Current status</th></tr></thead><tbody>

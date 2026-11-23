@@ -44,6 +44,15 @@ function createInventoryRouter({ service = createInventoryService() } = {}) {
         const data = await service.listLibrary(req.actor, { search: typeof req.query.search === 'string' ? req.query.search : '', status: req.query.status || '', classId: req.query.classId || '' });
         res.render('inventory/library', base(req, 'library', { ...data, saved: req.query.saved === '1' }));
     }));
+    // The signed-in teacher's own requests as JSON, for the summary on the teacher dashboard (same gate as the page).
+    router.get(PATHS.requests + '/mine', gate('requests'), asyncHandler(async (req, res) => {
+        try {
+            const data = await service.listLab(req.actor, 'requests', { subject: '' });
+            res.set('Cache-Control', 'private, no-store').json({ status: 'success', data: { requests: data.requests || [], today: data.today || null } });
+        } catch (err) {
+            res.status(err.statusCode && err.statusCode < 500 ? err.statusCode : 500).json({ status: 'error', message: err.statusCode && err.statusCode < 500 ? err.message : 'Could not load your requests.' });
+        }
+    }));
     for (const area of ['laboratory', 'requests']) {
         router.get(PATHS[area], ...handle(area, async (req, res) => {
             const data = await service.listLab(req.actor, area, { subject: typeof req.query.subject === 'string' ? req.query.subject : '' });

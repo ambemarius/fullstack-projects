@@ -54,14 +54,16 @@ async function defaultTransaction() {
 function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
     const bulkReviews = new Map();
 
-    // permission: 'view' and 'pay' for administrators and bursars; 'manage' for administrators only.
+    // The bursar is in charge of fee collection: administrators and bursars may view, take payments ('pay') and
+    // manage fees ('manage': charge students or a class, cancel a charge, reverse a mistaken payment).
+    // Every entry records who made it, and corrections always need a reason and keep the original history.
     function authorize(actor, permission) {
         if (!actor || !Number.isSafeInteger(actor.id)) throw fail(401, 'Authentication required');
         if (!Number.isSafeInteger(actor.schoolId)) throw fail(409, 'This account is not linked to a school. Ask your administrator to run school setup.');
         const admin = actor.type === 'admin';
         const bursar = Array.isArray(actor.duties) && actor.duties.includes('bursar');
-        if (permission === 'manage' ? !admin : !(admin || bursar)) throw fail(403, 'Your account does not have this finance permission');
-        return { ...actor, admin };
+        if (!['view', 'pay', 'manage'].includes(permission) || !(admin || bursar)) throw fail(403, 'Your account does not have this finance permission');
+        return { ...actor, admin, canManage: admin || bursar };
     }
 
     async function scoped(actor, permission, work) {
@@ -100,7 +102,7 @@ function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
                 id: c.id, label: c.section + ' — ' + c.name + (c.stream ? ' (' + c.stream + ')' : ''),
                 fees: FEE_COLUMNS.map(([col, label]) => ({ key: col, label, amount: c[col] })).filter(f => f.amount && f.amount !== '0'),
             }));
-            return { charges: sets[0], students: sets[1], years: sets[2], classes, totals, admin: who.admin };
+            return { charges: sets[0], students: sets[1], years: sets[2], classes, totals, canManage: who.canManage };
         });
     }
 
@@ -109,7 +111,7 @@ function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
             const params = { charge: [sql.Int, id(chargeId)] };
             const charge = (await query(chargesSql + ' AND c.id=@charge', params)).recordset[0];
             if (!charge) throw fail(404, 'Charge not found.');
-            return { charge, payments: (await query(paymentsSql + ' AND f.charge_id=@charge ORDER BY f.id DESC', params)).recordset, admin: who.admin };
+            return { charge, payments: (await query(paymentsSql + ' AND f.charge_id=@charge ORDER BY f.id DESC', params)).recordset, canManage: who.canManage };
         });
     }
 
@@ -311,7 +313,68 @@ function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
         });
     }
 
-    return { list, detail, receipt, collections, studentStatement, studentBalance, reviewBulk, confirmBulk, save };
+    // Outstanding balances for one academic year: the whole school class by class, or one class student by student.
+    // Balances count active charges minus payments that were not reversed; cancelled charges are left out.
+    async function outstanding(actor, options = {}) {
+        const classId = options.class ? id(options.class) : null;
+        const requestedYear = options.year ? id(options.year) : null;
+        const show = ['owing', 'overdue', 'all'].includes(options.show) ? options.show : 'owing';
+        return scoped(actor, 'view', async query => {
+            const school = (await query('SELECT id,name FROM dbo.schools WHERE id=@school')).recordset[0];
+            const years = (await query('SELECT id,name,isCurrent FROM dbo.academic_years WHERE school_id=@school ORDER BY fromYear DESC')).recordset;
+            if (requestedYear && !years.some(y => y.id === requestedYear)) throw fail(404, 'Academic year not found in this school.');
+            const yearId = requestedYear ?? years.find(y => y.isCurrent)?.id ?? years[0]?.id ?? null;
+            const classes = (await query(`SELECT id,section,name,stream FROM dbo.classes WHERE school_id=@school ORDER BY section,rank,name`)).recordset
+                .map(c => ({ id: c.id, section: c.section, label: c.section + ' — ' + c.name + (c.stream && c.stream !== 'Normal' ? ' (' + c.stream + ')' : '') }));
+            if (classId && !classes.some(c => c.id === classId)) throw fail(404, 'Class not found in this school.');
+            const asOf = today();
+            if (!yearId) return { school, years, yearId, classes, classId, show, asOf, summary: [], totals: emptyTotals(), students: [], generatedAt: new Date() };
+
+            const rows = (await query(`
+                WITH ch AS (
+                    SELECT c.student_id, CONVERT(decimal(38,0), c.amount) amount, c.due_date, COALESCE(p.total, 0) paid
+                    FROM dbo.finance_charges c
+                    LEFT JOIN dbo.finance_cancellations x ON x.school_id = c.school_id AND x.charge_id = c.id
+                    OUTER APPLY (SELECT SUM(CONVERT(decimal(38,0), f.amount)) total FROM dbo.finance_payments f
+                        WHERE f.school_id = c.school_id AND f.charge_id = c.id
+                          AND NOT EXISTS (SELECT 1 FROM dbo.finance_reversals r WHERE r.school_id = f.school_id AND r.payment_id = f.id)) p
+                    WHERE c.school_id = @school AND c.year_id = @year AND x.charge_id IS NULL)
+                SELECT s.id, s.firstName + ' ' + s.lastName name, s.matricule, s.currentClassLevel classId, s.parentName, s.parentPhone,
+                       COUNT(ch.student_id) charges,
+                       CONVERT(varchar(40), COALESCE(SUM(ch.amount), 0)) charged,
+                       CONVERT(varchar(40), COALESCE(SUM(ch.paid), 0)) paid,
+                       CONVERT(varchar(40), COALESCE(SUM(ch.amount - ch.paid), 0)) balance,
+                       CONVERT(varchar(40), COALESCE(SUM(CASE WHEN ch.due_date < @asOf THEN ch.amount - ch.paid ELSE 0 END), 0)) overdue,
+                       (SELECT CONVERT(char(10), MAX(f.paid_on), 23) FROM dbo.finance_payments f
+                          JOIN dbo.finance_charges c2 ON c2.school_id = f.school_id AND c2.id = f.charge_id
+                         WHERE f.school_id = @school AND c2.student_id = s.id AND c2.year_id = @year
+                           AND NOT EXISTS (SELECT 1 FROM dbo.finance_reversals r WHERE r.school_id = f.school_id AND r.payment_id = f.id)) lastPaid
+                FROM dbo.students s
+                LEFT JOIN ch ON ch.student_id = s.id
+                WHERE s.school_id = @school AND s.isWithdrawn = 0 AND (s.academicYearId IS NULL OR s.academicYearId = @year)
+                GROUP BY s.id, s.firstName, s.lastName, s.matricule, s.currentClassLevel, s.parentName, s.parentPhone`,
+            { year: [sql.Int, yearId], asOf: [sql.Date, asOf] })).recordset;
+
+            const status = r => (!r.charges ? 'none' : BigInt(r.balance) <= 0n ? 'paid' : BigInt(r.paid) === 0n ? 'unpaid' : 'partial');
+            for (const r of rows) r.status = status(r);
+            const COUNT = { paid: 'fullyPaid', partial: 'partlyPaid', unpaid: 'notPaid', none: 'noCharges' };
+            const tally = list => list.reduce((t, r) => {
+                t.students += 1; t[COUNT[r.status]] += 1;
+                t.charged += BigInt(r.charged); t.collected += BigInt(r.paid); t.balance += BigInt(r.balance); t.overdue += BigInt(r.overdue);
+                return t;
+            }, emptyTotals());
+            const summary = classes.map(c => ({ ...c, ...tally(rows.filter(r => r.classId === c.id)) })).filter(c => c.students);
+            const students = !classId ? [] : rows.filter(r => r.classId === classId)
+                .filter(r => show === 'all' || (show === 'overdue' ? BigInt(r.overdue) > 0n : BigInt(r.balance) > 0n))
+                .sort((a, b) => (BigInt(b.balance) > BigInt(a.balance) ? 1 : BigInt(b.balance) < BigInt(a.balance) ? -1 : a.name.localeCompare(b.name)));
+            const totals = tally(classId ? rows.filter(r => r.classId === classId) : rows);
+            return { school, years, yearId, classes, classId, show, asOf, summary, totals, students, generatedAt: new Date() };
+        });
+    }
+    // Counts of students by payment status, and money totals (BigInt XAF).
+    function emptyTotals() { return { students: 0, fullyPaid: 0, partlyPaid: 0, notPaid: 0, noCharges: 0, charged: 0n, collected: 0n, balance: 0n, overdue: 0n }; }
+
+    return { list, detail, receipt, collections, studentStatement, studentBalance, reviewBulk, confirmBulk, save, outstanding };
 }
 
 module.exports = { createFinanceService, formatMoney, today, FEE_COLUMNS, methodLabel };

@@ -1,0 +1,91 @@
+<%- include('shell',{pageTitle:'Outstanding balances',active:'outstanding'}) %>
+<% const yearName = (years.find(y => y.id === yearId) || {}).name || '';
+   const cls = classId ? classes.find(c => c.id === classId) : null;
+   const pct = (part, whole) => whole > 0n ? Number(part * 1000n / whole) / 10 : null;
+   const STATUS = { paid: ['Paid in full', 'status-paid'], partial: ['Partly paid', 'status-open'], unpaid: ['Not paid', 'status-overdue'], none: ['No charges', ''] }; %>
+<div class="page-heading">
+  <div>
+    <h1><%= cls ? cls.label : 'Outstanding balances' %></h1>
+    <p><%= cls ? 'Students in this class and what each still owes.' : 'What each class still owes, and who has not finished paying.' %> <%= yearName %>, as of <%= asOf %>.</p>
+  </div>
+  <div class="heading-actions no-print">
+    <a class="button secondary" href="?<%= exportQuery %>">Download CSV</a>
+    <button type="button" class="secondary" id="print-receipt">Print</button>
+  </div>
+</div>
+
+<form method="get" class="toolbar outstanding-filter no-print">
+  <label>Academic year
+    <select name="year"><% years.forEach(y => { %><option value="<%= y.id %>" <%= y.id === yearId ? 'selected' : '' %>><%= y.name %><%= y.isCurrent ? ' (current)' : '' %></option><% }) %></select>
+  </label>
+  <label>Class
+    <select name="class"><option value="">Whole school, class by class</option><% classes.forEach(c => { %><option value="<%= c.id %>" <%= c.id === classId ? 'selected' : '' %>><%= c.label %></option><% }) %></select>
+  </label>
+  <% if (cls) { %>
+  <label>Show
+    <select name="show">
+      <option value="owing" <%= show === 'owing' ? 'selected' : '' %>>Students who still owe</option>
+      <option value="overdue" <%= show === 'overdue' ? 'selected' : '' %>>Students with overdue fees</option>
+      <option value="all" <%= show === 'all' ? 'selected' : '' %>>All students</option>
+    </select>
+  </label>
+  <% } %>
+  <button type="submit">Show</button>
+</form>
+
+<div class="cards">
+  <section><h3>Outstanding</h3><p><%= formatMoney(totals.balance) %></p><p><%= totals.notPaid + totals.partlyPaid %> of <%= totals.students %> students still owe</p></section>
+  <section><h3>Overdue</h3><p><%= formatMoney(totals.overdue) %></p><p>Due before <%= asOf %></p></section>
+  <section><h3>Collected</h3><p><%= formatMoney(totals.collected) %></p><p><%= pct(totals.collected, totals.charged) === null ? 'Nothing charged yet' : pct(totals.collected, totals.charged).toFixed(1) + '% of ' + formatMoney(totals.charged) + ' charged' %></p></section>
+  <section><h3>Students</h3><p><%= totals.fullyPaid %> paid in full</p><p><%= totals.partlyPaid %> partly paid, <%= totals.notPaid %> not paid<%= totals.noCharges ? ', ' + totals.noCharges + ' with no charges' : '' %></p></section>
+</div>
+
+<% if (!cls) { %>
+<h2>Class by class</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Class</th><th class="numeric">Students</th><th class="numeric">Paid in full</th><th class="numeric">Partly paid</th><th class="numeric">Not paid</th><th class="numeric">Outstanding</th><th class="numeric">Overdue</th><th>Collected</th><th class="no-print"><span class="sr-only">Open</span></th></tr></thead>
+  <tbody>
+  <% summary.forEach(c => { const rate = pct(c.collected, c.charged); %>
+    <tr>
+      <td><a class="cell-primary" href="?<%= query({ class: c.id, show: 'owing' }) %>"><%= c.label %></a></td>
+      <td class="numeric"><%= c.students %></td>
+      <td class="numeric"><%= c.fullyPaid %></td>
+      <td class="numeric"><%= c.partlyPaid %></td>
+      <td class="numeric"><%= c.notPaid %></td>
+      <td class="numeric"><strong><%= formatMoney(c.balance) %></strong></td>
+      <td class="numeric"><%= c.overdue > 0n ? formatMoney(c.overdue) : '—' %></td>
+      <td><% if (rate === null) { %><span class="cell-meta">No charges</span><% } else { %><span class="rate"><span class="rate-num"><%= rate.toFixed(1) %>%</span><span class="rate-bar" aria-hidden="true"><span style="width:<%= Math.min(100, rate) %>%"></span></span></span><% } %></td>
+      <td class="no-print"><a href="?<%= query({ class: c.id, show: 'owing' }) %>">See who owes</a></td>
+    </tr>
+  <% }) %>
+  <% if (!summary.length) { %><tr><td colspan="9" class="empty"><strong>No students for this year</strong>Students appear here once they are registered in a class.</td></tr><% } %>
+  </tbody>
+  <% if (summary.length) { const rate = pct(totals.collected, totals.charged); %>
+  <tfoot><tr><th>Whole school</th><th class="numeric"><%= totals.students %></th><th class="numeric"><%= totals.fullyPaid %></th><th class="numeric"><%= totals.partlyPaid %></th><th class="numeric"><%= totals.notPaid %></th><th class="numeric"><%= formatMoney(totals.balance) %></th><th class="numeric"><%= formatMoney(totals.overdue) %></th><th><%= rate === null ? '—' : rate.toFixed(1) + '%' %></th><th class="no-print"></th></tr></tfoot>
+  <% } %>
+</table></div>
+<% } else { %>
+<p class="no-print"><a href="?<%= new URLSearchParams({ year: yearId || '' }).toString() %>">← Back to the whole school</a></p>
+<h2><%= show === 'all' ? 'All students' : show === 'overdue' ? 'Students with overdue fees' : 'Students who still owe' %> (<%= students.length %>)</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Student</th><th>Parent / guardian</th><th class="numeric">Charged</th><th class="numeric">Paid</th><th class="numeric">Outstanding</th><th class="numeric">Overdue</th><th>Last payment</th><th>Status</th><th class="no-print"><span class="sr-only">Actions</span></th></tr></thead>
+  <tbody>
+  <% students.forEach(s => { const [label, css] = STATUS[s.status]; %>
+    <tr>
+      <td><span class="cell-primary"><%= s.name %></span><span class="cell-meta"><%= s.matricule %></span></td>
+      <td><%= s.parentName || '—' %><% if (s.parentPhone) { %><span class="cell-meta"><a href="tel:<%= s.parentPhone %>"><%= s.parentPhone %></a></span><% } %></td>
+      <td class="numeric"><%= formatMoney(s.charged) %></td>
+      <td class="numeric"><%= formatMoney(s.paid) %></td>
+      <td class="numeric"><strong><%= formatMoney(s.balance) %></strong></td>
+      <td class="numeric"><%= BigInt(s.overdue) > 0n ? formatMoney(s.overdue) : '—' %></td>
+      <td><%= s.lastPaid || 'No payment yet' %></td>
+      <td><span class="status <%= css %>"><%= label %></span></td>
+      <td class="no-print row-links"><% if (BigInt(s.balance) > 0n) { %><a href="<%= base %>?search=<%= encodeURIComponent(s.matricule) %>">Record payment</a><% } %><a href="<%= base %>/statements?student=<%= s.id %>&year=<%= yearId %>">Statement</a></td>
+    </tr>
+  <% }) %>
+  <% if (!students.length) { %><tr><td colspan="9" class="empty"><strong><%= show === 'all' ? 'No students in this class' : 'Nobody in this class owes anything' %></strong><%= show === 'all' ? 'Students appear here once they are registered.' : 'Every student has paid all recorded charges.' %></td></tr><% } %>
+  </tbody>
+</table></div>
+<% } %>
+<p class="scope-note">Balances count only recorded charges and payments, after cancellations and reversals. A student with no charges owes nothing on record; that does not confirm every fee was charged.</p>
+<%- include('end') %>

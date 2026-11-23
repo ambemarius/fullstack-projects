@@ -1,89 +1,213 @@
-<%- include('partials/header', { title: 'Teacher Dashboard' }) %>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Dashboard – Lycée Batouri</title>
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
+<%- include('partials/workspace-assets') %></head>
 <% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
-<% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Teaching assignments, rosters and raw marks are managed in the <% if (wsBase) { %><a href="<%= wsBase %>/courses">school course workspace</a><% } else { %>school course workspace<% } %>. Sign in there with your existing teacher account.</div><% } %>
+<% const icon = name => include('partials/hub-icon', { icon: name }); %>
+<body class="lms-ui tp-body">
+  <a class="skip-link" href="#tpContent">Skip to content</a>
 
-<div class="card">
-  <div class="page-head">
-    <div>
-      <h1>Teacher Dashboard</h1>
-      <p id="welcome" class="welcome">Loading&hellip;</p>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="tp-sidebar" id="tpSidebar" aria-label="Teacher panel">
+    <div class="tp-brand">
+      <div class="tp-brand-name">LYCEE<br>BATOURI</div>
+      <div class="tp-brand-panel">Teacher panel</div>
     </div>
-    <button id="logoutBtn" class="btn btn-secondary">Logout</button>
-  </div>
-  <div id="profile"></div>
-</div>
-
-<div class="card" id="attendanceCard">
-  <h2>Take attendance</h2>
-  <p class="muted">Your timetabled lessons for the day. Record a register up to 7 days back; the discipline master corrects older ones.</p>
-  <div class="attendance-filters">
-    <label>Date<input type="date" id="attDate"></label>
-    <label>Term<select id="attTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
-  </div>
-  <div id="attLessons" class="duty-list"><p class="muted">Loading&hellip;</p></div>
-  <div id="attRegister"></div>
-</div>
-
-<div class="card">
-  <div class="page-head">
-    <div>
-      <h2>Laboratory requests</h2>
-      <p class="muted" style="margin:0">Request Physics, Chemistry, Biology, Geology or General lab equipment, reagents and consumables before your practical. Borrowed equipment must be returned by its return date.</p>
+    <nav class="tp-nav" aria-label="Teacher sections">
+      <a class="tp-link" href="#dashboard" data-tab="dashboard"><%- icon('grid') %><span>Dashboard</span></a>
+      <a class="tp-link" href="#timetable" data-tab="timetable"><%- icon('calendar') %><span>My timetable</span></a>
+      <a class="tp-link" href="#attendance" data-tab="attendance"><%- icon('usercheck') %><span>Attendance</span><span class="tp-badge" id="twAttCount" hidden></span></a>
+      <a class="tp-link" href="#marks" data-tab="marks"><%- icon('pen') %><span>Enter marks</span></a>
+      <h2 class="tp-section">Teaching tools</h2>
+      <a class="tp-link" href="#subjects" data-tab="subjects"><%- icon('book') %><span>My subjects</span></a>
+      <a class="tp-link" href="#students" data-tab="students"><%- icon('people') %><span>My students</span></a>
+      <a class="tp-link" href="#lab" data-tab="lab"><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
+      <a class="tp-link" href="#duties" data-tab="duties" id="tw-tab-duties" hidden><%- icon('wallet') %><span>My duties</span></a>
+      <a class="tp-link" href="#profile" data-tab="profile"><%- icon('user') %><span>My profile</span></a>
+    </nav>
+    <div class="tp-side-foot">
+      <button type="button" class="tp-signout" data-signout><svg class="hub-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button>
     </div>
-    <a class="btn btn-secondary" href="/lab-requests">Open requests</a>
+  </aside>
+  <div class="tp-overlay" id="tpOverlay" hidden></div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="tp-main">
+    <header class="tp-topbar">
+      <button type="button" class="tp-menu-btn" id="tpMenuBtn" aria-label="Open menu" aria-controls="tpSidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <h1 id="tpTitle">Dashboard</h1>
+      <div class="tp-spacer"></div>
+      <div class="tp-user">
+        <span class="tp-user-name" id="tpUserName"></span>
+        <span class="tp-avatar" id="tpAvatar" aria-hidden="true"></span>
+        <button type="button" id="logoutBtn" class="tp-btn-outline">Sign out</button>
+      </div>
+    </header>
+
+    <main class="tp-content" id="tpContent" tabindex="-1">
+      <% if (typeof canonicalAcademicLinksEnabled !== 'undefined' && canonicalAcademicLinksEnabled) { %><div class="alert alert-info" data-canonical-courses="true">Teaching assignments, rosters and raw marks are managed in the <% if (wsBase) { %><a href="<%= wsBase %>/courses">school course workspace</a><% } else { %>school course workspace<% } %>. Sign in there with your existing teacher account.</div><% } %>
+
+      <!-- ===== Dashboard ===== -->
+      <section class="tw-panel" id="tw-dashboard" aria-labelledby="tpTitle">
+        <div class="tp-card tp-welcome">
+          <h2 id="welcome">Welcome back!</h2>
+          <p id="twMeta">Your lessons, registers and marks in one place.</p>
+        </div>
+        <div class="tp-stats" id="dbStats" aria-live="polite">
+          <div class="tp-card tp-stat"><div class="tp-v">…</div><div class="tp-l">Lessons today</div></div>
+          <div class="tp-card tp-stat"><div class="tp-v">…</div><div class="tp-l">My classes</div></div>
+          <div class="tp-card tp-stat"><div class="tp-v">…</div><div class="tp-l">My students</div></div>
+          <div class="tp-card tp-stat"><div class="tp-v">…</div><div class="tp-l">Open lab requests</div></div>
+        </div>
+        <div class="tp-grid-2">
+          <section class="tp-card" aria-labelledby="dbTodayTitle">
+            <div class="tp-card-head"><h3 id="dbTodayTitle">Today</h3><a href="#timetable">Full timetable</a></div>
+            <div class="tp-card-body" id="dbToday"><p class="muted">Loading…</p></div>
+          </section>
+          <section class="tp-card" aria-labelledby="dbTodoTitle">
+            <div class="tp-card-head"><h3 id="dbTodoTitle">Needs your attention</h3><span id="dbTodoCount"></span></div>
+            <div class="tp-card-body" id="dbTodo"><p class="muted">Loading…</p></div>
+          </section>
+        </div>
+        <section class="tp-card tp-marks" aria-labelledby="dbMarksTitle">
+          <div class="tp-card-head"><h3 id="dbMarksTitle">Marks entry</h3><span id="dbMarksTerm"></span></div>
+          <div class="tp-card-body table-wrap">
+            <table class="tp-table">
+              <thead><tr><th>Class and subject</th><th id="dbSeq1">Sequence 1</th><th id="dbSeq2">Sequence 2</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="dbMarks"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ===== My timetable ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-timetable" aria-labelledby="tpTitle" hidden>
+        <div class="tw-head">
+          <div><h2>My timetable</h2><p class="muted" id="ttSummary">Your lessons for the week.</p></div>
+          <label class="tw-inline">Term
+            <select id="ttTerm"><option value="First">First</option><option value="Second">Second</option><option value="Third">Third</option></select>
+          </label>
+        </div>
+        <div id="ttToday" class="tw-today"></div>
+        <div id="ttGrid" class="table-wrap"><p class="muted">Loading…</p></div>
+      </section>
+
+      <!-- ===== Attendance ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-attendance" aria-labelledby="tpTitle" hidden>
+        <div id="attendanceCard">
+          <h2>Take attendance</h2>
+          <p class="muted">Your timetabled lessons for the day. Record a register up to 7 days back; the discipline master corrects older ones.</p>
+          <div class="attendance-filters">
+            <label>Date<input type="date" id="attDate"></label>
+            <label>Term<select id="attTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+          </div>
+          <div id="attLessons" class="duty-list"><p class="muted">Loading…</p></div>
+          <div id="attRegister"></div>
+        </div>
+      </section>
+
+      <!-- ===== Enter marks ===== -->
+      <section class="tw-panel tp-marks-panel" id="tw-marks" aria-labelledby="tpTitle" hidden>
+        <form id="msForm" class="mk-filter tp-mk-filter" novalidate>
+          <div class="mk-filter-head">
+            <h2>Select a mark sheet</h2>
+            <p>Choose one of your classes and a term, then open the sheet.</p>
+          </div>
+          <div class="mk-filter-row tp-mk-row">
+            <div class="mk-field" data-field="subject">
+              <label for="msSubject"><span class="mk-step" aria-hidden="true">1</span>Class and subject</label>
+              <div class="mk-select"><select id="msSubject" required><option value="">Choose a class and subject</option></select></div>
+              <span class="mk-hint"></span>
+            </div>
+            <div class="mk-field" data-field="term">
+              <label for="msTerm"><span class="mk-step" aria-hidden="true">2</span>Term</label>
+              <div class="mk-select"><select id="msTerm" required>
+                <option value="">Select a term</option>
+                <option value="First">First Term (Seq. 1 &amp; 2)</option><option value="Second">Second Term (Seq. 3 &amp; 4)</option><option value="Third">Third Term (Seq. 5 &amp; 6)</option>
+              </select></div>
+              <span class="mk-hint"></span>
+            </div>
+            <div class="mk-actions">
+              <button type="submit" class="mk-btn" id="msLoadBtn" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg> Open mark sheet</button>
+              <span class="mk-hint" aria-hidden="true"></span>
+            </div>
+          </div>
+        </form>
+        <p id="msMsg" class="msg" role="status" aria-live="polite"></p>
+        <div id="msSheet"><div class="ms-placeholder"><strong>Choose one of your classes and a term</strong>Both sequences open together, marked out of 20.</div></div>
+      </section>
+
+      <!-- ===== My subjects ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-subjects" aria-labelledby="tpTitle" hidden>
+        <h2>My subjects</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Class</th><th>Subject</th><th>Code</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="subjectRows"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== My students ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-students" aria-labelledby="tpTitle" hidden>
+        <div class="tw-head">
+          <div><h2>My students <span class="muted" id="studentCount"></span></h2><p class="muted">Choose one of your classes to see its students.</p></div>
+          <input type="search" id="studentSearch" class="tw-search" placeholder="Find a student" aria-label="Find a student in this class">
+        </div>
+        <div class="tw-classes" id="studentClasses" role="radiogroup" aria-label="Class"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>Matricule</th><th>Sex</th><th>Date of birth</th></tr></thead>
+            <tbody id="studentRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== Laboratory requests ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-lab" aria-labelledby="tpTitle" hidden>
+        <div class="tw-head">
+          <div><h2>Laboratory requests</h2><p class="muted">Request Physics, Chemistry, Biology, Geology or General lab equipment, reagents and consumables before your practical. Borrowed equipment must come back by its return date.</p></div>
+          <a class="btn" href="/lab-requests">New request</a>
+        </div>
+        <dl class="tw-stats" id="labStats"></dl>
+        <div id="labOverdue"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Item</th><th>Quantity</th><th>Needed on</th><th>Return by</th><th>Status</th></tr></thead>
+            <tbody id="labRows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="muted tw-foot"><a href="/lab-requests">Open the full request page</a> to make, change or return a request.</p>
+      </section>
+
+      <!-- ===== My duties (only for teachers with a school duty) ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-duties" aria-labelledby="tpTitle" hidden>
+        <div id="dutyCard" hidden>
+          <h2>My school duties</h2>
+          <div id="dutyLinks" class="duty-list"></div>
+        </div>
+      </section>
+
+      <!-- ===== My profile ===== -->
+      <section class="tw-panel tp-card tp-pad" id="tw-profile" aria-labelledby="tpTitle" hidden>
+        <h2>My profile</h2>
+        <div id="profile"></div>
+      </section>
+    </main>
   </div>
-</div>
 
-<div class="card" id="dutyCard" hidden>
-  <h2>My school duties</h2>
-  <div id="dutyLinks" class="duty-list"></div>
-</div>
-
-<div class="card">
-  <h3>My subjects</h3>
-  <table>
-    <thead><tr><th>Class</th><th>Subject</th><th>Code</th><th>Term</th></tr></thead>
-    <tbody id="subjectRows"><tr><td colspan="4" class="muted">Loading&hellip;</td></tr></tbody>
-  </table>
-  <div id="subjectEmpty" class="empty-state" style="display:none">
-    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'book' }) %></div>
-    <h3>No subjects assigned</h3>
-    <p>Subjects will appear here once the administrator assigns you to a class.</p>
-  </div>
-</div>
-
-<div class="card">
-  <h3>My students <span class="muted" id="studentCount"></span></h3>
-  <table>
-    <thead><tr><th>Name</th><th>Matricule</th><th>Section</th></tr></thead>
-    <tbody id="studentRows"><tr><td colspan="3" class="muted">Loading&hellip;</td></tr></tbody>
-  </table>
-  <div id="studentEmpty" class="empty-state" style="display:none">
-    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'people' }) %></div>
-    <h3>No students yet</h3>
-    <p>Students will appear here once they are enrolled in a class you teach.</p>
-  </div>
-</div>
-
-<div class="card">
-  <h3>Enter marks</h3>
-  <form id="msForm" class="ms-picker">
-    <label>Class and subject<select id="msSubject"><option value="">Choose a class and subject</option></select></label>
-    <label>Term<select id="msTerm">
-      <option value="">Choose a term</option>
-      <option>First</option><option>Second</option><option>Third</option>
-    </select></label>
-    <button type="submit" id="msLoadBtn" class="btn">Open mark sheet</button>
-  </form>
-  <p id="msMsg" class="msg" role="status" aria-live="polite"></p>
-  <div id="msSheet"><div class="ms-placeholder"><strong>Choose one of your classes and a term</strong>Both sequences open together, marked out of 20.</div></div>
-</div>
-
-<script src="/js/app.js"></script>
-<script src="/js/toast.js"></script>
-<script src="/js/mark-sheet.js"></script>
-<script src="/js/teacher-dashboard.js"></script>
-<script src="/js/duty-links.js"></script>
-<script src="/js/attendance-register.js"></script>
-<script src="/js/teacher-attendance.js"></script>
-<%- include('partials/footer') %>
+  <script src="/js/app.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/mark-sheet.js"></script>
+  <script src="/js/teacher-dashboard.js"></script>
+  <script src="/js/duty-links.js"></script>
+  <script src="/js/attendance-register.js"></script>
+  <script src="/js/teacher-attendance.js"></script>
+</body>
+</html>

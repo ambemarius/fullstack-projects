@@ -74,3 +74,52 @@ test('class broadsheet grades averages out of 20 with the bulletin remarks, one 
     assert.match(ctrl, /const passThreshold = 10;/);
     assert.match(ctrl, /\(s\.academicYearId IS NULL OR s\.academicYearId = @academicYearId\)/);
 });
+
+test('teacher panel: sidebar of sections, dashboard first, each section keeps the elements its scripts use', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../views/teacher-dashboard.ejs'), 'utf8');
+    const links = [...html.matchAll(/class="tp-link" href="#(\w+)" data-tab="(\w+)"/g)].map(m => { assert.equal(m[1], m[2]); return m[1]; });
+    assert.deepEqual(links, ['dashboard', 'timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'duties', 'profile']);
+    assert.match(html, /<h2 class="tp-section">Teaching tools<\/h2>/);
+    assert.match(html, /id="tw-dashboard" aria-labelledby="tpTitle">/, 'the dashboard section is visible first');
+    for (const id of ['timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'duties', 'profile']) {
+        assert.match(html, new RegExp(`id="tw-${id}" aria-labelledby="tpTitle" hidden>`), `${id} starts hidden`);
+    }
+    const panel = id => html.slice(html.indexOf(`id="tw-${id}"`), html.indexOf('</section>\n\n', html.indexOf(`id="tw-${id}"`)));
+    assert.match(panel('dashboard'), /id="dbStats"[\s\S]*id="dbToday"[\s\S]*id="dbTodo"[\s\S]*id="dbMarks"/);
+    assert.match(panel('timetable'), /id="ttGrid"/);
+    assert.match(panel('attendance'), /id="attDate"[\s\S]*id="attLessons"[\s\S]*id="attRegister"/);
+    assert.match(panel('lab'), /href="\/lab-requests"/);
+    assert.match(panel('students'), /id="studentClasses"[\s\S]*id="studentRows"/);
+    assert.match(panel('marks'), /id="msForm"[\s\S]*id="msSheet"/);
+    assert.match(html, /href="#duties" data-tab="duties" id="tw-tab-duties" hidden/, 'duties only for teachers with a duty');
+    assert.match(html, /id="tpMenuBtn" aria-label="Open menu" aria-controls="tpSidebar" aria-expanded="false"/, 'mobile menu button');
+    assert.match(html, /id="twAttCount" hidden/);
+    assert.match(html, /id="logoutBtn"/);
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/teacher-dashboard.js'), 'utf8');
+    assert.match(js, /b\.setAttribute\('aria-current', 'page'\)/, 'the current section is announced');
+    assert.match(js, /twShow\(location\.hash\.slice\(1\) \|\| 'dashboard'/, 'signing in opens the dashboard');
+    assert.doesNotMatch(js, /localStorage\.getItem\('teacherTab'\)/);
+    assert.match(js, /fetch\('\/lab-requests\/mine'/);
+    assert.match(js, /`Register not taken · \$\{esc\(l\.startTime\)\}`/);
+    assert.match(js, /\$\{items\.length\} pending/);
+});
+
+test('teacher lab request summary endpoint uses the request page gate (teachers only)', () => {
+    const router = fs.readFileSync(path.join(__dirname, '../routes/inventory/inventoryRouter.js'), 'utf8');
+    assert.match(router, /router\.get\(PATHS\.requests \+ '\/mine', gate\('requests'\)/);
+    assert.match(router, /requests: requireStaff\(\{ allowTeacher: true, allowAdmin: false \}\)/);
+});
+
+test('teacher Enter marks filter: class and subject, term and open button on one row, like the admin filter', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../views/teacher-dashboard.ejs'), 'utf8');
+    const form = html.slice(html.indexOf('<form id="msForm"'), html.indexOf('</form>', html.indexOf('<form id="msForm"')));
+    assert.match(form, /class="mk-filter tp-mk-filter"/);
+    assert.match(form, /<div class="mk-filter-row tp-mk-row">/);
+    assert.deepEqual([...form.matchAll(/data-field="(\w+)"/g)].map(m => m[1]), ['subject', 'term']);
+    assert.match(form, /id="msLoadBtn" disabled>/);
+    assert.doesNotMatch(html, /class="ms-picker"/);
+    const css = fs.readFileSync(path.join(__dirname, '../public/css/style.css'), 'utf8');
+    assert.match(css, /\.tp-mk-row \{ grid-template-columns: minmax\(0, 2fr\) minmax\(0, 1fr\) auto; \}/);
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/teacher-dashboard.js'), 'utf8');
+    assert.match(js, /document\.getElementById\('msLoadBtn'\)\.disabled = !complete;/);
+});

@@ -18,3 +18,17 @@ function financeStatementCsv(report,{practice=true}={}){
  ]);
 }
 module.exports={financeCollectionsCsv,financeStatementCsv};
+// Outstanding balances: one row per class (whole school) or per student (one class). Amounts in XAF.
+function financeOutstandingCsv(report){
+ const year=report.years.find(y=>y.id===report.yearId)?.name||'';
+ const STATUS={paid:'Paid in full',partial:'Partly paid',unpaid:'Not paid',none:'No charges'};
+ if(!report.classId){
+  return academicCsv(['School','Academic year','As of','Class','Students','Paid in full','Partly paid','Not paid','No charges','Charged XAF','Paid XAF','Outstanding XAF','Overdue XAF','Collected %'],
+   [...report.summary.map(c=>[report.school.name,year,report.asOf,c.label,c.students,c.fullyPaid,c.partlyPaid,c.notPaid,c.noCharges,c.charged.toString(),c.collected.toString(),c.balance.toString(),c.overdue.toString(),c.charged>0n?(Number(c.collected*1000n/c.charged)/10).toFixed(1):'']),
+    [report.school.name,year,report.asOf,'WHOLE SCHOOL',report.totals.students,report.totals.fullyPaid,report.totals.partlyPaid,report.totals.notPaid,report.totals.noCharges,report.totals.charged.toString(),report.totals.collected.toString(),report.totals.balance.toString(),report.totals.overdue.toString(),report.totals.charged>0n?(Number(report.totals.collected*1000n/report.totals.charged)/10).toFixed(1):'']]);
+ }
+ const cls=report.classes.find(c=>c.id===report.classId)?.label||'';
+ return academicCsv(['School','Academic year','As of','Class','Student','Matricule','Parent / guardian','Parent phone','Charged XAF','Paid XAF','Outstanding XAF','Overdue XAF','Last payment','Status'],
+  report.students.map(s=>[report.school.name,year,report.asOf,cls,s.name,s.matricule,s.parentName||'',s.parentPhone||'',s.charged,s.paid,s.balance,s.overdue,s.lastPaid||'',STATUS[s.status]]));
+}
+module.exports.financeOutstandingCsv=financeOutstandingCsv;
