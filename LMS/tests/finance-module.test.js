@@ -197,3 +197,119 @@ test('outstanding balances page is linked from the finance menu and offers Recor
     const router = fs.readFileSync(path.join(__dirname, '../routes/finance/financeRouter.js'), 'utf8');
     assert.match(router, /router\.get\('\/outstanding'/);
 });
+
+test('charging has its own page with the forms at the top; the charges list is paged', async t => {
+    const view = fs.readFileSync(path.join(__dirname, '../views/finance/new-charges.ejs'), 'utf8');
+    assert.match(view, /<form method="post" action="<%= base %>\/bulk\/review" id="batchForm">/, 'class charges are reviewed before saving');
+    assert.match(view, /<input type="hidden" name="action" value="charge">/);
+    assert.match(view, /src="\/js\/finance-batch\.js"/);
+    const index = fs.readFileSync(path.join(__dirname, '../views/finance/index.ejs'), 'utf8');
+    assert.doesNotMatch(index, /id="batchForm"|Manage charges/, 'the charges list no longer carries the forms');
+    assert.match(index, /href="<%= base %>\/charge">\+ Charge a class<\/a>/);
+    assert.match(index, /class="pager"/);
+    const nav = fs.readFileSync(path.join(__dirname, '../views/finance/nav.ejs'), 'utf8');
+    assert.match(nav, /\['charge','Charge a class','\/charge'/);
+
+    // The page renders for a bursar, with the chosen form; the list shows 50 charges per page.
+    const charges = Array.from({ length: 120 }, (_, i) => ({ ...openCharge, id: i + 1 }));
+    const service = {
+        chargeForm: async actor => { assert.equal(actor.type, 'admin'); return { students: [{ id: 4, label: 'A Student · LB-1', classId: 7 }], years: [{ id: 5, label: '2026/2027', isCurrent: true }], classes: [{ id: 7, label: 'Anglophone — Form1', fees: [{ key: 'tuition_fee', label: 'Tuition', amount: '15000' }] }] }; },
+        list: async () => ({ charges, students: [], years: [], classes: [], totals: { charged: 0n, paid: 0n, balance: 0n }, canManage: true }),
+    };
+    const { createFinanceRouter } = require('../routes/finance/financeRouter');
+    const db = syntheticDatabase(statement => {
+        if (statement.includes('FROM Admins')) return { recordset: [{ id: 1, role: 'admin', name: 'Admin', school_id: 1 }] };
+        if (statement.includes('FROM staff_duties')) return { recordset: [] };
+        throw new Error('unexpected statement: ' + statement);
+    });
+    const app = express();
+    app.set('view engine', 'ejs'); app.set('views', path.join(__dirname, '../views'));
+    app.use((_req, _res, next) => withDatabase(db, next));
+    app.use('/finance', createFinanceRouter({ service }));
+    const base = await serve(t, app);
+    const auth = { headers: { Authorization: `Bearer ${generateToken(1, 'admin')}` } };
+    const page = await (await fetch(base + '/finance/charge?tab=student', auth)).text();
+    assert.match(page, /<section id="panel-student" class="charge-panel">/);
+    assert.match(page, /<section id="panel-class" class="charge-panel" hidden>/);
+    assert.match(page, /data-fees="\[\{&#34;key&#34;:&#34;tuition_fee&#34;/);
+    const list = await (await fetch(base + '/finance?page=3', auth)).text();
+    assert.match(list, /Showing 101–120 of 120 charges/);
+    assert.match(list, /Page 3 of 3/);
+    assert.equal((list.match(/\?charge=\d+/g) || []).length, 20);
+});
+
+test('record payment: one amount applied across a student\'s fees in one transaction, with safe retries', async () => {
+    const charges = {
+        10: { ...openCharge, id: 10, student_id: 4, description: 'Tuition 2026/2027', balance: '100000' },
+        11: { ...openCharge, id: 11, student_id: 4, description: 'PTA levy 2026/2027', balance: '20000' },
+        12: { ...openCharge, id: 12, student_id: 9, description: 'Other student fee', balance: '5000' },
+    };
+    let nextPayment = 500;
+    const { log, beginTransaction } = fakeTransactions((statement, params) => {
+        if (statement.includes('UPDLOCK')) return { recordset: charges[params.charge] ? [{ id: params.charge }] : [] };
+        if (statement.includes('FROM dbo.finance_charges c')) return { recordset: [charges[params.charge]] };
+        if (statement.includes('INSERT dbo.finance_payments')) return { recordset: [{ id: nextPayment++ }] };
+        throw new Error('unexpected ' + statement.slice(0, 60));
+    });
+    const service = createFinanceService({ beginTransaction });
+    const operation = crypto.randomUUID();
+    const base = { student: '4', operation, paidOn: '2026-11-20', method: 'cash' };
+
+    const saved = await service.recordPayment(bursar, { ...base, lines: [{ charge: '10', amount: '100000' }, { charge: '11', amount: '5000' }, { charge: '12', amount: '' }] });
+    assert.deepEqual(saved, { student: 4, paymentIds: [500, 501] }, 'empty lines are skipped');
+    const inserts = log.at(-1).statements.filter(s => s.statement.includes('INSERT dbo.finance_payments'));
+    assert.deepEqual(inserts.map(i => [i.params.charge, i.params.amount, i.params.actor_type, i.params.method]), [[10, '100000', 'auxiliary', 'cash'], [11, '5000', 'auxiliary', 'cash']]);
+    assert.notEqual(inserts[0].params.op, inserts[1].params.op, 'each line has its own operation id');
+    assert.match(inserts[0].params.op, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/);
+    await service.recordPayment(bursar, { ...base, lines: [{ charge: '10', amount: '1' }] });
+    assert.equal(log.at(-1).statements.find(s => s.statement.includes('INSERT')).params.op, inserts[0].params.op, 'resubmitting the same form reuses the same id, so the database refuses a duplicate');
+
+    await assert.rejects(service.recordPayment(bursar, { ...base, lines: [{ charge: '11', amount: '20001' }] }), { statusCode: 409, message: /more than the 20,000 XAF still owed on PTA levy/ });
+    await assert.rejects(service.recordPayment(bursar, { ...base, lines: [{ charge: '12', amount: '100' }] }), { statusCode: 422, message: /selected student/ });
+    await assert.rejects(service.recordPayment(bursar, { ...base, method: 'mobile', lines: [{ charge: '10', amount: '100' }] }), { statusCode: 422, message: /reference/ });
+    await assert.rejects(service.recordPayment(bursar, { ...base, paidOn: '2999-01-01', lines: [{ charge: '10', amount: '100' }] }), { statusCode: 422, message: /future/ });
+    await assert.rejects(service.recordPayment(bursar, { ...base, lines: [{ charge: '10', amount: '' }] }), { statusCode: 422, message: /at least one fee/ });
+    await assert.rejects(service.recordPayment(bursar, { ...base, operation: 'x', lines: [{ charge: '10', amount: '1' }] }), { statusCode: 422 });
+    await assert.rejects(service.recordPayment(teacher, { ...base, lines: [{ charge: '10', amount: '1' }] }), { statusCode: 403 });
+    assert.ok(log.filter(tx => tx.statements?.some(s => s.statement.includes('INSERT')) && !tx.committed).every(tx => tx.rolledBack), 'a refused line rolls back the whole payment');
+});
+
+test('record payment page posts each fee line and opens one combined receipt', async t => {
+    const calls = [];
+    const service = {
+        paymentForm: async () => ({ years: [{ id: 5, name: '2026/2027', isCurrent: true }], yearId: 5, classes: [], classId: null, search: '', students: [], moreStudents: false, today: '2026-11-23',
+            student: { id: 4, name: 'Ada Student', matricule: 'LB-1', classLabel: 'Anglophone — Form1', parentName: 'P', parentPhone: '+237670000000' },
+            charges: [{ ...openCharge, id: 10, dueDate: '2026-10-31', balance: '100000' }, { ...openCharge, id: 11, description: 'PTA levy', dueDate: null, balance: '20000' }], owed: 120000n, overdue: 100000n }),
+        recordPayment: async (_a, b) => { calls.push(b); return { student: 4, paymentIds: [500, 501] }; },
+        receiptGroup: async () => ({ school: { name: 'School' }, lines: [{ id: 500, amount: '100000', charge: { description: 'Tuition', balance: '0' }, receiptNumber: 'PAY-1-500' }, { id: 501, amount: '5000', charge: { description: 'PTA levy', balance: '15000' }, receiptNumber: 'PAY-1-501' }],
+            total: 105000n, student: { id: 4, name: 'Ada Student', matricule: 'LB-1' }, year: '2026/2027', paidOn: '2026-11-23', method: 'cash', reference: '', recordedBy: 'Bursar', recordedAt: new Date(), receiptNumber: 'PAY-1-500-501' }),
+    };
+    const db = syntheticDatabase(statement => {
+        if (statement.includes('FROM Admins')) return { recordset: [{ id: 1, role: 'admin', name: 'Admin', school_id: 1 }] };
+        if (statement.includes('FROM staff_duties')) return { recordset: [] };
+        throw new Error('unexpected statement: ' + statement);
+    });
+    const { createFinanceRouter } = require('../routes/finance/financeRouter');
+    const app = express();
+    app.set('view engine', 'ejs'); app.set('views', path.join(__dirname, '../views'));
+    app.use(express.urlencoded({ extended: false }));
+    app.use((_req, _res, next) => withDatabase(db, next));
+    app.use('/finance', createFinanceRouter({ service }));
+    const base = await serve(t, app);
+    const auth = { Authorization: `Bearer ${generateToken(1, 'admin')}` };
+
+    const page = await (await fetch(base + '/finance/pay?student=4', { headers: auth })).text();
+    assert.match(page, /<input type="number" class="pay-line" name="amount_10" data-balance="100000"/);
+    assert.match(page, /name="amount_11"/);
+    assert.match(page, /100,000 XAF overdue/);
+    assert.match(page, /src="\/js\/finance-pay\.js"/);
+
+    const res = await fetch(base + '/finance/pay', { method: 'POST', redirect: 'manual', headers: { ...auth, 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ operation: crypto.randomUUID(), student: '4', paidOn: '2026-11-23', method: 'cash', reference: '', amount_10: '100000', amount_11: '5000' }).toString() });
+    assert.equal(res.status, 303);
+    assert.equal(res.headers.get('location'), '/finance/receipts?ids=500,501');
+    assert.deepEqual(calls[0].lines, [{ charge: '10', amount: '100000' }, { charge: '11', amount: '5000' }]);
+    const receipt = await (await fetch(base + '/finance/receipts?ids=500,501', { headers: auth })).text();
+    assert.match(receipt, /Total received/);
+    assert.match(receipt, /105,000 XAF/);
+});

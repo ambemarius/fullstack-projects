@@ -78,7 +78,7 @@ test('class broadsheet grades averages out of 20 with the bulletin remarks, one 
 test('teacher panel: sidebar of sections, dashboard first, each section keeps the elements its scripts use', () => {
     const html = fs.readFileSync(path.join(__dirname, '../views/teacher-dashboard.ejs'), 'utf8');
     const links = [...html.matchAll(/class="tp-link" href="#(\w+)" data-tab="(\w+)"/g)].map(m => { assert.equal(m[1], m[2]); return m[1]; });
-    assert.deepEqual(links, ['dashboard', 'timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'duties', 'profile']);
+    assert.deepEqual(links, ['dashboard', 'timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'discipline', 'duties', 'profile']);
     assert.match(html, /<h2 class="tp-section">Teaching tools<\/h2>/);
     assert.match(html, /id="tw-dashboard" aria-labelledby="tpTitle">/, 'the dashboard section is visible first');
     for (const id of ['timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'duties', 'profile']) {
@@ -92,6 +92,9 @@ test('teacher panel: sidebar of sections, dashboard first, each section keeps th
     assert.match(panel('students'), /id="studentClasses"[\s\S]*id="studentRows"/);
     assert.match(panel('marks'), /id="msForm"[\s\S]*id="msSheet"/);
     assert.match(html, /href="#duties" data-tab="duties" id="tw-tab-duties" hidden/, 'duties only for teachers with a duty');
+    assert.match(html, /href="#discipline" data-tab="discipline" id="tw-tab-discipline" hidden/, 'discipline only for a discipline master');
+    assert.match(html, /id="tw-discipline" aria-labelledby="tpTitle" hidden>[\s\S]*id="discForm"[\s\S]*id="discBody"/);
+    assert.match(html, /<script src="\/js\/teacher-discipline\.js"><\/script>/);
     assert.match(html, /id="tpMenuBtn" aria-label="Open menu" aria-controls="tpSidebar" aria-expanded="false"/, 'mobile menu button');
     assert.match(html, /id="twAttCount" hidden/);
     assert.match(html, /id="logoutBtn"/);
@@ -122,4 +125,61 @@ test('teacher Enter marks filter: class and subject, term and open button on one
     assert.match(css, /\.tp-mk-row \{ grid-template-columns: minmax\(0, 2fr\) minmax\(0, 1fr\) auto; \}/);
     const js = fs.readFileSync(path.join(__dirname, '../public/js/teacher-dashboard.js'), 'utf8');
     assert.match(js, /document\.getElementById\('msLoadBtn'\)\.disabled = !complete;/);
+});
+
+test('student panel: sidebar of sections like the teacher panel, overview first, every section keeps its elements', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../views/student-dashboard.ejs'), 'utf8');
+    const links = [...html.matchAll(/class="tp-link" href="#(\w+)" data-tab="(\w+)"/g)].map(m => { assert.equal(m[1], m[2]); return m[1]; });
+    assert.deepEqual(links, ['overview', 'results', 'attendance', 'loans', 'timetable']);
+    assert.match(html, /<body class="lms-ui tp-body">/);
+    assert.match(html, /id="sp-overview" aria-labelledby="tpTitle">/, 'the overview is visible first');
+    for (const id of ['results', 'attendance', 'loans', 'timetable']) assert.match(html, new RegExp(`id="sp-${id}" aria-labelledby="tpTitle" hidden>`));
+    for (const id of ['welcome', 'profile', 'resultsTerm', 'resultsTable', 'resultsEmpty', 'myAttendance', 'attTerm', 'attTotals', 'attRecent', 'myLoans', 'ttTerm', 'ttGrid', 'logoutBtn', 'tpMenuBtn']) {
+        assert.match(html, new RegExp(`id="${id}"`), `${id} is still on the page`);
+    }
+    assert.ok(html.indexOf('/js/student-panel.js') < html.indexOf('/js/student-dashboard.js'), 'the panel script loads first');
+    const js = fs.readFileSync(path.join(__dirname, '../public/js/student-panel.js'), 'utf8');
+    assert.match(js, /show\(location\.hash\.slice\(1\) \|\| 'overview'/);
+    assert.match(js, /l\.setAttribute\('aria-current', 'page'\)/);
+});
+
+test('parent panel: same sidebar layout as the student panel, one child at a time, shared results table', () => {
+    const html = fs.readFileSync(path.join(__dirname, '../views/parent-dashboard.ejs'), 'utf8');
+    const links = [...html.matchAll(/class="tp-link" href="#(\w+)" data-tab="(\w+)"/g)].map(m => m[1]);
+    assert.deepEqual(links, ['overview', 'results', 'attendance', 'loans']);
+    assert.match(html, /<body class="lms-ui tp-body" data-panel="Parent">/);
+    assert.match(html, /id="sp-overview" aria-labelledby="tpTitle">/);
+    for (const id of ['results', 'attendance', 'loans']) assert.match(html, new RegExp(`id="sp-${id}" aria-labelledby="tpTitle" hidden>`));
+    for (const id of ['welcome', 'childrenList', 'childrenEmpty', 'linkChild', 'linkChildForm', 'linkMatricule', 'linkRelationship', 'linkChildBtn', 'linkMsg',
+        'childSelect', 'reportTable', 'reportEmpty', 'resultsTerm', 'childAttTotals', 'childAttRecent', 'childLoans', 'logoutBtn']) {
+        assert.match(html, new RegExp(`id="${id}"`), `${id} is on the page`);
+    }
+    const order = ['student-panel.js', 'results-table.js', 'parent-dashboard.js'].map(f => html.indexOf('/js/' + f));
+    assert.ok(order.every((v, i) => v > 0 && (i === 0 || v > order[i - 1])), 'panel, then results table, then the parent script');
+    const student = fs.readFileSync(path.join(__dirname, '../views/student-dashboard.ejs'), 'utf8');
+    assert.match(student, /\/js\/results-table\.js/, 'students and parents share one results table');
+});
+
+test('results table: sequences numbered across the year, averages per term and for the year', () => {
+    const src = fs.readFileSync(path.join(__dirname, '../public/js/results-table.js'), 'utf8');
+    const window = {}, esc = v => String(v);
+    new Function('window', 'esc', src)(window, esc);
+    const el = () => ({ innerHTML: '', style: {}, textContent: '' });
+    const parts = { thead: el(), tbody: el(), tfoot: el() };
+    const table = { style: {}, querySelector: s => parts[s] };
+    const rows = [
+        { subjectName: 'Maths', term: 'First', sequence: 1, score: 12, max_score: 20 },
+        { subjectName: 'Maths', term: 'First', sequence: 2, score: 16, max_score: 20 },
+        { subjectName: 'Maths', term: 'Second', sequence: 1, score: 8, max_score: 20 },
+    ];
+    window.ResultsTable.render({ table, empty: el(), rows, term: 'First' });
+    assert.match(parts.thead.innerHTML, /Seq\. 1<\/th><th class="num">Seq\. 2<\/th><th class="num sp-avg">Average Seq\. 1 &amp; 2|Average Seq\. 1 & 2/);
+    assert.match(parts.tbody.innerHTML, /<strong>14<\/strong>/, '(12 + 16) / 2');
+    window.ResultsTable.render({ table, empty: el(), rows, term: 'Second' });
+    assert.match(parts.thead.innerHTML, /Seq\. 3[\s\S]*Seq\. 4[\s\S]*Average Seq\. 3 & 4/);
+    window.ResultsTable.render({ table, empty: el(), rows, term: '' });
+    assert.match(parts.thead.innerHTML, /Seq\. 1[\s\S]*Seq\. 6[\s\S]*Year average/);
+    assert.match(parts.tbody.innerHTML, /<strong>12<\/strong>/, '(12 + 16 + 8) / 3');
+    const picked = window.ResultsTable.pickYear([{ yearId: 4, yearName: 'Old' }, { yearId: 5, yearName: 'Now', yearIsCurrent: true }]);
+    assert.deepEqual(picked.rows.map(r => r.yearId), [5]);
 });

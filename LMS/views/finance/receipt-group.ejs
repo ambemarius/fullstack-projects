@@ -1,0 +1,31 @@
+<%- include('shell',{pageTitle:'Payment receipt',active:'pay'}) %>
+<p class="no-print"><a href="<%= base %>/pay">Record another payment</a> · <a href="<%= base %>/pay?student=<%= student.id %>">Back to <%= student.name %></a></p>
+<h1>Payment receipt</h1>
+<h2><%= school.name %></h2>
+<p>Receipt <strong><%= receiptNumber %></strong></p>
+<dl>
+  <dt>Student</dt><dd><%= student.name %> · <%= student.matricule %></dd>
+  <dt>Academic year</dt><dd><%= year %></dd>
+  <dt>Payment date</dt><dd><%= paidOn %></dd>
+  <dt>Method</dt><dd><%= methodLabel(method) %></dd>
+  <dt>Transaction reference</dt><dd><%= reference || '—' %></dd>
+  <dt>Received by</dt><dd><%= recordedBy %></dd>
+  <dt>Recorded at (UTC)</dt><dd><%= recordedAt.toISOString() %></dd>
+</dl>
+<div class="table-wrap"><table>
+  <thead><tr><th>Fee</th><th>Line receipt</th><th class="numeric">Amount</th><th class="numeric">Still owed on this fee</th></tr></thead>
+  <tbody>
+  <% lines.forEach(l => { %>
+    <tr<%- l.reversed ? ' class="reversed"' : '' %>>
+      <td><span class="cell-primary"><%= l.charge.description %></span><% if (l.reversed) { %><span class="cell-meta">REVERSED: <%= l.reversed %></span><% } %></td>
+      <td><a href="<%= base %>/receipt/<%= l.id %>"><%= l.receiptNumber %></a></td>
+      <td class="numeric"><%= formatMoney(l.amount) %></td>
+      <td class="numeric"><%= formatMoney(l.charge.balance) %></td>
+    </tr>
+  <% }) %>
+  </tbody>
+  <tfoot><tr><th colspan="2">Total received</th><th class="numeric"><%= formatMoney(total) %></th><th></th></tr></tfoot>
+</table></div>
+<p class="receipt-sign">Bursar's signature: ______________________</p>
+<button id="print-receipt" type="button">Print receipt</button>
+<%- include('end') %>

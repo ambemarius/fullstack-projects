@@ -49,6 +49,10 @@ async function defaultTransaction() {
 
 function createAttendanceService({ beginTransaction = defaultTransaction, clock = today } = {}) {
     const supervisor = actor => actor.type === 'admin' || (actor.duties || []).includes('discipline_master');
+    // actor.disciplineClasses: the classes a discipline master looks after, or null/undefined for the whole school.
+    const scopeOf = actor => (actor.type === 'admin' || !Array.isArray(actor.disciplineClasses) ? null : actor.disciplineClasses);
+    const oversees = (actor, classId) => supervisor(actor) && (scopeOf(actor) === null || scopeOf(actor).includes(Number(classId)));
+    const notYourClass = 'You are the discipline master for other classes. Ask an administrator to add this class to your classes.';
 
     function who(actor) {
         if (!actor || !Number.isSafeInteger(actor.id)) throw fail(401, 'Authentication required');
@@ -83,10 +87,10 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         }
     }
 
-    function checkDate(actor, lessonDate, { owner }) {
+    function checkDate(actor, lessonDate, { owner, classId }) {
         const now = clock();
         if (lessonDate > now) throw fail(422, 'Attendance cannot be recorded for a future date.');
-        if (!supervisor(actor)) {
+        if (!oversees(actor, classId)) {
             if (!owner) throw fail(403, 'Only the lesson’s teacher, an administrator or the discipline master can record this register.');
             if (lessonDate < addDays(now, -TEACHER_WINDOW_DAYS)) throw fail(403, `Teachers can record attendance up to ${TEACHER_WINDOW_DAYS} days back. Ask the discipline master to correct older registers.`);
         }
@@ -117,6 +121,7 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         who(actor);
         if (!supervisor(actor)) throw fail(403, 'Only administrators and the discipline master can open any class register.');
         const d = date(q.date || clock()), tm = term(q.term || 'First'), classId = id(q.classId, 'class');
+        if (!oversees(actor, classId)) throw fail(403, notYourClass);
         const rows = (await read(actor, LESSONS_SQL + ' AND t.class_id=@class ORDER BY t.start_time',
             { date: [sql.Date, d], term: [sql.NVarChar(10), tm], day: [sql.NVarChar(10), weekday(d)], class: [sql.Int, classId] })).recordset;
         return { date: d, day: weekday(d), term: tm, lessons: rows, canMark: d <= clock() };
@@ -131,7 +136,7 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
                 WHERE t.school_id=@school AND t.id=@tt`, { tt: [sql.Int, timetableId] })).recordset[0];
             if (!t) throw fail(404, 'Lesson not found in this school’s timetable.');
             if (t.day_of_week !== weekday(d)) throw fail(422, `This lesson is on ${t.day_of_week}; ${d} is a ${weekday(d)}.`);
-            checkDate(actor, d, { owner: actor.type === 'teacher' && actor.id === t.teacher_id });
+            checkDate(actor, d, { owner: actor.type === 'teacher' && actor.id === t.teacher_id, classId: t.class_id });
             const existing = (await query('SELECT id FROM dbo.attendance_registers WHERE school_id=@school AND class_id=@class AND lesson_date=@date AND start_time=@start',
                 { class: [sql.Int, t.class_id], date: [sql.Date, d], start: [sql.NVarChar(5), t.start_time] })).recordset[0];
             if (existing) return { id: existing.id, created: false };
@@ -161,15 +166,15 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         const rid = id(registerId, 'register');
         const register = await loadRegister(actor, rid);
         const owner = actor.type === 'teacher' && actor.id === register.teacherId;
-        if (!owner && !supervisor(actor)) throw fail(403, 'You can only open registers for your own lessons.');
+        if (!owner && !oversees(actor, register.classId)) throw fail(403, supervisor(actor) ? notYourClass : 'You can only open registers for your own lessons.');
         const students = (await read(actor, `SELECT p.id studentId,p.firstName+' '+p.lastName name,p.matricule,
               cm.status,cm.minutes_late minutesLate,cm.justified,cm.justification,cm.revision,cm.recorded_at recordedAt
             FROM dbo.students p LEFT JOIN (${CURRENT_MARKS}) cm ON cm.register_id=@register AND cm.student_id=p.id
             WHERE p.school_id=@school AND ((p.currentClassLevel=@class AND p.isWithdrawn=0) OR cm.id IS NOT NULL)
             ORDER BY p.lastName,p.firstName,p.id`, { register: [sql.Int, rid], class: [sql.Int, register.classId] })).recordset;
         let canEdit = true;
-        try { checkDate(actor, register.lessonDate, { owner }); } catch { canEdit = false; }
-        return { register, students, canEdit, canJustify: supervisor(actor) };
+        try { checkDate(actor, register.lessonDate, { owner, classId: register.classId }); } catch { canEdit = false; }
+        return { register, students, canEdit, canJustify: oversees(actor, register.classId) };
     }
 
     async function saveMarks(actor, registerId, body) {
@@ -192,7 +197,7 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         const reason = typeof body.reason === 'string' && body.reason.trim() ? body.reason.trim().slice(0, 300) : null;
         return write(actor, async query => {
             const register = await loadRegister(actor, rid, query);
-            checkDate(actor, register.lessonDate, { owner: actor.type === 'teacher' && actor.id === register.teacherId });
+            checkDate(actor, register.lessonDate, { owner: actor.type === 'teacher' && actor.id === register.teacherId, classId: register.classId });
             const params = { register: [sql.Int, rid], class: [sql.Int, register.classId] };
             const roster = (await query(`SELECT p.id studentId,cm.status,cm.minutes_late minutesLate,cm.justified,cm.justification,cm.revision
                 FROM dbo.students p LEFT JOIN (${CURRENT_MARKS}) cm ON cm.register_id=@register AND cm.student_id=p.id
@@ -228,7 +233,7 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         who(actor);
         const rid = id(registerId, 'register'), sid = id(studentId, 'student');
         const register = await loadRegister(actor, rid);
-        if (!(actor.type === 'teacher' && actor.id === register.teacherId) && !supervisor(actor)) throw fail(403, 'You can only view history for your own lessons.');
+        if (!(actor.type === 'teacher' && actor.id === register.teacherId) && !oversees(actor, register.classId)) throw fail(403, 'You can only view history for your own lessons.');
         return (await read(actor, `SELECT m.revision,m.status,m.minutes_late minutesLate,m.justified,m.justification,m.reason,m.recorded_at recordedAt,${editorName} editor
             FROM dbo.attendance_marks m ${editorJoins('m')}
             WHERE m.school_id=@school AND m.register_id=@register AND m.student_id=@student ORDER BY m.revision`,
@@ -241,6 +246,8 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         const rid = id(body.registerId, 'register'), sid = id(body.studentId, 'student');
         const justification = text(body.justification, 300, 'A justification');
         return write(actor, async query => {
+            const register = await loadRegister(actor, rid, query);
+            if (!oversees(actor, register.classId)) throw fail(403, notYourClass);
             const cur = (await query(`SELECT cm.* FROM (${CURRENT_MARKS}) cm WHERE cm.register_id=@register AND cm.student_id=@student`,
                 { register: [sql.Int, rid], student: [sql.Int, sid] })).recordset[0];
             if (!cur) throw fail(404, 'No mark recorded for this student in this register.');
@@ -261,16 +268,20 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         const to = date(q.to || clock()), from = date(q.from || addDays(to, -13));
         if (from > to || (Date.parse(to) - Date.parse(from)) / 86400000 > 120) throw fail(422, 'Choose a date range of up to 120 days.');
         const classId = q.classId ? id(q.classId, 'class') : null;
-        const rows = (await read(actor, `SELECT TOP(501) r.id registerId,CONVERT(char(10),r.lesson_date,23) lessonDate,r.start_time startTime,r.end_time endTime,r.minutes,
+        if (classId && !oversees(actor, classId)) throw fail(403, notYourClass);
+        const scope = scopeOf(actor);
+        const scopeSql = !classId && scope ? ` AND r.class_id IN (${scope.map(Number).filter(Number.isSafeInteger).join(',') || 'NULL'})` : '';
+        const rows = (await read(actor, `SELECT TOP(2001) r.id registerId,r.class_id classId,te.name teacherName,CONVERT(char(10),r.lesson_date,23) lessonDate,r.start_time startTime,r.end_time endTime,r.minutes,
               c.section+' — '+c.name+COALESCE(' ('+c.stream+')','') className,s.name subjectName,
               p.id studentId,p.firstName+' '+p.lastName student,p.matricule,cm.status,cm.minutes_late minutesLate,cm.justified,cm.justification
             FROM dbo.attendance_registers r JOIN (${CURRENT_MARKS}) cm ON cm.register_id=r.id
             JOIN dbo.students p ON p.id=cm.student_id JOIN dbo.classes c ON c.id=r.class_id LEFT JOIN dbo.subjects s ON s.id=r.subject_id
+            LEFT JOIN dbo.teachers te ON te.id=r.teacher_id
             WHERE r.school_id=@school AND r.lesson_date BETWEEN @from AND @to AND cm.status<>'present'
-              AND (@class IS NULL OR r.class_id=@class) AND (@pending=0 OR cm.justified=0)
+              AND (@class IS NULL OR r.class_id=@class) AND (@pending=0 OR cm.justified=0)${scopeSql}
             ORDER BY r.lesson_date DESC,r.start_time,p.lastName,p.firstName`,
             { from: [sql.Date, from], to: [sql.Date, to], class: [sql.Int, classId], pending: [sql.Bit, q.pending === '1' || q.pending === true ? 1 : 0] })).recordset;
-        if (rows.length > 500) throw fail(422, 'More than 500 entries. Narrow the dates or choose a class.');
+        if (rows.length > 2000) throw fail(422, 'More than 2,000 entries. Narrow the dates or choose a class.');
         return { from, to, classId, rows };
     }
 
@@ -300,6 +311,7 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
         who(actor);
         if (!supervisor(actor)) throw fail(403, 'Only administrators and the discipline master can view class attendance.');
         const classId = id(q.classId, 'class'), yearId = id(q.yearId, 'academic year'), tm = term(q.term);
+        if (!oversees(actor, classId)) throw fail(403, notYourClass);
         const totals = await classTotals(actor, { classId, yearId, term: tm });
         const students = (await read(actor, `SELECT id studentId,firstName+' '+lastName name,matricule FROM dbo.students
             WHERE school_id=@school AND currentClassLevel=@class AND isWithdrawn=0 ORDER BY lastName,firstName`, { class: [sql.Int, classId] })).recordset;
@@ -325,12 +337,14 @@ function createAttendanceService({ beginTransaction = defaultTransaction, clock 
     async function options(actor) {
         who(actor);
         if (!supervisor(actor)) throw fail(403, 'Only administrators and the discipline master can view class attendance.');
-        const classes = (await read(actor, `SELECT id,section+' — '+name+COALESCE(' ('+stream+')','') label FROM dbo.classes WHERE school_id=@school ORDER BY section,rank,name`)).recordset;
+        const scope = scopeOf(actor);
+        const classes = (await read(actor, `SELECT id,section+' — '+name+COALESCE(' ('+stream+')','') label FROM dbo.classes WHERE school_id=@school ORDER BY section,rank,name`)).recordset
+            .filter(c => scope === null || scope.includes(c.id));
         const years = (await read(actor, 'SELECT id,name label,isCurrent FROM dbo.academic_years WHERE school_id=@school ORDER BY fromYear DESC')).recordset;
-        return { classes, years, today: clock() };
+        return { classes, years, today: clock(), wholeSchool: scope === null };
     }
 
-    return { options, myLessons, classLessons, openRegister, getRegister, saveMarks, history, justify, absences, classSummary, classTotals, studentSummary, supervisor };
+    return { options, myLessons, classLessons, openRegister, getRegister, saveMarks, history, justify, absences, classSummary, classTotals, studentSummary, supervisor, oversees };
 }
 
 module.exports = { createAttendanceService, TERMS, weekday, minutesBetween, today };

@@ -40,6 +40,9 @@ function requireStaff({ duties = [], allowAdmin = true, allowTeacher = false, an
                 || held.some(d => duties.includes(d));
             if (!allowed) return next(fail(403, 'Your account does not have this duty'));
 
+            // A discipline master may look after chosen classes only (null = the whole school).
+            const disciplineClasses = held.includes('discipline_master') ? await StaffDuty.disciplineClasses(type, claims.id) : null;
+
             const { password: _omit, ...safe } = account;
             req.userAuth = safe;
             req.auth = { accountType: type, legacyId: claims.id };
@@ -49,6 +52,7 @@ function requireStaff({ duties = [], allowAdmin = true, allowTeacher = false, an
                 id: claims.id,
                 name: account.name,
                 duties: Object.freeze(held),
+                disciplineClasses: disciplineClasses ? Object.freeze(disciplineClasses) : null,
             });
             next();
         } catch (err) {

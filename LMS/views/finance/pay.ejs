@@ -1,0 +1,91 @@
+<%- include('shell',{pageTitle:'Record payment',active:'pay'}) %>
+<% const yearName = (years.find(y => y.id === yearId) || {}).name || 'all years'; %>
+<div class="page-heading">
+  <div>
+    <h1>Record payment</h1>
+    <p>Find the student, check what they owe, enter the amount received and print the receipt.</p>
+  </div>
+  <div class="heading-actions"><a class="button secondary" href="<%= base %>/outstanding">Outstanding balances</a></div>
+</div>
+
+<% if (!student) { %>
+<form method="get" class="pay-find">
+  <h2>1. Find the student</h2>
+  <div class="fields">
+    <label>Name or matricule<input name="search" maxlength="120" value="<%= search %>" placeholder="e.g. Ayuk or TST26-04" autofocus></label>
+    <label>Class (optional)<select name="class"><option value="">All classes</option><% classes.forEach(c => { %><option value="<%= c.id %>" <%= c.id === classId ? 'selected' : '' %>><%= c.label %></option><% }) %></select></label>
+    <label>Academic year<select name="year"><% years.forEach(y => { %><option value="<%= y.id %>" <%= y.id === yearId ? 'selected' : '' %>><%= y.name %><%= y.isCurrent ? ' (current)' : '' %></option><% }) %></select></label>
+  </div>
+  <button>Find student</button>
+</form>
+<% if (search || classId) { %>
+  <% if (moreStudents) { %><p class="notice">Showing the first 100 students. Type more of the name or matricule to narrow the list.</p><% } %>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Student</th><th>Class</th><th class="numeric">Owes (<%= yearName %>)</th><th><span class="sr-only">Select</span></th></tr></thead>
+    <tbody>
+    <% students.forEach(s => { const owes = BigInt(s.balance); %>
+      <tr>
+        <td><span class="cell-primary"><%= s.name %></span><span class="cell-meta"><%= s.matricule %></span></td>
+        <td><%= (classes.find(c => c.id === s.classId) || {}).label || '—' %></td>
+        <td class="numeric"><%= owes > 0n ? formatMoney(s.balance) : 'Nothing owed' %></td>
+        <td><a class="button<%= owes > 0n ? '' : ' secondary' %>" href="?<%= new URLSearchParams({ student: s.id, year: yearId || '' }).toString() %>">Select</a></td>
+      </tr>
+    <% }) %>
+    <% if (!students.length) { %><tr><td colspan="4" class="empty"><strong>No student found</strong>Check the spelling, or search by matricule.</td></tr><% } %>
+    </tbody>
+  </table></div>
+<% } %>
+<% } else { %>
+<section class="pay-student">
+  <div>
+    <h2><%= student.name %></h2>
+    <p class="cell-meta"><%= student.matricule %><%= student.classLabel ? ', ' + student.classLabel : '' %><%= student.parentName ? '. Parent: ' + student.parentName : '' %><%= student.parentPhone ? ', ' + student.parentPhone : '' %></p>
+  </div>
+  <div class="pay-owed">
+    <span>Owes for <%= yearName %></span>
+    <strong><%= formatMoney(owed) %></strong>
+    <% if (overdue > 0n) { %><span class="pay-overdue"><%= formatMoney(overdue) %> overdue</span><% } %>
+  </div>
+  <p class="no-print pay-change"><a href="<%= base %>/pay">Choose another student</a> · <a href="<%= base %>/statements?student=<%= student.id %>&year=<%= yearId %>">Statement</a></p>
+</section>
+
+<% if (!charges.length) { %>
+  <div class="table-wrap"><p class="empty"><strong>Nothing to pay</strong><%= student.name %> has no outstanding fees for <%= yearName %>. Choose another year above, or charge a fee first.</p></div>
+  <form method="get" class="toolbar"><input type="hidden" name="student" value="<%= student.id %>"><label>Academic year<select name="year"><% years.forEach(y => { %><option value="<%= y.id %>" <%= y.id === yearId ? 'selected' : '' %>><%= y.name %></option><% }) %></select></label><button>Show</button></form>
+<% } else { %>
+<form method="post" action="<%= base %>/pay" id="payForm" class="pay-form" data-owed="<%= owed %>">
+  <%- include('operation') %>
+  <input type="hidden" name="student" value="<%= student.id %>">
+  <h2>2. Payment received</h2>
+  <div class="fields">
+    <label>Amount received (whole XAF)<input type="number" id="payTotal" min="1" max="<%= owed %>" step="1" inputmode="numeric" required autofocus placeholder="e.g. 25000"></label>
+    <label>Payment date<input type="date" name="paidOn" value="<%= today %>" max="<%= today %>" required></label>
+    <label>Method<select name="method" id="payMethod" required>
+      <option value="cash">Cash</option><option value="mobile">Mobile money</option><option value="bank">Bank transfer</option><option value="other">Other</option>
+    </select></label>
+    <label>Reference <span class="cell-meta" id="payRefHint">(optional for cash)</span><input name="reference" id="payReference" maxlength="100" placeholder="Transaction or receipt book number"></label>
+  </div>
+
+  <h2>3. Fees it pays</h2>
+  <p class="cell-meta">The amount is applied to the earliest-due fees first. Change any line if the parent asked otherwise.</p>
+  <div class="table-wrap"><table class="pay-lines">
+    <thead><tr><th>Fee</th><th>Due date</th><th class="numeric">Still owed</th><th class="numeric">Pay now (XAF)</th></tr></thead>
+    <tbody>
+    <% charges.forEach(c => { const late = c.dueDate && c.dueDate < today; %>
+      <tr>
+        <td><span class="cell-primary"><%= c.description %></span><span class="cell-meta"><%= c.year %></span></td>
+        <td><%= c.dueDate || 'Not set' %><% if (late) { %> <span class="status status-overdue">Overdue</span><% } %></td>
+        <td class="numeric"><%= formatMoney(c.balance) %></td>
+        <td class="numeric"><input type="number" class="pay-line" name="amount_<%= c.id %>" data-balance="<%= c.balance %>" min="0" max="<%= c.balance %>" step="1" inputmode="numeric" placeholder="0" aria-label="Pay now for <%= c.description %>"></td>
+      </tr>
+    <% }) %>
+    </tbody>
+    <tfoot><tr><th colspan="3">Total to record</th><th class="numeric" id="payApplied">0 XAF</th></tr></tfoot>
+  </table></div>
+  <p class="pay-check" id="payCheck" role="status" aria-live="polite"></p>
+  <button id="paySave">Save payment and print receipt</button>
+</form>
+<script src="/js/finance-pay.js" defer></script>
+<% } %>
+<% } %>
+<%- include('end') %>

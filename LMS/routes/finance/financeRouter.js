@@ -49,7 +49,38 @@ function createFinanceRouter({ service = createFinanceService() } = {}) {
             return res.render('finance/charge', locals(req, { ...data, saved: req.query.saved === '1' }));
         }
         const data = await service.list(req.actor, search);
-        res.render('finance/index', locals(req, { ...data, search }));
+        // 50 charges per page; the totals above the list still cover every matching charge.
+        const perPage = 50, pages = Math.max(1, Math.ceil(data.charges.length / perPage));
+        const page = Math.min(pages, Math.max(1, Number.parseInt(req.query.page, 10) || 1));
+        const pageQuery = p => new URLSearchParams({ ...(search ? { search } : {}), page: p }).toString();
+        res.render('finance/index', locals(req, {
+            ...data, search, totalCharges: data.charges.length, charges: data.charges.slice((page - 1) * perPage, page * perPage),
+            page, pages, perPage, pageQuery,
+        }));
+    }));
+
+    // Record payment: find the student, see what they owe, apply the amount received, get one receipt.
+    router.get('/pay', handle(async (req, res) => {
+        const data = await service.paymentForm(req.actor, {
+            search: typeof req.query.search === 'string' ? req.query.search : '', class: req.query.class, student: req.query.student, year: req.query.year,
+        });
+        res.render('finance/pay', locals(req, data));
+    }));
+    router.post('/pay', handle(async (req, res) => {
+        const body = req.body || {};
+        // Each open fee is posted as amount_<chargeId>.
+        const lines = Object.entries(body).filter(([k]) => /^amount_\d+$/.test(k)).map(([k, v]) => ({ charge: k.slice(7), amount: String(v).trim() }));
+        const saved = await service.recordPayment(req.actor, { ...body, lines });
+        res.redirect(303, `${BASE}/receipts?ids=${saved.paymentIds.join(',')}`);
+    }));
+    router.get('/receipts', handle(async (req, res) => {
+        res.render('finance/receipt-group', locals(req, await service.receiptGroup(req.actor, req.query.ids)));
+    }));
+
+    // Charge a class (batch, reviewed before saving) or one student: its own page, forms at the top.
+    router.get('/charge', handle(async (req, res) => {
+        const data = await service.chargeForm(req.actor);
+        res.render('finance/new-charges', locals(req, { ...data, tab: req.query.tab === 'student' ? 'student' : 'class' }));
     }));
 
     router.post('/', handle(async (req, res) => {

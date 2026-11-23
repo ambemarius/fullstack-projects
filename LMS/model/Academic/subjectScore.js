@@ -130,10 +130,12 @@ const SubjectScoreModel = {
         const result = await pool.request()
             .input('studentId', sql.Int, studentId)
             .query(`SELECT ss.term, ss.sequence, ss.score, ss.max_score,
-                           subj.name AS subjectName, subj.code AS subjectCode
+                           subj.name AS subjectName, subj.code AS subjectCode,
+                           ss.academic_year_id AS yearId, ay.name AS yearName, ay.isCurrent AS yearIsCurrent
                     FROM subject_scores ss
                     JOIN class_subjects cs ON cs.id = ss.class_subject_id
                     JOIN subjects subj ON subj.id = cs.subject_id
+                    LEFT JOIN academic_years ay ON ay.id = ss.academic_year_id
                     WHERE ss.student_id = @studentId
                     ORDER BY ss.term, subj.name, ss.sequence`);
         return result.recordset;

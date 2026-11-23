@@ -80,7 +80,7 @@
       <td class="numeric"><%= BigInt(s.overdue) > 0n ? formatMoney(s.overdue) : '—' %></td>
       <td><%= s.lastPaid || 'No payment yet' %></td>
       <td><span class="status <%= css %>"><%= label %></span></td>
-      <td class="no-print row-links"><% if (BigInt(s.balance) > 0n) { %><a href="<%= base %>?search=<%= encodeURIComponent(s.matricule) %>">Record payment</a><% } %><a href="<%= base %>/statements?student=<%= s.id %>&year=<%= yearId %>">Statement</a></td>
+      <td class="no-print row-links"><% if (BigInt(s.balance) > 0n) { %><a href="<%= base %>/pay?student=<%= s.id %>&year=<%= yearId %>">Record payment</a><% } %><a href="<%= base %>/statements?student=<%= s.id %>&year=<%= yearId %>">Statement</a></td>
     </tr>
   <% }) %>
   <% if (!students.length) { %><tr><td colspan="9" class="empty"><strong><%= show === 'all' ? 'No students in this class' : 'Nobody in this class owes anything' %></strong><%= show === 'all' ? 'Students appear here once they are registered.' : 'Every student has paid all recorded charges.' %></td></tr><% } %>

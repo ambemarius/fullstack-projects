@@ -1,6 +1,6 @@
 <a class="finance-brand" href="<%= home %>"><span class="brand-mark">LB</span><span>LYCEE BATOURI<small>School management</small></span></a>
 <p class="nav-section">FINANCE</p>
 <nav aria-label="Finance">
-<% for(const [key,label,suffix,path] of [['charges','Charges','', 'M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h4'],['collections','Collections','/collections','M5 19V9 M12 19V5 M19 19v-7'],['outstanding','Outstanding balances','/outstanding','M12 3v18 M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6'],['statements','Student statements','/statements','M8 3h8l4 4v14H4V3h4 M8 11h8 M8 15h6']]){ %>
+<% for(const [key,label,suffix,path] of [['charges','Charges','', 'M4 4h16v16H4z M8 8h8 M8 12h8 M8 16h4'],['pay','Record payment','/pay','M3 7h18v10H3z M3 11h18 M7 15h3'],['charge','Charge a class','/charge','M12 5v14 M5 12h14'],['collections','Collections','/collections','M5 19V9 M12 19V5 M19 19v-7'],['outstanding','Outstanding balances','/outstanding','M12 3v18 M17 7H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6'],['statements','Student statements','/statements','M8 3h8l4 4v14H4V3h4 M8 11h8 M8 15h6']]){ %>
 <a href="<%= base %><%= suffix %>" <%- active===key?'aria-current="page"':'' %>><svg viewBox="0 0 24 24" aria-hidden="true"><path d="<%= path %>"/></svg><%= label %></a><% } %>
 </nav><div class="nav-bottom"><a href="<%= home %>"><span aria-hidden="true">←</span> Back to my dashboard</a><p>Amounts in CFA francs<small>Whole XAF only</small></p></div>

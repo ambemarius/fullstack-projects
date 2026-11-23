@@ -1,70 +1,141 @@
-<%- include('partials/header', { title: 'Parent Dashboard' }) %>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Parent Dashboard – Lycée Batouri</title>
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
+<%- include('partials/workspace-assets') %></head>
+<% const icon = name => include('partials/hub-icon', { icon: name }); %>
+<body class="lms-ui tp-body" data-panel="Parent">
+  <a class="skip-link" href="#tpContent">Skip to content</a>
 
-<div class="card">
-  <div class="page-head">
-    <div>
-      <h1>Parent / Guardian Dashboard</h1>
-      <p id="welcome" class="welcome">Loading&hellip;</p>
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="tp-sidebar" id="tpSidebar" aria-label="Parent panel">
+    <div class="tp-brand">
+      <div class="tp-brand-name">LYCEE<br>BATOURI</div>
+      <div class="tp-brand-panel">Parent panel</div>
     </div>
-    <button id="logoutBtn" class="btn btn-secondary">Sign out</button>
-  </div>
-</div>
+    <nav class="tp-nav" aria-label="Parent sections">
+      <a class="tp-link" href="#overview" data-tab="overview"><%- icon('people') %><span>My children</span></a>
+      <a class="tp-link" href="#results" data-tab="results"><%- icon('book') %><span>Results</span></a>
+      <a class="tp-link" href="#attendance" data-tab="attendance"><%- icon('usercheck') %><span>Attendance</span></a>
+      <a class="tp-link" href="#loans" data-tab="loans"><%- icon('library') %><span>Library loans</span></a>
+    </nav>
+    <div class="tp-side-foot">
+      <button type="button" class="tp-signout" data-signout><svg class="hub-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button>
+    </div>
+  </aside>
+  <div class="tp-overlay" id="tpOverlay" hidden></div>
 
-<div class="card" id="childrenCard">
-  <h2>My children</h2>
-  <div id="childrenList"></div>
-  <div id="childrenEmpty" class="empty-state" style="display:none">
-    <div class="empty-state-icon"><%- include('partials/hub-icon', { icon: 'people' }) %></div>
-    <h3>No children linked yet</h3>
-    <p>Link a child below using the matricule on their school documents. The phone number on the student's record must match the one on your account.</p>
-  </div>
-  <details id="linkChild">
-    <summary>Link a child</summary>
-    <form id="linkChildForm" class="assign-form">
-      <label>Student matricule
-        <input id="linkMatricule" required autocomplete="off" placeholder="e.g. LB2024-0153" />
-      </label>
-      <label>Relationship
-        <select id="linkRelationship" required>
-          <option value="Mother">Mother</option>
-          <option value="Father">Father</option>
-          <option value="Guardian">Guardian</option>
-        </select>
-      </label>
-      <button type="submit" class="btn" id="linkChildBtn">Link child</button>
-    </form>
-    <p id="linkMsg" class="msg" role="status" aria-live="polite"></p>
-  </details>
-</div>
+  <!-- ================= MAIN ================= -->
+  <div class="tp-main">
+    <header class="tp-topbar">
+      <button type="button" class="tp-menu-btn" id="tpMenuBtn" aria-label="Open menu" aria-controls="tpSidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <h1 id="tpTitle">My children</h1>
+      <div class="tp-spacer"></div>
+      <div class="tp-user">
+        <span class="tp-user-name" id="tpUserName"></span>
+        <span class="tp-avatar" id="tpAvatar" aria-hidden="true"></span>
+        <button type="button" id="logoutBtn" class="tp-btn-outline">Sign out</button>
+      </div>
+    </header>
 
-<div class="card" id="reportCard" style="display:none">
-  <div class="page-head">
-    <h2 id="reportTitle">Report card</h2>
-    <button type="button" class="btn btn-secondary btn-sm" data-print>Print</button>
-  </div>
-  <div class="table-wrap">
-    <table id="reportTable">
-      <thead>
-        <tr><th>Subject</th><th>Code</th><th>Term</th><th>Sequence</th><th>Score</th><th>Out of</th></tr>
-      </thead>
-      <tbody></tbody>
-      <tfoot></tfoot>
-    </table>
-  </div>
-  <div id="reportEmpty" class="empty-state" style="display:none">
-    <h3>No scores published yet</h3>
-    <p>Scores appear here once teachers enter and publish them.</p>
-  </div>
-  <h3 style="margin-top:24px">Attendance this year</h3>
-  <div class="profile-grid" id="childAttTotals"></div>
-  <div id="childAttRecent"></div>
-  <h3 style="margin-top:24px">Library loans</h3>
-  <div id="childLoans"></div>
-</div>
+    <main class="tp-content" id="tpContent" tabindex="-1">
+      <!-- Which child the Results, Attendance and Library loans sections show -->
+      <div class="tp-card pp-child-bar" id="childBar" hidden>
+        <label for="childSelect">Showing</label>
+        <select id="childSelect"></select>
+        <span class="muted" id="childMeta"></span>
+      </div>
 
-<script src="/js/app.js"></script>
-<script src="/js/toast.js"></script>
-<script src="/js/attendance-summary.js"></script>
-<script src="/js/library-loans.js"></script>
-<script src="/js/parent-dashboard.js"></script>
-<%- include('partials/footer') %>
+      <!-- ===== My children ===== -->
+      <section class="tw-panel" id="sp-overview" aria-labelledby="tpTitle">
+        <div class="tp-card tp-welcome">
+          <h2 id="welcome">Loading&hellip;</h2>
+          <p>Choose a child, then open their results, attendance or library loans from the menu on the left.</p>
+        </div>
+        <div class="tp-card tp-pad sp-block" id="childrenCard">
+          <h2>My children</h2>
+          <div id="childrenList"></div>
+          <div id="childrenEmpty" class="empty-state" style="display:none">
+            <div class="empty-state-icon"><%- icon('people') %></div>
+            <h3>No children linked yet</h3>
+            <p>Link a child below using the matricule on their school documents. The phone number on the student's record must match the one on your account.</p>
+          </div>
+          <details id="linkChild">
+            <summary>Link a child</summary>
+            <form id="linkChildForm" class="assign-form">
+              <label>Student matricule
+                <input id="linkMatricule" required autocomplete="off" placeholder="e.g. LB2024-0153" />
+              </label>
+              <label>Relationship
+                <select id="linkRelationship" required>
+                  <option value="Mother">Mother</option>
+                  <option value="Father">Father</option>
+                  <option value="Guardian">Guardian</option>
+                </select>
+              </label>
+              <button type="submit" class="btn" id="linkChildBtn">Link child</button>
+            </form>
+            <p id="linkMsg" class="msg" role="status" aria-live="polite"></p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===== Results ===== -->
+      <section class="tw-panel tp-card tp-pad" id="sp-results" aria-labelledby="tpTitle" hidden>
+        <div class="page-head">
+          <h2 id="reportTitle">Results</h2>
+          <div class="pp-actions">
+            <label class="inline-label">Term
+              <select id="resultsTerm">
+                <option value="">All terms (Seq. 1–6)</option>
+                <option value="First">First term (Seq. 1 &amp; 2)</option><option value="Second">Second term (Seq. 3 &amp; 4)</option><option value="Third">Third term (Seq. 5 &amp; 6)</option>
+              </select>
+            </label>
+            <button type="button" class="btn btn-secondary btn-sm" data-print>Print</button>
+          </div>
+        </div>
+        <p class="muted" id="resultsNote">Sequence marks out of 20 entered by the teachers.</p>
+        <div class="table-wrap">
+          <table id="reportTable" class="sp-results">
+            <thead><tr><th>Subject</th></tr></thead>
+            <tbody><tr><td class="muted">Choose a child.</td></tr></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+        <div id="reportEmpty" class="empty-state" style="display:none">
+          <div class="empty-state-icon"><%- icon('book') %></div>
+          <h3>No marks for this term yet</h3>
+          <p>Marks appear here once the teachers enter them.</p>
+        </div>
+      </section>
+
+      <!-- ===== Attendance ===== -->
+      <section class="tw-panel tp-card tp-pad" id="sp-attendance" aria-labelledby="tpTitle" hidden>
+        <h2 id="attTitle">Attendance this year</h2>
+        <div class="profile-grid" id="childAttTotals"><p class="muted">Choose a child.</p></div>
+        <h3 style="margin-top:16px">Recent absences and lateness</h3>
+        <div id="childAttRecent"></div>
+      </section>
+
+      <!-- ===== Library loans ===== -->
+      <section class="tw-panel tp-card tp-pad" id="sp-loans" aria-labelledby="tpTitle" hidden>
+        <h2 id="loansTitle">Library loans</h2>
+        <div id="childLoans"><p class="muted">Choose a child.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/student-panel.js"></script>
+  <script src="/js/results-table.js"></script>
+  <script src="/js/attendance-summary.js"></script>
+  <script src="/js/library-loans.js"></script>
+  <script src="/js/parent-dashboard.js"></script>
+</body>
+</html>

@@ -29,11 +29,11 @@
 
 <div class="card" role="tabpanel" id="panel-absences" aria-labelledby="tab-absences" hidden>
   <h2>Absences and lateness</h2>
-  <form class="attendance-filters" id="absForm">
+  <form class="attendance-filters att-row att-row-abs" id="absForm">
     <label>Class<select id="absClass"><option value="">All classes</option></select></label>
     <label>From<input type="date" id="absFrom" required></label>
     <label>To<input type="date" id="absTo" required></label>
-    <label class="inline-label"><span><input type="checkbox" id="absPending" checked> Unjustified only</span></label>
+    <label class="att-check"><input type="checkbox" id="absPending" checked> Unjustified only</label>
     <button class="btn">Show</button>
   </form>
   <div class="table-wrap"><table><thead><tr><th>Date</th><th>Student</th><th>Class / lesson</th><th>Mark</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead>
@@ -42,7 +42,7 @@
 
 <div class="card" role="tabpanel" id="panel-totals" aria-labelledby="tab-totals" hidden>
   <h2>Class totals for a term</h2>
-  <form class="attendance-filters" id="totForm">
+  <form class="attendance-filters att-row att-row-tot" id="totForm">
     <label>Class<select id="totClass" required><option value="">Choose a class</option></select></label>
     <label>Academic year<select id="totYear" required></select></label>
     <label>Term<select id="totTerm"><option>First</option><option>Second</option><option>Third</option></select></label>

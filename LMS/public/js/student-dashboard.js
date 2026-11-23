@@ -1,16 +1,6 @@
 (function () {
   const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-  function gradeFor(score, max) {
-    if (score === null || score === undefined || !max) return '—';
-    const pct = (Number(score) / Number(max)) * 100;
-    if (pct >= 80) return 'A';
-    if (pct >= 70) return 'B';
-    if (pct >= 60) return 'C';
-    if (pct >= 50) return 'D';
-    return 'F';
-  }
-
   async function loadProfile() {
     const { ok, data } = await api('/students/profile');
     const el = document.getElementById('profile');
@@ -21,6 +11,7 @@
     const s = data.data;
     const fullName = [s.firstName, s.middleName, s.lastName].filter(Boolean).join(' ');
     welcome.textContent = `Welcome back, ${fullName}`;
+    if (window.setStudentName) window.setStudentName(fullName);
 
     const joined = new Date(s.createdAt).toLocaleDateString(undefined, {
       year: 'numeric', month: 'long', day: 'numeric',
@@ -45,43 +36,20 @@
     });
   }
 
+  // Results table (shared with the parent panel): public/js/results-table.js
   let allResults = [];
+  let yearName = '';
   function renderResults() {
-    const term = document.getElementById('resultsTerm').value;
-    const rows = term ? allResults.filter(r => String(r.term || '').toLowerCase() === term.toLowerCase()) : allResults;
-    const tbody = document.querySelector('#resultsTable tbody');
-    const tfoot = document.querySelector('#resultsTable tfoot');
-    const empty = document.getElementById('resultsEmpty');
-    const table = document.getElementById('resultsTable');
-    if (!rows.length) {
-      table.style.display = 'none';
-      empty.style.display = '';
-      return;
-    }
-    table.style.display = '';
-    empty.style.display = 'none';
-    tbody.innerHTML = rows.map(r => {
-      const max = r.max_score ?? r.maxScore ?? 100;
-      return `<tr>
-        <td>${esc(r.subjectName || r.subject_name || r.subjectCode || ('Subject ' + r.subjectId))}</td>
-        <td>${esc(r.term || '—')}</td>
-        <td>${esc(r.sequence || r.examName || r.exam_name || '—')}</td>
-        <td>${esc(r.score)}</td>
-        <td>${esc(max)}</td>
-        <td>${esc(r.grade || gradeFor(r.score, max))}</td>
-      </tr>`;
-    }).join('');
-    const scored = rows.filter(r => r.score !== null && r.score !== undefined);
-    const avg = scored.length
-      ? scored.reduce((sum, r) => sum + (Number(r.score) / Number(r.max_score ?? r.maxScore ?? 100)) * 20, 0) / scored.length
-      : null;
-    tfoot.innerHTML = avg === null ? '' :
-      `<tr><th colspan="3">Average${term ? ' (' + esc(term) + ' term)' : ''}</th><th colspan="3">${avg.toFixed(2)} / 20</th></tr>`;
+    ResultsTable.render({
+      table: document.getElementById('resultsTable'), empty: document.getElementById('resultsEmpty'), note: document.getElementById('resultsNote'),
+      rows: allResults, term: document.getElementById('resultsTerm').value, yearName,
+    });
   }
 
   async function loadResults() {
     const res = await api('/students/my-scores');
-    allResults = (res.ok && res.data && res.data.data) || [];
+    const rows = (res.ok && res.data && res.data.data) || [];
+    ({ rows: allResults, yearName } = ResultsTable.pickYear(rows));
     renderResults();
   }
 

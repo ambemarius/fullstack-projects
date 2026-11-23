@@ -313,6 +313,124 @@ function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
         });
     }
 
+    // ---- Record payment: find a student, see what they owe, apply one amount across their open charges ----
+    async function paymentForm(actor, options = {}) {
+        const search = text(options.search ?? '', 120, true);
+        const classId = options.class ? id(options.class) : null;
+        const studentId = options.student ? id(options.student) : null;
+        const requestedYear = options.year ? id(options.year) : null;
+        return scoped(actor, 'pay', async query => {
+            const years = (await query('SELECT id,name,isCurrent FROM dbo.academic_years WHERE school_id=@school ORDER BY fromYear DESC')).recordset;
+            if (requestedYear && !years.some(y => y.id === requestedYear)) throw fail(404, 'Academic year not found in this school.');
+            const yearId = requestedYear ?? years.find(y => y.isCurrent)?.id ?? years[0]?.id ?? null;
+            const classes = (await query('SELECT id,section,name,stream FROM dbo.classes WHERE school_id=@school ORDER BY section,rank,name')).recordset
+                .map(c => ({ id: c.id, label: c.section + ' — ' + c.name + (c.stream && c.stream !== 'Normal' ? ' (' + c.stream + ')' : '') }));
+            const balanceSql = `(SELECT CONVERT(varchar(40), COALESCE(SUM(CONVERT(decimal(38,0), c.amount) - COALESCE(p.total, 0)), 0))
+                FROM dbo.finance_charges c LEFT JOIN dbo.finance_cancellations x ON x.school_id = c.school_id AND x.charge_id = c.id
+                OUTER APPLY (SELECT SUM(CONVERT(decimal(38,0), f.amount)) total FROM dbo.finance_payments f WHERE f.school_id = c.school_id AND f.charge_id = c.id
+                    AND NOT EXISTS (SELECT 1 FROM dbo.finance_reversals r WHERE r.school_id = f.school_id AND r.payment_id = f.id)) p
+                WHERE c.school_id = s.school_id AND c.student_id = s.id AND (@year IS NULL OR c.year_id = @year) AND x.charge_id IS NULL)`;
+            const p = { year: [sql.Int, yearId], search: [sql.NVarChar(120), search], class: [sql.Int, classId] };
+            let students = [];
+            if (!studentId && (search || classId)) {
+                students = (await query(`SELECT TOP(101) s.id, s.firstName + ' ' + s.lastName name, s.matricule, s.currentClassLevel classId, ${balanceSql} balance
+                    FROM dbo.students s WHERE s.school_id = @school AND s.isWithdrawn = 0
+                      AND (@class IS NULL OR s.currentClassLevel = @class)
+                      AND (@search = '' OR CHARINDEX(@search, CONCAT(s.firstName, ' ', s.lastName, ' ', s.matricule)) > 0)
+                    ORDER BY s.lastName, s.firstName, s.id`, p)).recordset;
+            }
+            if (!studentId) return { years, yearId, classes, classId, search, students: students.slice(0, 100), moreStudents: students.length > 100, student: null, charges: [], today: today() };
+            const student = (await query(`SELECT s.id, s.firstName + ' ' + s.lastName name, s.matricule, s.currentClassLevel classId, s.parentName, s.parentPhone, s.isWithdrawn
+                FROM dbo.students s WHERE s.school_id = @school AND s.id = @student`, { student: [sql.Int, studentId] })).recordset[0];
+            if (!student) throw fail(404, 'Student not found in this school.');
+            student.classLabel = classes.find(c => c.id === student.classId)?.label || '';
+            // Open charges for the year, earliest due first: that is the order an amount is applied in.
+            const charges = (await query('SELECT * FROM (' + chargesSql + ` AND c.student_id=@student AND (@year IS NULL OR c.year_id=@year)) open_charges
+                WHERE cancelled IS NULL AND CONVERT(decimal(38,0), balance) > 0
+                ORDER BY CASE WHEN dueDate IS NULL THEN 1 ELSE 0 END, dueDate, id`, { student: [sql.Int, studentId], year: [sql.Int, yearId] })).recordset;
+            const owed = charges.reduce((t, c) => t + BigInt(c.balance), 0n);
+            const overdue = charges.filter(c => c.dueDate && c.dueDate < today()).reduce((t, c) => t + BigInt(c.balance), 0n);
+            return { years, yearId, classes, classId, search, students: [], moreStudents: false, student, charges, owed, overdue, today: today() };
+        });
+    }
+
+    // One payment from a student, applied to one or more of their open charges. All lines save together or not at all.
+    // b: { student, operation, paidOn, method, reference, lines: [{ charge, amount }] }
+    async function recordPayment(actor, b = {}) {
+        if (!/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(b.operation || '')) throw fail(422, 'Reopen the form before saving.');
+        const studentId = id(b.student);
+        const paidOn = date(b.paidOn);
+        if (paidOn > today()) throw fail(422, 'Payment dates cannot be in the future.');
+        if (!METHODS.includes(b.method)) throw fail(422, 'Choose a payment method.');
+        const reference = text(b.reference || '', 100, true);
+        if (b.method !== 'cash' && !reference) throw fail(422, 'Enter a transaction reference for this payment method.');
+        const lines = (Array.isArray(b.lines) ? b.lines : []).filter(l => l && String(l.amount ?? '').trim() !== '' && String(l.amount).trim() !== '0')
+            .map(l => ({ charge: id(l.charge), amount: amount(l.amount) }));
+        if (!lines.length) throw fail(422, 'Enter the amount received against at least one fee.');
+        if (new Set(lines.map(l => l.charge)).size !== lines.length) throw fail(422, 'Each fee can appear only once.');
+        // One operation id per line, derived from the form's id: resubmitting the same form can never record the money twice.
+        const lineOperation = chargeId => {
+            const h = crypto.createHash('sha256').update(`${b.operation.toLowerCase()}|${chargeId}`).digest('hex');
+            return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+        };
+        return scoped(actor, 'pay', async query => {
+            const paymentIds = [];
+            for (const line of lines) {
+                const params = { charge: [sql.Int, line.charge] };
+                if (!(await query('SELECT id FROM dbo.finance_charges WITH(UPDLOCK,HOLDLOCK) WHERE school_id=@school AND id=@charge', params)).recordset.length) throw fail(404, 'Fee not found.');
+                const charge = (await query(chargesSql + ' AND c.id=@charge', params)).recordset[0];
+                if (charge.student_id !== studentId) throw fail(422, 'Every fee must belong to the selected student.');
+                if (charge.cancelled) throw fail(409, `${charge.description} has been cancelled.`);
+                if (BigInt(line.amount) > BigInt(charge.balance)) throw fail(409, `${formatMoney(line.amount)} is more than the ${formatMoney(charge.balance)} still owed on ${charge.description}.`);
+                const payment = (await query(`INSERT dbo.finance_payments(school_id,charge_id,amount,paid_on,method,reference,actor_type,actor_id,operation_id)
+     OUTPUT inserted.id VALUES(@school,@charge,@amount,@paid,@method,@reference,@actor_type,@actor,@op)`, {
+                    ...params, amount: [sql.BigInt, line.amount], paid: [sql.Date, paidOn], method: [sql.VarChar(12), b.method],
+                    reference: [sql.NVarChar(100), reference], op: [sql.UniqueIdentifier, lineOperation(line.charge)],
+                })).recordset[0];
+                paymentIds.push(payment.id);
+            }
+            return { student: studentId, paymentIds };
+        });
+    }
+
+    // One receipt for several payment lines recorded together (same student).
+    async function receiptGroup(actor, ids) {
+        const list = String(ids || '').split(',').map(v => v.trim()).filter(Boolean);
+        if (!list.length || list.length > 50) throw fail(422, 'Choose the payments to show.');
+        const paymentIds = list.map(v => id(v));
+        return scoped(actor, 'view', async query => {
+            const school = (await query('SELECT id,name FROM dbo.schools WHERE id=@school')).recordset[0];
+            const params = Object.fromEntries(paymentIds.map((v, i) => ['p' + i, [sql.Int, v]]));
+            const payments = (await query(paymentsSql + ` AND f.id IN (${paymentIds.map((_, i) => '@p' + i).join(',')}) ORDER BY f.id`, params)).recordset;
+            if (payments.length !== paymentIds.length) throw fail(404, 'Receipt not found.');
+            const charges = (await query(chargesSql + ` AND c.id IN (${payments.map((_, i) => '@c' + i).join(',')})`,
+                Object.fromEntries(payments.map((pm, i) => ['c' + i, [sql.Int, pm.charge_id]])))).recordset;
+            const byId = new Map(charges.map(c => [c.id, c]));
+            if (new Set(charges.map(c => c.student_id)).size !== 1) throw fail(422, 'A combined receipt covers one student.');
+            const lines = payments.map(pm => ({ ...pm, charge: byId.get(pm.charge_id), receiptNumber: 'PAY-' + school.id + '-' + pm.id }));
+            const total = lines.filter(l => !l.reversed).reduce((t, l) => t + BigInt(l.amount), 0n);
+            const first = lines[0];
+            return { school, lines, total, student: { name: first.charge.student, matricule: first.charge.matricule, id: first.charge.student_id },
+                year: first.charge.year, paidOn: first.paidOn, method: first.method, reference: first.reference, recordedBy: first.recordedBy, recordedAt: first.recordedAt,
+                receiptNumber: 'PAY-' + school.id + '-' + paymentIds.join('-') };
+        });
+    }
+
+    // What the "Charge a class" page needs: active students, academic years and each class's fee schedule.
+    async function chargeForm(actor) {
+        return scoped(actor, 'manage', async query => {
+            const sets = (await query(`SELECT id,firstName+' '+lastName+' · '+matricule label,currentClassLevel classId FROM dbo.students WHERE school_id=@school AND isWithdrawn=0 ORDER BY lastName,firstName;
+    SELECT id,name label,isCurrent FROM dbo.academic_years WHERE school_id=@school ORDER BY fromYear DESC;
+    SELECT id,section,name,stream,${FEE_COLUMNS.map(([c]) => `CONVERT(varchar(30),CONVERT(bigint,ROUND(${c},0))) ${c}`).join(',')}
+      FROM dbo.classes WHERE school_id=@school ORDER BY section,rank,name;`)).recordsets;
+            const classes = sets[2].map(c => ({
+                id: c.id, label: c.section + ' — ' + c.name + (c.stream ? ' (' + c.stream + ')' : ''),
+                fees: FEE_COLUMNS.map(([col, label]) => ({ key: col, label, amount: c[col] })).filter(f => f.amount && f.amount !== '0'),
+            }));
+            return { students: sets[0], years: sets[1], classes };
+        });
+    }
+
     // Outstanding balances for one academic year: the whole school class by class, or one class student by student.
     // Balances count active charges minus payments that were not reversed; cancelled charges are left out.
     async function outstanding(actor, options = {}) {
@@ -374,7 +492,7 @@ function createFinanceService({ beginTransaction = defaultTransaction } = {}) {
     // Counts of students by payment status, and money totals (BigInt XAF).
     function emptyTotals() { return { students: 0, fullyPaid: 0, partlyPaid: 0, notPaid: 0, noCharges: 0, charged: 0n, collected: 0n, balance: 0n, overdue: 0n }; }
 
-    return { list, detail, receipt, collections, studentStatement, studentBalance, reviewBulk, confirmBulk, save, outstanding };
+    return { list, detail, receipt, collections, studentStatement, studentBalance, reviewBulk, confirmBulk, save, outstanding, chargeForm, paymentForm, recordPayment, receiptGroup };
 }
 
 module.exports = { createFinanceService, formatMoney, today, FEE_COLUMNS, methodLabel };

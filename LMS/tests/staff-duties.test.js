@@ -111,7 +111,7 @@ test('requireStaff admits by duty, refuses pupils, parents and inactive staff, a
 
     const bursar = await get('/finance', generateToken(5, 'auxiliary'));
     assert.equal(bursar.status, 200);
-    assert.deepEqual(await bursar.json(), { schoolId: 1, type: 'auxiliary', id: 5, name: 'Synthetic Bursar', duties: ['bursar'] });
+    assert.deepEqual(await bursar.json(), { schoolId: 1, type: 'auxiliary', id: 5, name: 'Synthetic Bursar', duties: ['bursar'], disciplineClasses: null });
     assert.equal((await get('/finance', generateToken(1, 'admin'))).status, 200);
     assert.equal((await get('/finance', generateToken(2, 'teacher'))).status, 403);
     assert.equal((await get('/lab', generateToken(2, 'teacher'))).status, 200);

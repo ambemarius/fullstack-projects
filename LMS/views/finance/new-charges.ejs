@@ -1,0 +1,50 @@
+<%- include('shell',{pageTitle:'Charge a class',active:'charge'}) %>
+<div class="page-heading">
+  <div>
+    <h1>Charge fees</h1>
+    <p>Charge a whole class from its fee schedule, or one student. Class charges are reviewed before anything is saved; no payments are recorded here.</p>
+  </div>
+  <div class="heading-actions"><a class="button secondary" href="<%= base %>">View all charges</a></div>
+</div>
+
+<nav class="charge-tabs" aria-label="What to charge">
+  <a href="?tab=class" class="charge-tab" id="tab-class"<%- tab === 'class' ? ' aria-current="page"' : '' %>>A class or several students</a>
+  <a href="?tab=student" class="charge-tab" id="tab-student"<%- tab === 'student' ? ' aria-current="page"' : '' %>>One student</a>
+</nav>
+
+<section id="panel-class" class="charge-panel"<%- tab === 'class' ? '' : ' hidden' %>>
+  <form method="post" action="<%= base %>/bulk/review" id="batchForm">
+    <h2>Charge a class or several students</h2>
+    <p class="cell-meta">Pick a class to select its students and use the fees set on that class (Registration → Classes). You can adjust the students, description and amount, then review the exact charges before saving.</p>
+    <div class="fields">
+      <label>Class<select id="batchClass"><option value="">Any class</option><% classes.forEach(c => { %><option value="<%= c.id %>" data-fees="<%= JSON.stringify(c.fees) %>"><%= c.label %></option><% }) %></select></label>
+      <label>Fee from class schedule<select id="batchFee" disabled><option value="">Choose a class first</option></select></label>
+      <label>Academic year<select name="year" id="batchYear" required><option value="">Choose year</option><% years.forEach(y => { %><option value="<%= y.id %>" <%= y.isCurrent ? 'selected' : '' %>><%= y.label %></option><% }) %></select></label>
+      <label>Fee / instalment description<input name="description" id="batchDescription" maxlength="120" required placeholder="For example: Tuition, first instalment"></label>
+      <label>Amount per student (whole XAF)<input type="number" name="amount" id="batchAmount" min="1" max="999999999999" step="1" required></label>
+      <label>Due date (optional)<input type="date" name="due"></label>
+    </div>
+    <fieldset id="batchStudents"><legend>Select students <span id="batchCount" class="cell-meta"></span></legend>
+      <% students.forEach(p => { %><label data-class="<%= p.classId || '' %>"><input type="checkbox" name="students" value="<%= p.id %>"> <%= p.label %></label><% }) %>
+      <% if (!students.length) { %><p>No active students registered.</p><% } %>
+    </fieldset>
+    <button>Review class charges</button>
+  </form>
+</section>
+
+<section id="panel-student" class="charge-panel"<%- tab === 'student' ? '' : ' hidden' %>>
+  <form method="post" action="<%= base %>">
+    <h2>Charge one student</h2>
+    <%- include('operation') %><input type="hidden" name="action" value="charge">
+    <div class="fields">
+      <label>Student<select name="student" required><option value="">Choose student</option><% students.forEach(p => { %><option value="<%= p.id %>"><%= p.label %></option><% }) %></select></label>
+      <label>Academic year<select name="year" required><option value="">Choose year</option><% years.forEach(y => { %><option value="<%= y.id %>" <%= y.isCurrent ? 'selected' : '' %>><%= y.label %></option><% }) %></select></label>
+      <label>Fee description<input name="description" maxlength="120" required placeholder="For example: Tuition, first instalment"></label>
+      <label>Amount (whole XAF)<input type="number" min="1" max="999999999999" step="1" name="amount" required></label>
+      <label>Due date (optional)<input type="date" name="due"></label>
+    </div>
+    <button>Create charge</button>
+  </form>
+</section>
+<script src="/js/finance-batch.js" defer></script>
+<%- include('end') %>

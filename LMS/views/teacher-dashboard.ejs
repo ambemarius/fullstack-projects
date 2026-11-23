@@ -26,6 +26,7 @@
       <a class="tp-link" href="#subjects" data-tab="subjects"><%- icon('book') %><span>My subjects</span></a>
       <a class="tp-link" href="#students" data-tab="students"><%- icon('people') %><span>My students</span></a>
       <a class="tp-link" href="#lab" data-tab="lab"><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
+      <a class="tp-link" href="#discipline" data-tab="discipline" id="tw-tab-discipline" hidden><%- icon('shield') %><span>Discipline</span><span class="tp-badge" id="twDiscCount" hidden></span></a>
       <a class="tp-link" href="#duties" data-tab="duties" id="tw-tab-duties" hidden><%- icon('wallet') %><span>My duties</span></a>
       <a class="tp-link" href="#profile" data-tab="profile"><%- icon('user') %><span>My profile</span></a>
     </nav>
@@ -101,14 +102,16 @@
       <!-- ===== Attendance ===== -->
       <section class="tw-panel tp-card tp-pad" id="tw-attendance" aria-labelledby="tpTitle" hidden>
         <div id="attendanceCard">
-          <h2>Take attendance</h2>
-          <p class="muted">Your timetabled lessons for the day. Record a register up to 7 days back; the discipline master corrects older ones.</p>
-          <div class="attendance-filters">
-            <label>Date<input type="date" id="attDate"></label>
-            <label>Term<select id="attTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+          <div id="attListView">
+            <h2>Take attendance</h2>
+            <p class="muted">Choose a lesson to take its register. You can record a register up to 7 days back; the discipline master corrects older ones.</p>
+            <div class="attendance-filters">
+              <label>Date<input type="date" id="attDate"></label>
+              <label>Term<select id="attTerm"><option>First</option><option>Second</option><option>Third</option></select></label>
+            </div>
+            <div id="attLessons" class="duty-list lesson-list"><p class="muted">Loading…</p></div>
           </div>
-          <div id="attLessons" class="duty-list"><p class="muted">Loading…</p></div>
-          <div id="attRegister"></div>
+          <div id="attRegister" hidden></div>
         </div>
       </section>
 
@@ -186,6 +189,35 @@
         <p class="muted tw-foot"><a href="/lab-requests">Open the full request page</a> to make, change or return a request.</p>
       </section>
 
+      <!-- ===== Discipline (only for a discipline master): absences every teacher marked in their classes ===== -->
+      <section class="tw-panel" id="tw-discipline" aria-labelledby="tpTitle" hidden>
+        <div class="tp-card tp-pad">
+          <h2>Absences in my classes</h2>
+          <p class="muted" id="discScope">Absences and lateness recorded by every teacher in the classes you look after.</p>
+          <form class="disc-filters" id="discForm">
+            <label>Class<select id="discClass"><option value="">All my classes</option></select></label>
+            <label>From<input type="date" id="discFrom" required></label>
+            <label>To<input type="date" id="discTo" required></label>
+            <label class="disc-check"><input type="checkbox" id="discPending"> Unjustified only</label>
+            <button type="submit" class="btn">Show</button>
+          </form>
+        </div>
+        <div class="tp-stats" id="discStats" aria-live="polite"></div>
+        <div class="tp-card tp-pad disc-block">
+          <div class="disc-head">
+            <h2 id="discViewTitle">By student</h2>
+            <div class="disc-views" role="group" aria-label="View">
+              <button type="button" class="btn btn-sm" data-disc-view="students" aria-pressed="true">By student</button>
+              <button type="button" class="btn btn-sm btn-ghost" data-disc-view="marks" aria-pressed="false">Every absence</button>
+            </div>
+          </div>
+          <div id="discBody"><p class="muted">Loading…</p></div>
+        </div>
+        <div class="tp-card tp-pad disc-block" id="discRegisterCard" hidden>
+          <div id="discRegister"></div>
+        </div>
+      </section>
+
       <!-- ===== My duties (only for teachers with a school duty) ===== -->
       <section class="tw-panel tp-card tp-pad" id="tw-duties" aria-labelledby="tpTitle" hidden>
         <div id="dutyCard" hidden>
@@ -209,5 +241,6 @@
   <script src="/js/duty-links.js"></script>
   <script src="/js/attendance-register.js"></script>
   <script src="/js/teacher-attendance.js"></script>
+  <script src="/js/teacher-discipline.js"></script>
 </body>
 </html>

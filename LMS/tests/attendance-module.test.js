@@ -101,6 +101,7 @@ test('saving marks versions every change and demands a reason for corrections', 
 test('only supervisors justify, and only absences or lateness', async () => {
     let current = { revision: 1, status: 'absent', minutes_late: null, justified: false };
     const { log, beginTransaction } = fakeTransactions(statement => {
+        if (statement.includes('FROM dbo.attendance_registers r JOIN dbo.classes')) return { recordset: [registerRow()] };
         if (statement.includes('SELECT cm.*')) return { recordset: [current] };
         if (statement.includes('INSERT dbo.attendance_marks')) return { recordset: [] };
         throw new Error('unexpected ' + statement);
@@ -143,4 +144,42 @@ test('migration 013 versions marks, requires reasons for corrections, and never 
     assert.match(sql, /CK_attendance_marks_reason CHECK \(revision = 1 OR/);
     assert.match(sql, /UX_attendance_register_lesson ON dbo\.attendance_registers\(school_id, class_id, lesson_date, start_time\)/);
     assert.equal(/\bDROP\b|\bDELETE\b|school_memberships/i.test(sql), false);
+});
+
+test('a discipline master with chosen classes reviews, corrects and justifies only those classes', async () => {
+    const scoped = { ...disciplineMaster, disciplineClasses: [2] };           // looks after class 2 only
+    const other = registerRow({ id: 91, classId: 3 });                         // a class-3 register
+    const reads = [];
+    const { beginTransaction } = fakeTransactions(statement => {
+        if (statement.includes('FROM dbo.attendance_registers r JOIN dbo.classes')) return { recordset: [other] };
+        throw new Error('unexpected ' + statement.slice(0, 60));
+    });
+    const service = createAttendanceService({ beginTransaction, clock });
+    assert.equal(service.oversees(scoped, 2), true);
+    assert.equal(service.oversees(scoped, 3), false);
+    assert.equal(service.oversees(disciplineMaster, 3), true, 'no classes chosen: the whole school');
+    assert.equal(service.oversees({ ...teacher, duties: ['discipline_master'], disciplineClasses: [5] }, 5), true, 'teachers can hold the duty');
+    assert.equal(service.oversees(bursar, 2), false);
+    await assert.rejects(service.justify(scoped, { registerId: 91, studentId: 2, justification: 'Medical note' }), { statusCode: 403, message: /other classes/ });
+    await assert.rejects(service.classSummary(scoped, { classId: 3, yearId: 5, term: 'First' }), { statusCode: 403 });
+    await assert.rejects(service.absences(scoped, { classId: 3 }), { statusCode: 403 });
+    await assert.rejects(service.classLessons(scoped, { classId: 3, date: TODAY }), { statusCode: 403 });
+    assert.deepEqual(reads, []);
+});
+
+test('the absences list for a scoped discipline master is limited to their classes and names the teacher', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../model/attendance/attendanceService.js'), 'utf8');
+    const absences = source.slice(source.indexOf('async function absences('), source.indexOf('const TOTALS'));
+    assert.match(absences, /r\.class_id IN \(\$\{scope\.map\(Number\)/);
+    assert.match(absences, /te\.name teacherName/);
+    assert.match(absences, /LEFT JOIN dbo\.teachers te ON te\.id=r\.teacher_id/);
+    const options = source.slice(source.indexOf('async function options('));
+    assert.match(options, /\.filter\(c => scope === null \|\| scope\.includes\(c\.id\)\)/);
+});
+
+test('migration 018 only adds the discipline classes table', () => {
+    const text = fs.readFileSync(path.join(__dirname, '../migrations/018_discipline_classes.sql'), 'utf8');
+    assert.match(text, /IF OBJECT_ID\('dbo\.staff_duty_classes', 'U'\) IS NULL\s+CREATE TABLE dbo\.staff_duty_classes/);
+    assert.match(text, /REFERENCES dbo\.staff_duties\(id\) ON DELETE CASCADE/);
+    assert.equal(/^\s*(DROP|DELETE|TRUNCATE|ALTER\s+TABLE|UPDATE|INSERT)\b/im.test(text), false);
 });

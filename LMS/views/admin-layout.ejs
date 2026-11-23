@@ -975,11 +975,16 @@
               <select id="dutyName" required><option value="">Choose a duty</option></select>
             </label>
             <button type="submit" class="btn">Grant duty</button>
+            <fieldset class="duty-classes" id="dutyClasses" hidden>
+              <legend>Classes this discipline master looks after</legend>
+              <p class="muted">They see and justify the absences every teacher marks in these classes. Leave all unticked for the whole school.</p>
+              <div class="duty-class-list" id="dutyClassList"></div>
+            </fieldset>
           </form>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Duty</th><th>Staff member</th><th>Email</th><th>Since</th><th><span class="sr-only">Actions</span></th></tr></thead>
-              <tbody id="dutyRows"><tr><td colspan="5" class="muted">Loading&hellip;</td></tr></tbody>
+              <thead><tr><th>Duty</th><th>Staff member</th><th>Email</th><th>Classes</th><th>Since</th><th><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="dutyRows"><tr><td colspan="6" class="muted">Loading&hellip;</td></tr></tbody>
             </table>
           </div>
           </div>
