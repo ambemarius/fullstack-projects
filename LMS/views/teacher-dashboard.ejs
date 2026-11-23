@@ -26,6 +26,7 @@
       <a class="tp-link" href="#subjects" data-tab="subjects"><%- icon('book') %><span>My subjects</span></a>
       <a class="tp-link" href="#students" data-tab="students"><%- icon('people') %><span>My students</span></a>
       <a class="tp-link" href="#lab" data-tab="lab"><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
+      <a class="tp-link" href="#department" data-tab="department" id="tw-tab-department" hidden><%- icon('book') %><span>Department</span></a>
       <a class="tp-link" href="#discipline" data-tab="discipline" id="tw-tab-discipline" hidden><%- icon('shield') %><span>Discipline</span><span class="tp-badge" id="twDiscCount" hidden></span></a>
       <a class="tp-link" href="#duties" data-tab="duties" id="tw-tab-duties" hidden><%- icon('wallet') %><span>My duties</span></a>
       <a class="tp-link" href="#profile" data-tab="profile"><%- icon('user') %><span>My profile</span></a>
@@ -189,6 +190,50 @@
         <p class="muted tw-foot"><a href="/lab-requests">Open the full request page</a> to make, change or return a request.</p>
       </section>
 
+      <!-- ===== Department (only for a head of department): the subject across every class of the section ===== -->
+      <section class="tw-panel" id="tw-department" aria-labelledby="tpTitle" hidden>
+        <div class="tp-card tp-pad hod-controls">
+          <div class="hod-head">
+            <div>
+              <h2 id="hodTitle">Department report</h2>
+              <p class="muted" id="hodScope">Results of your subject in every class of your section.</p>
+            </div>
+            <div class="hod-actions">
+              <button type="button" class="btn btn-secondary" id="hodCsv" disabled>Download CSV</button>
+              <button type="button" class="btn" data-print id="hodPrint" disabled>Print / save as PDF</button>
+            </div>
+          </div>
+          <form class="hod-filters" id="hodForm">
+            <label>Academic year<select id="hodYear"></select></label>
+            <label>Period<select id="hodTerm">
+              <option value="First">First term (Seq. 1 &amp; 2)</option><option value="Second">Second term (Seq. 3 &amp; 4)</option>
+              <option value="Third">Third term (Seq. 5 &amp; 6)</option><option value="">Whole year (Seq. 1–6)</option>
+            </select></label>
+            <button type="submit" class="btn">Show report</button>
+          </form>
+        </div>
+
+        <!-- What the printed report shows at the top -->
+        <div class="hod-print-head" aria-hidden="true">
+          <div class="hod-print-school">LYCÉE BATOURI</div>
+          <h1 id="hodPrintTitle">Head of Department report</h1>
+          <p id="hodPrintMeta"></p>
+        </div>
+
+        <div id="hodReport"><div class="tp-card tp-pad"><p class="muted">Loading…</p></div></div>
+
+        <div class="tp-card tp-pad hod-block">
+          <h2>Head of Department's remarks</h2>
+          <label class="sr-only" for="hodRemarks">Remarks for the administration</label>
+          <textarea id="hodRemarks" rows="5" maxlength="3000" placeholder="Observations on results, syllabus coverage, practicals, teachers' work and needs for next year…"></textarea>
+          <div class="hod-remarks-print" id="hodRemarksPrint"></div>
+          <div class="hod-signatures">
+            <div><span id="hodSignName">Head of Department</span><br>Signature and date</div>
+            <div>The Principal<br>Signature and date</div>
+          </div>
+        </div>
+      </section>
+
       <!-- ===== Discipline (only for a discipline master): absences every teacher marked in their classes ===== -->
       <section class="tw-panel" id="tw-discipline" aria-labelledby="tpTitle" hidden>
         <div class="tp-card tp-pad">
@@ -242,5 +287,7 @@
   <script src="/js/attendance-register.js"></script>
   <script src="/js/teacher-attendance.js"></script>
   <script src="/js/teacher-discipline.js"></script>
+  <script src="/js/department-view.js"></script>
+  <script src="/js/teacher-department.js"></script>
 </body>
 </html>

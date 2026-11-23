@@ -1901,3 +1901,92 @@ tr.tw-overdue td { background: #fff6f5; }
   .reg-savebar .btn { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .reg-table tbody tr, .lesson-card { transition: none; } }
+
+/* ===== Teacher portal: Department tab (head of department report) ===== */
+.hod-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.hod-head h2 { margin: 0 0 4px; }
+.hod-head p { margin: 0; }
+.hod-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hod-filters { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.4fr) auto; gap: 14px; align-items: end; margin-top: 16px; max-width: 720px; }
+.hod-filters label { display: flex; flex-direction: column; gap: 6px; margin: 0; min-width: 0; font-size: 13px; font-weight: 600; color: var(--tp-muted); }
+.hod-filters select { width: 100%; height: 40px; margin: 0; }
+.hod-filters .btn { height: 40px; margin: 0; padding: 0 22px; white-space: nowrap; }
+.hod-stats { grid-template-columns: repeat(6, 1fr); }
+.hod-results th.hod-group { text-align: center; border-bottom: 1px solid var(--border, #d9e2dc); }
+.hod-results thead tr:first-child th { background: #f2f8f4; }
+.hod-block { margin-top: 14px; }
+.hod-block h2 { margin: 0 0 10px; font-size: 16px; }
+.hod-table th.num, .hod-table td.num { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hod-table .hod-avg { background: #f2f8f4; }
+.hod-table td.hod-low { color: #c62828; font-weight: 700; }
+.hod-table td.hod-warn { color: #9a5b00; font-weight: 700; }
+.hod-table tfoot th { border-top: 2px solid var(--border, #d9e2dc); }
+.hod-note { margin: 10px 0 0; font-size: 12.5px; }
+.hod-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; }
+.hod-top { margin: 0; padding-left: 22px; }
+.hod-top li { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; border-bottom: 1px dashed var(--tp-line, #e3e8e5); }
+.hod-top li:last-child { border-bottom: 0; }
+.hod-top .hod-top-mark { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+#hodRemarks { width: 100%; box-sizing: border-box; resize: vertical; font: inherit; }
+.hod-remarks-print, .hod-print-head { display: none; }
+.hod-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; font-size: 13px; color: var(--tp-muted); }
+.hod-signatures > div { border-top: 1px solid #9aa8a0; padding-top: 6px; }
+@media (max-width: 1100px) { .hod-stats { grid-template-columns: repeat(3, 1fr); } .hod-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .hod-stats { grid-template-columns: repeat(2, 1fr); } .hod-filters { grid-template-columns: 1fr; } }
+
+/* Printed report: only the Department section, laid out as a document */
+@media print {
+  body.tp-body:has(#tw-department:not([hidden])) .tw-panel:not(#tw-department),
+  body.tp-body:has(#tw-department:not([hidden])) .hod-controls,
+  body.tp-body:has(#tw-department:not([hidden])) #hodRemarks { display: none !important; }
+  .tp-main { margin-left: 0 !important; }
+  .tp-content { padding: 0 !important; max-width: none !important; }
+  #tw-department .tp-card { border: 0; box-shadow: none; }
+  #tw-department .hod-print-head { display: block; text-align: center; margin-bottom: 12px; }
+  .hod-print-school { font-weight: 800; letter-spacing: .08em; }
+  .hod-print-head h1 { font-size: 20px; margin: 6px 0 2px; }
+  .hod-print-head p { margin: 0; font-size: 12px; }
+  #tw-department .hod-remarks-print { display: block; white-space: pre-wrap; min-height: 60px; border: 1px solid #bbb; padding: 8px; font-size: 12.5px; }
+  #tw-department .hod-block, #tw-department table { break-inside: avoid; }
+  #tw-department .tp-stats { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+}
+
+/* head of department: subject and section (Personnel -> Duties and assignment) */
+.duty-dept-row { display: grid; grid-template-columns: minmax(220px, 2fr) minmax(160px, 1fr); gap: 14px; max-width: 560px; }
+.duty-dept-row label { margin: 0; }
+.duty-dept-row select { width: 100%; }
+@media (max-width: 560px) { .duty-dept-row { grid-template-columns: 1fr; } }
+
+/* ===== Admin → Evaluation → Subject results ===== */
+.sr-controls { margin-bottom: 4px; }
+.sr-filters { grid-template-columns: minmax(170px, 1fr) minmax(220px, 1.4fr) minmax(160px, 1fr) auto; max-width: 900px; }
+.sr-table td.sr-open { white-space: nowrap; }
+.sr-table tr.sr-none td { color: var(--muted, #6b7a72); background: #fafbfa; }
+.sr-none-note { font-style: italic; }
+.sr-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 22px 0 4px; }
+.sr-detail-head h2 { margin: 0; font-size: 18px; }
+@media (max-width: 760px) { .sr-filters { grid-template-columns: 1fr 1fr; } }
+@media print {
+  body:has(#sub-subject-results.active) .sidebar, body:has(#sub-subject-results.active) .admin-sidebar,
+  body:has(#sub-subject-results.active) .reg-subtabs, body:has(#sub-subject-results.active) .reg-header-bar,
+  body:has(#sub-subject-results.active) .sr-controls, body:has(#sub-subject-results.active) .sr-open,
+  body:has(#sub-subject-results.active) .sr-detail-head .hod-actions, body:has(#sub-subject-results.active) header { display: none !important; }
+  body:has(#sub-subject-results.active) .admin-main { margin-left: 0 !important; padding: 0 !important; }
+  #sub-subject-results .sr-print-head { display: block; text-align: center; margin-bottom: 12px; }
+  #sub-subject-results .tp-card { border: 0; box-shadow: none; }
+  #sub-subject-results .hod-block, #sub-subject-results table { break-inside: avoid; }
+}
+
+/* Department report sub-tabs (HOD Department tab and the admin subject details) */
+.dv-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin: 16px 0 0; padding: 4px; background: #eef3f0; border-radius: 10px; }
+.dv-tab { flex: 1 1 auto; min-height: 40px; padding: 0 16px; border: 0; border-radius: 7px; background: transparent; color: var(--tp-muted, #55635b); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.dv-tab:hover { background: #fff; color: var(--tp-green-900, #14532d); }
+.dv-tab[aria-selected="true"] { background: #fff; color: var(--tp-green-900, #14532d); box-shadow: 0 1px 3px rgba(16, 40, 28, .14); }
+.dv-tab:focus-visible { outline: 3px solid rgba(27, 107, 82, .35); outline-offset: 1px; }
+.dv .dv-panel { display: none; }
+.dv[data-dv-active="enrolment"] [data-dv-panel="enrolment"], .dv[data-dv-active="results"] [data-dv-panel="results"],
+.dv[data-dv-active="marks"] [data-dv-panel="marks"], .dv[data-dv-active="grades"] [data-dv-panel="grades"],
+.dv[data-dv-active="best"] [data-dv-panel="best"], .dv[data-dv-active="teachers"] [data-dv-panel="teachers"] { display: block; }
+.dv .dv-panel { margin-top: 10px; }
+@media (max-width: 640px) { .dv-tab { flex: 1 1 45%; padding: 0 10px; } }
+@media print { .dv-tabs { display: none !important; } .dv .dv-panel { display: block !important; } }

@@ -730,6 +730,7 @@
           <button class="reg-subtab active" role="tab" data-sub="marks" aria-controls="sub-marks" aria-selected="true">Marks entry</button>
           <button class="reg-subtab" role="tab" data-sub="course-review" aria-controls="sub-course-review" aria-selected="false" tabindex="-1">Course review</button>
           <button class="reg-subtab" role="tab" data-sub="report-cards" aria-controls="sub-report-cards" aria-selected="false" tabindex="-1">Report cards</button>
+          <button class="reg-subtab" role="tab" data-sub="subject-results" aria-controls="sub-subject-results" aria-selected="false" tabindex="-1">Subject results</button>
         </div>
 
         <!-- ===== MARKS ENTRY SUB-TAB ===== -->
@@ -868,6 +869,39 @@
         </div>
 
         <!-- ===== REPORT CARDS SUB-TAB ===== -->
+        <!-- ===== SUBJECT RESULTS SUB-TAB: every subject across the school ===== -->
+        <div class="reg-subpanel" id="sub-subject-results">
+          <div class="reg-header-bar">Subject results</div>
+          <div class="tp-card tp-pad sr-controls">
+            <div class="hod-head">
+              <div>
+                <h2>Results of every subject</h2>
+                <p class="muted">Sat, passed and % passed for all students, girls and boys, by subject. Open a subject for its class-by-class report.</p>
+              </div>
+              <div class="hod-actions">
+                <button type="button" class="btn btn-secondary" id="srCsv" disabled>Download CSV</button>
+                <button type="button" class="btn" data-print id="srPrint" disabled>Print / save as PDF</button>
+              </div>
+            </div>
+            <form class="hod-filters sr-filters" id="srForm">
+              <label>Academic year<select id="srYear"><option value="">Loading…</option></select></label>
+              <label>Period<select id="srTerm">
+                <option value="First">First term (Seq. 1 &amp; 2)</option><option value="Second">Second term (Seq. 3 &amp; 4)</option>
+                <option value="Third">Third term (Seq. 5 &amp; 6)</option><option value="">Whole year (Seq. 1–6)</option>
+              </select></label>
+              <label>Section<select id="srSection"><option value="">Whole school</option><option value="Anglophone">Anglophone</option><option value="Francophone">Francophone</option></select></label>
+              <button type="submit" class="btn">Show results</button>
+            </form>
+          </div>
+          <div class="hod-print-head sr-print-head" aria-hidden="true">
+            <div class="hod-print-school">LYCÉE BATOURI</div>
+            <h1 id="srPrintTitle">Subject results</h1>
+            <p id="srPrintMeta"></p>
+          </div>
+          <div id="srReport"><div class="tp-card tp-pad"><p class="muted">Choose the year, period and section, then show the results.</p></div></div>
+          <div id="srDetail"></div>
+        </div>
+
         <div class="reg-subpanel" id="sub-report-cards">
           <div class="reg-header-bar">Report Cards</div>
           <form id="reportCardForm" style="max-width:700px">
@@ -975,6 +1009,14 @@
               <select id="dutyName" required><option value="">Choose a duty</option></select>
             </label>
             <button type="submit" class="btn">Grant duty</button>
+            <fieldset class="duty-classes duty-dept" id="dutyDept" hidden>
+              <legend>Department this head of department leads</legend>
+              <p class="muted">They see the results of this subject in every class of the section, and prepare the department report.</p>
+              <div class="duty-dept-row">
+                <label>Subject<select id="dutyDeptSubject"><option value="">Choose a subject</option></select></label>
+                <label>Section<select id="dutyDeptSection"><option value="Anglophone">Anglophone</option><option value="Francophone">Francophone</option><option value="">Both sections</option></select></label>
+              </div>
+            </fieldset>
             <fieldset class="duty-classes" id="dutyClasses" hidden>
               <legend>Classes this discipline master looks after</legend>
               <p class="muted">They see and justify the absences every teacher marks in these classes. Leave all unticked for the whole school.</p>
@@ -1026,6 +1068,8 @@
   <script src="/js/admin-evaluation.js?v=<%= Date.now() %>"></script>
   <script src="/js/bulletin-settings.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-duties.js?v=<%= Date.now() %>"></script>
+  <script src="/js/department-view.js?v=<%= Date.now() %>"></script>
+  <script src="/js/admin-subject-results.js?v=<%= Date.now() %>"></script>
   <script src="/js/location-picker.js"></script>
 </body>
 </html>

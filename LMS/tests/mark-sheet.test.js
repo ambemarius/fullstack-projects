@@ -78,7 +78,7 @@ test('class broadsheet grades averages out of 20 with the bulletin remarks, one 
 test('teacher panel: sidebar of sections, dashboard first, each section keeps the elements its scripts use', () => {
     const html = fs.readFileSync(path.join(__dirname, '../views/teacher-dashboard.ejs'), 'utf8');
     const links = [...html.matchAll(/class="tp-link" href="#(\w+)" data-tab="(\w+)"/g)].map(m => { assert.equal(m[1], m[2]); return m[1]; });
-    assert.deepEqual(links, ['dashboard', 'timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'discipline', 'duties', 'profile']);
+    assert.deepEqual(links, ['dashboard', 'timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'department', 'discipline', 'duties', 'profile']);
     assert.match(html, /<h2 class="tp-section">Teaching tools<\/h2>/);
     assert.match(html, /id="tw-dashboard" aria-labelledby="tpTitle">/, 'the dashboard section is visible first');
     for (const id of ['timetable', 'attendance', 'marks', 'subjects', 'students', 'lab', 'duties', 'profile']) {

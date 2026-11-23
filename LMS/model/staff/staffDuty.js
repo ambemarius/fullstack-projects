@@ -5,7 +5,9 @@ const DUTIES = {
     librarian: 'Librarian',
     lab_attendant: 'Laboratory attendant',
     discipline_master: 'Discipline master',
+    head_of_department: 'Head of Department',
 };
+const SECTIONS = ['Anglophone', 'Francophone'];
 const STAFF_TYPES = ['admin', 'teacher', 'auxiliary'];
 
 const conflict = message => Object.assign(new Error(message), { statusCode: 409 });
@@ -22,6 +24,66 @@ const PERSON_JOINS = `
 const StaffDutyModel = {
     DUTIES,
     STAFF_TYPES,
+    SECTIONS,
+
+    // The department (subject + section) of a head of department: { dutyId, subjectId, subjectName, section } or null.
+    async department(staffType, staffId) {
+        await poolConnect;
+        try {
+            const result = await pool.request()
+                .input('type', sql.NVarChar(20), staffType)
+                .input('id', sql.Int, staffId)
+                .query(`SELECT TOP 1 d.id AS dutyId, dd.subject_id AS subjectId, s.name AS subjectName, dd.section
+                        FROM staff_duties d JOIN staff_duty_departments dd ON dd.duty_id = d.id JOIN subjects s ON s.id = dd.subject_id
+                        WHERE d.staff_type = @type AND d.staff_id = @id AND d.duty = 'head_of_department' AND d.revoked_at IS NULL`);
+            return result.recordset[0] || null;
+        } catch (err) {
+            if (err.number === 208) return null; // migration 019 not applied yet
+            throw err;
+        }
+    },
+
+    // Departments of every active head-of-department duty: Map dutyId -> { subjectId, subjectName, section }.
+    async departmentsByDuty() {
+        await poolConnect;
+        try {
+            const result = await pool.request().query(`
+                SELECT dd.duty_id, dd.subject_id AS subjectId, s.name AS subjectName, dd.section
+                FROM staff_duty_departments dd JOIN subjects s ON s.id = dd.subject_id
+                JOIN staff_duties d ON d.id = dd.duty_id AND d.revoked_at IS NULL`);
+            return new Map(result.recordset.map(r => [r.duty_id, { subjectId: r.subjectId, subjectName: r.subjectName, section: r.section }]));
+        } catch (err) {
+            if (err.number === 208) return new Map();
+            throw err;
+        }
+    },
+
+    // Set the subject and section of a head-of-department duty (section null = both sections).
+    async setDepartment(dutyId, { subjectId, section }, adminId) {
+        await poolConnect;
+        const subject = Number(subjectId);
+        if (!Number.isSafeInteger(subject) || subject < 1) throw Object.assign(new Error('Choose the subject this head of department covers'), { statusCode: 422 });
+        if (section !== null && section !== undefined && section !== '' && !SECTIONS.includes(section)) throw Object.assign(new Error('Choose Anglophone, Francophone or both sections'), { statusCode: 422 });
+        const sec = section || null;
+        const tx = pool.transaction();
+        await tx.begin();
+        try {
+            const req = () => new sql.Request(tx);
+            const duty = (await req().input('id', sql.Int, dutyId).query('SELECT id, duty FROM staff_duties WITH (UPDLOCK) WHERE id = @id AND revoked_at IS NULL')).recordset[0];
+            if (!duty) throw notFound('Duty not found or already removed');
+            if (duty.duty !== 'head_of_department') throw Object.assign(new Error('Only a head of department covers a subject'), { statusCode: 422 });
+            if (!(await req().input('s', sql.Int, subject).query('SELECT id FROM subjects WHERE id = @s')).recordset.length) throw notFound('That subject does not exist');
+            await req().input('id', sql.Int, dutyId).query('DELETE FROM staff_duty_departments WHERE duty_id = @id');
+            await req().input('id', sql.Int, dutyId).input('s', sql.Int, subject).input('sec', sql.NVarChar(20), sec).input('admin', sql.Int, adminId)
+                .query('INSERT INTO staff_duty_departments (duty_id, subject_id, section, set_by) VALUES (@id, @s, @sec, @admin)');
+            await tx.commit();
+            return { subjectId: subject, section: sec };
+        } catch (err) {
+            await tx.rollback().catch(() => {});
+            if (err.number === 208) throw Object.assign(new Error('Run the database migration (019) before assigning a head of department'), { statusCode: 409 });
+            throw err;
+        }
+    },
 
     async listActive() {
         await poolConnect;

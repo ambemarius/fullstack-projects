@@ -17,10 +17,17 @@ exports.listDutiesCtrl = asyncHandler(async (_req, res) => {
     const classes = await pool.request().query(`SELECT id, section + ' — ' + name + COALESCE(' (' + NULLIF(stream, 'Normal') + ')', '') AS label
         FROM classes ORDER BY section, rank, name`);
     const byDuty = await StaffDuty.classesByDuty();
-    const duties = (await StaffDuty.listActive()).map(d => ({ ...d, classes: d.duty === 'discipline_master' ? byDuty.get(d.id) || [] : undefined }));
+    const departments = await StaffDuty.departmentsByDuty();
+    const subjects = await pool.request().query(`SELECT s.id, s.name, s.code FROM subjects s
+        WHERE EXISTS (SELECT 1 FROM class_subjects cs WHERE cs.subject_id = s.id) ORDER BY s.name, s.code`);
+    const duties = (await StaffDuty.listActive()).map(d => ({
+        ...d,
+        classes: d.duty === 'discipline_master' ? byDuty.get(d.id) || [] : undefined,
+        department: d.duty === 'head_of_department' ? departments.get(d.id) || null : undefined,
+    }));
     res.status(200).json({
         status: 'success',
-        data: { duties, catalogue: StaffDuty.DUTIES, staff: people.recordset, classes: classes.recordset },
+        data: { duties, catalogue: StaffDuty.DUTIES, staff: people.recordset, classes: classes.recordset, subjects: subjects.recordset, sections: StaffDuty.SECTIONS },
     });
 });
 
@@ -47,7 +54,18 @@ exports.grantDutyCtrl = asyncHandler(async (req, res) => {
     if (!Object.hasOwn(StaffDuty.DUTIES, duty)) throw httpError(422, 'Choose a valid duty');
     const classIds = Array.isArray((req.body || {}).classIds) ? req.body.classIds : [];
     if (classIds.length && duty !== 'discipline_master') throw httpError(422, 'Only a discipline master looks after classes');
+    const department = duty === 'head_of_department' ? { subjectId: req.body.subjectId, section: req.body.section || null } : null;
+    if (department && !(Number(department.subjectId) > 0)) throw httpError(422, 'Choose the subject this head of department covers');
+    if (duty === 'head_of_department' && staffType !== 'teacher') throw httpError(422, 'A head of department must be a teacher');
     const dutyId = await StaffDuty.grant({ staffType, staffId: id, duty, adminId: req.userAuth.id });
+    if (department) {
+        try {
+            await StaffDuty.setDepartment(dutyId, department, req.userAuth.id);
+        } catch (err) {
+            await StaffDuty.revoke(dutyId, req.userAuth.id).catch(() => {});
+            throw err;
+        }
+    }
     if (classIds.length) {
         try {
             await StaffDuty.setClasses(dutyId, classIds, req.userAuth.id);
@@ -58,6 +76,16 @@ exports.grantDutyCtrl = asyncHandler(async (req, res) => {
         }
     }
     res.status(201).json({ status: 'success', message: `${StaffDuty.DUTIES[duty]} duty granted${classIds.length ? ` for ${classIds.length} class${classIds.length === 1 ? '' : 'es'}` : ''}`, data: { id: dutyId } });
+});
+
+//@desc   Change the subject and section of a head of department
+//@route  PUT /api/v1/staff-duties/:id/department   { subjectId, section }   (section empty = both sections)
+//@access Private (admin)
+exports.setDutyDepartmentCtrl = asyncHandler(async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id < 1) throw httpError(400, 'Invalid duty');
+    const saved = await StaffDuty.setDepartment(id, req.body || {}, req.userAuth.id);
+    res.status(200).json({ status: 'success', message: 'Department saved', data: saved });
 });
 
 //@desc   Remove a duty
