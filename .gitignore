@@ -46,6 +46,8 @@ Thumbs.db
 # ===========================
 *.bak
 *.sql
+# ...except versioned schema migrations, which the app needs to build its database
+!LMS/migrations/*.sql
 *.db
 *.sqlite
 *.sqlite3

@@ -28,7 +28,7 @@ test('marks save only for pupils enrolled in the offering and reject out-of-rang
             return { recordset: enrolled ? [{ ok: 1 }] : [] };
         }
         assert.ok(!statement.includes('INSERT INTO class_subject_students'), 'marks must not auto-enrol pupils');
-        if (statement.includes('MERGE subject_scores')) assert.equal(params.maxScore, 50, 'maxScore comes from the server');
+        if (statement.includes('MERGE subject_scores')) assert.equal(params.maxScore, 20, 'marks are always out of 20, whatever the client sends');
         return { recordset: [], rowsAffected: [1] };
     });
     const base = await serve(t, createApp({ logging: false, requestContext: (_req, _res, next) => withDatabase(db, next) }));
@@ -37,11 +37,12 @@ test('marks save only for pupils enrolled in the offering and reject out-of-rang
         body: JSON.stringify(body),
     });
     const routes = [
-        ['/api/v1/marks/save/77/First/1/9', { scores: [{ studentId: 42, score: 30, maxScore: 999 }] }],
-        ['/api/v1/marks/save-all/77/First/9', { entries: [{ studentId: 42, seq1: 30, seq2: 35, maxScore: 999 }] }],
+        ['/api/v1/marks/save/77/First/1/9', { scores: [{ studentId: 42, score: 20, maxScore: 999 }] }],
+        ['/api/v1/marks/save-all/77/First/9', { entries: [{ studentId: 42, seq1: 12.5, seq2: 0, maxScore: 999 }] }],
     ];
     for (const [route, body] of routes) assert.equal((await post(route, body)).status, 200);
-    assert.equal((await post(routes[0][0], { scores: [{ studentId: 42, score: 51 }] })).status, 422);
+    assert.equal((await post(routes[0][0], { scores: [{ studentId: 42, score: 20.5 }] })).status, 422, 'above 20 is refused');
+    assert.equal((await post(routes[1][0], { entries: [{ studentId: 42, seq1: 10, seq2: 30 }] })).status, 422, 'above 20 is refused in save-all');
     assert.equal((await post(routes[0][0], { scores: [{ studentId: 42, score: -1 }] })).status, 422);
     assert.equal((await post('/api/v1/marks/save/77/Fourth/1/9', routes[0][1])).status, 400);
     enrolled = false;

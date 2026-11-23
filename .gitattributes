@@ -1,0 +1,2 @@
+# Migration checksums are recorded in the database: keep these files byte-for-byte identical (LF) on every checkout.
+LMS/migrations/*.sql text eol=lf

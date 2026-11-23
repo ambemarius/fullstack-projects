@@ -47,6 +47,8 @@ webRouter.get('/promotion', (req, res) => res.render('promotion'));
 webRouter.get('/parent-dashboard', (req, res) => res.render('parent-dashboard'));
 webRouter.get('/staff-dashboard', (req, res) => res.render('staff-dashboard'));
 webRouter.get('/attendance', (req, res) => res.render('attendance-register'));
+// Printable bulletins: rendered on the server for signed-in administrators (cookie session).
+webRouter.get('/report-cards/print', require('../middlewares/isLogin'), require('../controllers/academic/bulletinCtrl').printPage);
 
 // Uploaded student photos and staff documents: any signed-in account, never anonymous.
 webRouter.get('/files/:name', (req, res, next) => {

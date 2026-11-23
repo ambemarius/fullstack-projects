@@ -34,7 +34,13 @@ test('fully activated M1 policy has an explicit boundary for every retained auth
  const rows=dispositions(legacyRoutes(),m1Policy);
  // Added after the M1 inventory was frozen, for the single-application deployment.
  // Whole-school timetable generation refuses (409) while scoped timetables are enabled.
- const postM1=new Set(['POST /api/v1/parents/admin/link','GET /api/v1/students/my-scores','POST /api/v1/timetables/generate/school/preview','POST /api/v1/timetables/generate/school']);
+ const postM1=new Set(['POST /api/v1/parents/admin/link','GET /api/v1/students/my-scores','POST /api/v1/timetables/generate/school/preview','POST /api/v1/timetables/generate/school',
+  // Printable report cards (bulletins, migration 016).
+  'GET /api/v1/report-cards/settings','PUT /api/v1/report-cards/settings','POST /api/v1/report-cards/settings/:kind','DELETE /api/v1/report-cards/settings/:kind',
+  'GET /api/v1/report-cards/reopening/:yearId','PUT /api/v1/report-cards/reopening','GET /api/v1/report-cards/groups','PUT /api/v1/report-cards/groups',
+  'GET /api/v1/report-cards/records/:classId/:term/:yearId','PUT /api/v1/report-cards/records/:classId/:term/:yearId','GET /api/v1/report-cards/bulletins/:classId/:term/:yearId',
+  // Course review overview.
+  'GET /api/v1/class-subject-students/overview/:academicYearId']);
  const postM1Modules=['/api/v1/staff-duties','/api/v1/attendance','/api/v1/library'];
  for(const route of rows){if(!route.path.startsWith('/api/')||!['admin','teacher','student','any-account'].includes(route.auth)||postM1.has(route.method+' '+route.path)||postM1Modules.some(p=>route.path.startsWith(p)))continue;
   const role=route.auth==='any-account'?'admin':route.auth;

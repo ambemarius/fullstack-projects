@@ -5,7 +5,8 @@ const ClassSubjectStudent = require('../../model/Academic/classSubjectStudent');
 const { sql, pool, poolConnect } = require('../../config/database');
 
 const TERMS = ['First', 'Second', 'Third'];
-const DEFAULT_MAX_SCORE = 50;
+// Every sequence mark is out of 20 (also enforced in the database by CK_ss_score_out_of_20, migration 017).
+const MAX_SCORE = 20;
 const MIN_SEQUENCE = 1;
 const MAX_SEQUENCE = 6;
 
@@ -30,10 +31,9 @@ function parseSequence(value) {
     return seq;
 }
 
-// Maximum marks come from the offering on the server, never from the client payload.
-function maxScoreFor(classSubject) {
-    const candidate = Number(classSubject?.max_score ?? classSubject?.maxScore);
-    return Number.isFinite(candidate) && candidate > 0 ? candidate : DEFAULT_MAX_SCORE;
+// The maximum is fixed on the server (out of 20), never taken from the client payload.
+function maxScoreFor() {
+    return MAX_SCORE;
 }
 
 function parseScore(value, maxScore, index, field) {

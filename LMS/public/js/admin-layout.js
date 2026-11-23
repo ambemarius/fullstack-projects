@@ -4,7 +4,8 @@
   const panels = Object.fromEntries(['home','registration','finance','evaluation','personnel'].map(k => [k, document.getElementById('tab-' + k)]));
   const groups = {
     registration: { key: 'adminSubTab', buttons: [...document.querySelectorAll('#tab-registration .reg-subtab')] },
-    evaluation: { key: 'evalSubTab', buttons: [...document.querySelectorAll('#tab-evaluation .reg-subtab')] }
+    evaluation: { key: 'evalSubTab', buttons: [...document.querySelectorAll('#tab-evaluation .reg-subtab')] },
+    personnel: { key: 'personnelSubTab', buttons: [...document.querySelectorAll('#tab-personnel .reg-subtab')] }
   };
   Object.values(panels).forEach(panel => panel?.setAttribute('role', 'tabpanel'));
   Object.values(groups).forEach(group => group.buttons.forEach(button => document.getElementById('sub-' + button.dataset.sub)?.setAttribute('role', 'tabpanel')));

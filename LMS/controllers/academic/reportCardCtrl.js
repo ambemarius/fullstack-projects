@@ -89,7 +89,7 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
                 AND ss2.sequence = 2
             WHERE s.currentClassLevel = @classId
               AND s.isWithdrawn = 0
-              AND s.academicYearId = @academicYearId
+              AND (s.academicYearId IS NULL OR s.academicYearId = @academicYearId) -- same roster as mark sheets and bulletins
             ORDER BY s.lastName, s.firstName, subj.name
         `);
 
@@ -132,7 +132,7 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
             avg,
             grade: gradeResult ? gradeResult.grade : null,
             remark: gradeResult ? gradeResult.remark : null,
-            passmark: r.passmark || (section === 'Francophone' ? 10 : 50),
+            passmark: r.passmark && r.passmark <= 20 ? r.passmark : 10, // marks are out of 20
             maxScore: max1,
         });
 
@@ -168,8 +168,10 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
     });
 
     // KPIs
-    const classGeneralAvg = students.length > 0
-        ? students.reduce((sum, s) => sum + (s.overallAvg ?? 0), 0) / students.length
+    // Students without any mark yet are left out of the class average instead of counting as 0.
+    const averaged = students.filter(s => s.overallAvg !== null);
+    const classGeneralAvg = averaged.length > 0
+        ? averaged.reduce((sum, s) => sum + s.overallAvg, 0) / averaged.length
         : 0;
 
     const subjectStats = {};
@@ -204,7 +206,7 @@ exports.getReportCardCtrl = asyncHandler(async (req, res) => {
         ? subjectAverages.reduce((a, b) => a.classAvg < b.classAvg ? a : b)
         : null;
 
-    const passThreshold = section === 'Francophone' ? 10 : 50;
+    const passThreshold = 10; // averages are out of 20 in both sections
 
     res.status(200).json({
         status: 'success',

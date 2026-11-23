@@ -6,10 +6,13 @@ const {
     unenrollStudentCtrl,
     bulkEnrollCtrl,
     bulkUnenrollCtrl,
+    getOverviewCtrl,
 } = require('../../controllers/academic/classSubjectStudentCtrl');
 
 const isLogin = require('../../middlewares/isLogin');
 
+// Declared before '/:classSubjectId/:academicYearId', which would otherwise match 'overview/5'.
+cssRouter.get('/overview/:academicYearId', isLogin, getOverviewCtrl);
 cssRouter.get('/:classSubjectId/:academicYearId', isLogin, getClassSubjectStudentsCtrl);
 cssRouter.post('/enroll', isLogin, enrollStudentCtrl);
 cssRouter.post('/unenroll', isLogin, unenrollStudentCtrl);

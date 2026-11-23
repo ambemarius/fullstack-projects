@@ -663,6 +663,12 @@
   });
 
   // ===== PERSONNEL =====
+  let personnel = [];
+  const pf = {
+    form: document.getElementById('personnelFilter'), name: document.getElementById('pfName'), section: document.getElementById('pfSection'),
+    type: document.getElementById('pfType'), status: document.getElementById('pfStatus'), count: document.getElementById('pfCount'),
+  };
+
   async function loadPersonnel() {
     const tbody = document.getElementById('personnelRows');
     const { ok, data } = await api('/teachers');
@@ -670,7 +676,34 @@
       tbody.innerHTML = '<tr><td colspan="8" class="muted">Failed to load.</td></tr>';
       return;
     }
-    tbody.innerHTML = data.data.map(t => {
+    personnel = data.data;
+    // Type choices come from the data (e.g. Government, Part-time), keeping the current choice.
+    if (pf.type) {
+      const current = pf.type.value;
+      const types = [...new Set(personnel.map(t => t.employmentType).filter(Boolean))].sort();
+      pf.type.innerHTML = '<option value="">All types</option>' + types.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+      if (types.includes(current)) pf.type.value = current;
+    }
+    renderPersonnel();
+  }
+
+  function renderPersonnel() {
+    const tbody = document.getElementById('personnelRows');
+    const q = (pf.name?.value || '').trim().toLowerCase();
+    const list = personnel.filter(t => {
+      const name = [t.firstName, t.middleName, t.lastName].filter(Boolean).join(' ') || t.name || '';
+      return (!q || `${name} ${t.email || ''} ${t.phone || ''}`.toLowerCase().includes(q))
+        && (!pf.section?.value || t.section === pf.section.value)
+        && (!pf.type?.value || t.employmentType === pf.type.value)
+        && (!pf.status?.value || t.status === pf.status.value);
+    });
+    const filtering = Boolean(q || pf.section?.value || pf.type?.value || pf.status?.value);
+    if (pf.count) pf.count.textContent = filtering ? `Showing ${list.length} of ${personnel.length} staff` : `${personnel.length} staff`;
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="muted">${personnel.length ? 'No staff match these filters. Clear the filters to see everyone.' : 'No staff yet.'}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(t => {
       const name = esc([t.firstName, t.middleName, t.lastName].filter(Boolean).join(' '));
       const statusBadge = `<span class="badge ${t.status === 'active' ? 'no' : 'yes'}">${esc(t.status)}</span>`;
       const workspaceBase = (document.body.dataset.workspaceBase || '').replace(/\/+$/, '');
@@ -685,6 +718,12 @@
     }).join('');
   }
   window.LMS.loadPersonnel = loadPersonnel;
+  if (pf.form) {
+    pf.name.addEventListener('input', renderPersonnel);
+    [pf.section, pf.type, pf.status].forEach(el => el.addEventListener('change', renderPersonnel));
+    pf.form.addEventListener('submit', ev => ev.preventDefault());
+    pf.form.addEventListener('reset', () => setTimeout(renderPersonnel)); // after the browser clears the fields
+  }
   loadPersonnel();
 
   window.toggleStatus = async function (id, status) {

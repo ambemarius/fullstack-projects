@@ -1,0 +1,91 @@
+<%# Report card (bulletin) settings, shown at the bottom of Evaluation -> Report cards. Logic: public/js/bulletin-settings.js %>
+<div class="rc-settings" id="bulletinSettings">
+  <div class="reg-section-divider">Bulletin settings</div>
+  <p class="muted rc-intro">Used by <strong>Print bulletins (A4)</strong>. Averages, totals and ranks are calculated from the marks every time, so a corrected mark updates every card.</p>
+
+  <details class="rc-section" id="rcHeadBox">
+    <summary>School heading, logo and signature</summary>
+    <form id="settingsForm">
+      <div class="rc-grid">
+        <label>School name (English) <input id="s_name_en" maxlength="200" placeholder="GOVERNMENT HIGH SCHOOL …"></label>
+        <label>School name (French) <input id="s_name_fr" maxlength="200" placeholder="LYCÉE …"></label>
+        <label class="rc-wide">Address and phone line <input id="s_address_line" maxlength="255" placeholder="P.O. Box …, Tel: …"></label>
+        <label>Watermark text <input id="s_watermark_text" maxlength="80" placeholder="Faint text behind the marks"></label>
+        <label>Footer text <input id="s_footer_text" maxlength="255"></label>
+      </div>
+      <details class="rc-details">
+        <summary>Government heading (top left and right)</summary>
+        <div class="rc-grid">
+          <label>Country (English) <input id="s_country_en" maxlength="80"></label>
+          <label>Country (French) <input id="s_country_fr" maxlength="80"></label>
+          <label>Motto (English) <input id="s_motto_en" maxlength="80"></label>
+          <label>Motto (French) <input id="s_motto_fr" maxlength="80"></label>
+          <label>Ministry (English) <input id="s_ministry_en" maxlength="120"></label>
+          <label>Ministry (French) <input id="s_ministry_fr" maxlength="120"></label>
+        </div>
+      </details>
+      <button type="submit" class="reg-btn reg-btn-blue">Save heading</button>
+      <div id="settingsMsg" class="msg" role="status" aria-live="polite"></div>
+    </form>
+    <div class="rc-images">
+      <div class="rc-image">
+        <h4>School logo</h4>
+        <div class="rc-preview" id="logoPreview"><span class="muted">No logo</span></div>
+        <input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp" aria-label="Choose school logo">
+        <div class="rc-row"><button type="button" class="reg-btn reg-btn-gray" data-upload="logo">Upload logo</button>
+          <button type="button" class="reg-btn reg-btn-gray" data-remove="logo">Remove</button></div>
+      </div>
+      <div class="rc-image">
+        <h4>Principal's signature or stamp</h4>
+        <div class="rc-preview" id="signaturePreview"><span class="muted">No signature</span></div>
+        <input type="file" id="signatureFile" accept="image/png,image/jpeg,image/webp" aria-label="Choose signature image">
+        <div class="rc-row"><button type="button" class="reg-btn reg-btn-gray" data-upload="signature">Upload signature</button>
+          <button type="button" class="reg-btn reg-btn-gray" data-remove="signature">Remove</button></div>
+      </div>
+    </div>
+    <div id="imageMsg" class="msg" role="status" aria-live="polite"></div>
+  </details>
+
+  <details class="rc-section" id="rcReopenBox">
+    <summary>Reopening dates</summary>
+    <form id="reopenForm">
+      <div class="rc-row">
+        <label>Academic Year <select id="rYear" required><option value="">-- Select --</option></select></label>
+        <label>After first term <input type="date" id="rFirst"></label>
+        <label>After second term <input type="date" id="rSecond"></label>
+        <label>After third term <input type="date" id="rThird"></label>
+        <button type="submit" class="reg-btn reg-btn-blue">Save dates</button>
+      </div>
+      <div id="reopenMsg" class="msg" role="status" aria-live="polite"></div>
+    </form>
+  </details>
+
+  <details class="rc-section" id="rcBandsBox">
+    <summary>Subject bands</summary>
+    <p class="muted">Bands are printed down the left edge of the marks table, for example GENERAL EDUCATION, TECHNICAL EDUCATION and OTHER SUBS, each with its own sub-total and average. Subjects not given a band print together at the end.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Band name</th><th>Minimum rows</th><th></th></tr></thead>
+      <tbody id="bandRows"></tbody>
+    </table></div>
+    <button type="button" class="reg-btn reg-btn-gray" id="addBand">Add band</button>
+    <h4>Subjects</h4>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Subject</th><th>Band</th><th>Order in band</th></tr></thead>
+      <tbody id="subjectRows"></tbody>
+    </table></div>
+    <button type="button" class="reg-btn reg-btn-blue" id="saveBands">Save bands</button>
+    <div id="bandsMsg" class="msg" role="status" aria-live="polite"></div>
+  </details>
+
+  <details class="rc-section" id="rcDiscBox">
+    <summary>Discipline and class council remarks</summary>
+    <p class="muted">For the Class, Term and Academic Year selected at the top of this tab. Hours of absence come from the attendance registers. Leave a remark empty to print the automatic one from the term average (EXCELLENT … VERY WEAK).</p>
+    <button type="button" class="reg-btn reg-btn-gray" id="loadRecords">Load students</button>
+    <div class="table-wrap"><table id="recordsTable" hidden>
+      <thead><tr><th>Student</th><th>Matricule</th><th>Hours absent</th><th>Repeater</th><th>Council attendance</th><th>Warnings</th><th>Suspensions</th><th>Class council remark</th></tr></thead>
+      <tbody id="recordRows"></tbody>
+    </table></div>
+    <button type="button" class="reg-btn reg-btn-blue" id="saveRecords" hidden>Save records</button>
+    <div id="recordsMsg" class="msg" role="status" aria-live="polite"></div>
+  </details>
+</div>

@@ -66,126 +66,72 @@ async function loadMyStudents() {
   }).join('');
 }
 
-// --- Marks entry ---
+// --- Marks entry (mark sheet: both sequences, out of 20) ---
 let marksSubjects = [];
-let marksCurClassSubjectId = null;
-let marksCurYearId = null;
-let marksCurTerm = null;
-
-function fullStudentName(s) {
-  return [s.firstName, s.middleName, s.lastName].filter(Boolean).join(' ');
-}
+let markSheet = null;
+const msPlaceholder = '<div class="ms-placeholder"><strong>Choose one of your classes and a term</strong>Both sequences open together, marked out of 20.</div>';
+const msMsg = (text, kind) => { const m = document.getElementById('msMsg'); m.textContent = text; m.className = 'msg' + (kind ? ' ' + kind : ''); };
+const classLabel = r => `${r.section} ${r.className}${r.stream && r.stream !== 'Normal' ? ' ' + r.stream : ''}`;
 
 async function loadMarksSubjects() {
   const { ok, data } = await api('/teachers/my-subjects');
   const sel = document.getElementById('msSubject');
-  if (!ok || !data.data.length) return;
+  if (!ok || !data.data.length) { sel.innerHTML = '<option value="">No classes are assigned to you yet</option>'; return; }
   marksSubjects = data.data;
-  // deduplicate and show only unique classSubjectId+term combos
-  const seen = {};
+  const seen = new Set();
   for (const r of data.data) {
-    const key = r.classSubjectId + '-' + r.term;
-    if (seen[key]) continue;
-    seen[key] = true;
-    const label = `${r.section} ${r.className}${r.stream ? ' ' + r.stream : ''} — ${r.subject} (${r.term})`;
+    if (seen.has(r.classSubjectId)) continue; // one entry per class subject; the term is chosen separately
+    seen.add(r.classSubjectId);
     const opt = document.createElement('option');
-    opt.value = r.classSubjectId + '|' + r.term + '|' + r.classId;
-    opt.textContent = label;
+    opt.value = String(r.classSubjectId);
+    opt.textContent = `${classLabel(r)}: ${r.subject}`;
     sel.appendChild(opt);
   }
 }
 
-document.getElementById('msLoadBtn').addEventListener('click', async () => {
-  const val = document.getElementById('msSubject').value;
-  const term = document.getElementById('msTerm').value;
-  const msg = document.getElementById('msMsg');
-  msg.textContent = ''; msg.className = 'msg';
-
-  if (!val || !term) {
-    msg.textContent = 'Select subject and term'; msg.className = 'msg error';
-    return;
-  }
-
-  const yrRes = await api('/academic-context');
-  if (!yrRes.ok) { msg.textContent = 'Failed to load academic years'; msg.className = 'msg error'; return; }
-  const curYear = yrRes.data.data.currentYear;
-  if (!curYear) { msg.textContent = 'No current academic year set'; msg.className = 'msg error'; return; }
-  marksCurYearId = curYear.id;
-  marksCurTerm = term;
-
-  const [csId] = val.split('|');
-  marksCurClassSubjectId = +csId;
-
-  const stRes = await api(`/marks/students/${csId}/${term}/${curYear.id}`);
-  if (!stRes.ok) { msg.textContent = stRes.data?.message || 'Failed to load'; msg.className = 'msg error'; return; }
-  const rows = stRes.data.data;
-
-  const classInfo = marksSubjects.find(r => r.classSubjectId === +csId);
-  document.getElementById('msClassInfo').textContent =
-    classInfo ? `${classInfo.section} ${classInfo.className}${classInfo.stream ? ' ' + classInfo.stream : ''} — ${classInfo.subject} — ${term} term` : '';
-  document.getElementById('marksArea').style.display = 'block';
-
-  const tbody = document.getElementById('marksRows');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="muted">No students are enrolled in this subject for this year yet. Ask the administrator to enrol the class under Evaluation → Course review; their names appear here once enrolled.</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = rows.map((s, i) => {
-    const name = fullStudentName(s);
-    const s1 = s.seq1_score != null ? s.seq1_score : '';
-    const s2 = s.seq2_score != null ? s.seq2_score : '';
-    const total = (s.seq1_score != null ? +s.seq1_score : 0) + (s.seq2_score != null ? +s.seq2_score : 0);
-    return `<tr>
-      <td class="td-num">${i + 1}</td>
-      <td class="td-name">${esc(name)}</td>
-      <td class="td-mat">${esc(s.matricule)}</td>
-      <td class="td-score"><input type="number" class="ms-seq1" data-id="${s.id}" value="${s1}" min="0" max="50" step="0.5" placeholder="0-50"></td>
-      <td class="td-score"><input type="number" class="ms-seq2" data-id="${s.id}" value="${s2}" min="0" max="50" step="0.5" placeholder="0-50"></td>
-      <td class="td-total"><span class="ms-total" data-id="${s.id}">${total}</span></td>
-    </tr>`;
-  }).join('');
-
-  // Auto-update totals as user types
-  document.querySelectorAll('.ms-seq1, .ms-seq2').forEach(inp => {
-    inp.addEventListener('input', () => {
-      const row = inp.closest('tr');
-      const v1 = parseFloat(row.querySelector('.ms-seq1').value) || 0;
-      const v2 = parseFloat(row.querySelector('.ms-seq2').value) || 0;
-      row.querySelector('.ms-total').textContent = v1 + v2;
-    });
+// Changing the selection closes the open sheet (after a warning if marks are unsaved).
+['msSubject', 'msTerm'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('focus', () => { el.dataset.prev = el.value; });
+  el.addEventListener('change', () => {
+    if (markSheet && markSheet.hasUnsavedChanges() && !confirm('You have marks that are not saved. Leave this mark sheet without saving?')) { el.value = el.dataset.prev || ''; return; }
+    if (markSheet) { markSheet.destroy(); markSheet = null; }
+    document.getElementById('msSheet').innerHTML = msPlaceholder;
+    msMsg('');
   });
 });
 
-document.getElementById('msSaveBtn').addEventListener('click', async () => {
-  const msg = document.getElementById('msMsg');
-  msg.textContent = ''; msg.className = 'msg';
-
-  const rows = document.querySelectorAll('#marksRows tr');
-  const entries = [];
-  for (const row of rows) {
-    const s1 = row.querySelector('.ms-seq1');
-    const s2 = row.querySelector('.ms-seq2');
-    if (!s1 || !s2) continue;
-    const v1 = parseFloat(s1.value);
-    const v2 = parseFloat(s2.value);
-    if (isNaN(v1) && isNaN(v2)) continue;
-    const entry = { studentId: +s1.dataset.id, maxScore: 50 };
-    if (!isNaN(v1)) entry.seq1 = v1;
-    if (!isNaN(v2)) entry.seq2 = v2;
-    entries.push(entry);
+document.getElementById('msForm').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const csId = document.getElementById('msSubject').value;
+  const term = document.getElementById('msTerm').value;
+  if (!csId || !term) { msMsg('Choose a class and subject, and a term.', 'error'); return; }
+  const btn = document.getElementById('msLoadBtn');
+  btn.disabled = true; msMsg('Opening the mark sheet…');
+  try {
+    const yrRes = await api('/academic-context');
+    const curYear = yrRes.ok && yrRes.data.data.currentYear;
+    if (!curYear) { msMsg('No current academic year is set. Ask the administrator to set one.', 'error'); return; }
+    const url = `/marks/students/${csId}/${term}/${curYear.id}`;
+    const stRes = await api(url);
+    if (!stRes.ok) { msMsg(stRes.data?.message || 'The students could not be loaded.', 'error'); return; }
+    msMsg('');
+    const info = marksSubjects.find(r => r.classSubjectId === +csId);
+    if (markSheet) markSheet.destroy();
+    markSheet = MarkSheet.mount(document.getElementById('msSheet'), {
+      title: info ? `${classLabel(info)}, ${info.subject}` : 'Mark sheet',
+      term,
+      rows: stRes.data.data || [],
+      fileName: `marks_${info ? classLabel(info) + '_' + info.subject : csId}_${term}`.replace(/[^w-]+/g, '_'),
+      save: async entries => {
+        const res = await api(`/marks/save-all/${csId}/${term}/${curYear.id}`, { method: 'POST', body: JSON.stringify({ entries }) });
+        return { ok: res.ok, message: res.data?.message };
+      },
+      reload: async () => { const res = await api(url); return res.ok ? res.data.data : null; },
+    });
+  } finally {
+    btn.disabled = false;
   }
-
-  if (!entries.length) {
-    msg.textContent = 'Enter at least one score'; msg.className = 'msg error';
-    return;
-  }
-
-  const res = await api(`/marks/save-all/${marksCurClassSubjectId}/${marksCurTerm}/${marksCurYearId}`, {
-    method: 'POST', body: JSON.stringify({ entries })
-  });
-  if (!res.ok) { msg.textContent = res.data?.message || 'Save failed'; msg.className = 'msg error'; return; }
-  msg.textContent = res.data.message + ' — totals updated'; msg.className = 'msg ok';
 });
 
 loadProfile();

@@ -82,7 +82,8 @@ const ClassSubjectStudentModel = {
                 FROM students s
                 WHERE s.currentClassLevel = (SELECT class_id FROM class_subjects WHERE id = @classSubjectId)
                   AND s.isWithdrawn = 0
-                  AND s.academicYearId = @academicYearId
+                  -- Students with no recorded year belong to the current class (same rule as mark sheets and report cards).
+                  AND (s.academicYearId IS NULL OR s.academicYearId = @academicYearId)
                   AND NOT EXISTS (
                       SELECT 1 FROM class_subject_students css
                       WHERE css.class_subject_id = @classSubjectId
@@ -117,6 +118,45 @@ const ClassSubjectStudentModel = {
                 JOIN students s ON s.id = css.student_id
                 WHERE css.class_subject_id = @classSubjectId
                 ORDER BY css.academic_year_id DESC, s.lastName, s.firstName
+            `);
+        return result.recordset;
+    },
+
+    // Every allocated course (class subject) for a year: class size, enrolments and marks entered per sequence of a term.
+    // A class's students are those not withdrawn whose year is unset or this year (same rule as mark sheets and report cards).
+    async overview(academicYearId, term) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('year', sql.Int, academicYearId)
+            .input('term', sql.NVarChar(10), term)
+            .query(`
+                WITH roster AS (
+                    SELECT id, currentClassLevel FROM students
+                    WHERE isWithdrawn = 0 AND (academicYearId IS NULL OR academicYearId = @year)
+                ), enrolled AS (
+                    SELECT css.class_subject_id, css.student_id FROM class_subject_students css
+                    JOIN roster r ON r.id = css.student_id
+                    WHERE css.academic_year_id = @year AND (css.enrolment_status IS NULL OR css.enrolment_status = 'active')
+                )
+                SELECT cs.id AS classSubjectId, c.id AS classId, c.section, c.name AS className, c.stream,
+                       s.id AS subjectId, s.name AS subject, s.code,
+                       CONVERT(float, COALESCE(NULLIF(cs.coefficient, 0), NULLIF(s.coefficient, 0), 1)) AS coefficient,
+                       (SELECT COUNT(*) FROM roster r WHERE r.currentClassLevel = c.id) AS classSize,
+                       (SELECT COUNT(*) FROM enrolled e WHERE e.class_subject_id = cs.id) AS enrolled,
+                       (SELECT COUNT(*) FROM subject_scores ss JOIN enrolled e ON e.class_subject_id = ss.class_subject_id AND e.student_id = ss.student_id
+                        WHERE ss.class_subject_id = cs.id AND ss.academic_year_id = @year AND ss.term = @term AND ss.sequence = 1) AS seq1Entered,
+                       (SELECT COUNT(*) FROM subject_scores ss JOIN enrolled e ON e.class_subject_id = ss.class_subject_id AND e.student_id = ss.student_id
+                        WHERE ss.class_subject_id = cs.id AND ss.academic_year_id = @year AND ss.term = @term AND ss.sequence = 2) AS seq2Entered,
+                       (SELECT COUNT(*) FROM subject_scores ss
+                        WHERE ss.class_subject_id = cs.id AND ss.academic_year_id = @year AND ss.term = @term
+                          AND NOT EXISTS (SELECT 1 FROM enrolled e WHERE e.class_subject_id = ss.class_subject_id AND e.student_id = ss.student_id)) AS marksNotEnrolled,
+                       (SELECT STRING_AGG(t.name, ', ') FROM class_subject_teachers cst JOIN teachers t ON t.id = cst.teacher_id
+                        WHERE cst.class_subject_id = cs.id AND cst.assignment_status = 'active') AS teachers
+                FROM class_subjects cs
+                JOIN classes c ON c.id = cs.class_id
+                JOIN subjects s ON s.id = cs.subject_id
+                WHERE EXISTS (SELECT 1 FROM subject_allocations a WHERE a.class_id = cs.class_id AND a.subject_id = cs.subject_id AND a.academic_year_id = @year)
+                ORDER BY c.section, c.rank, c.name, s.name
             `);
         return result.recordset;
     },

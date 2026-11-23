@@ -72,3 +72,14 @@ exports.bulkUnenrollCtrl = asyncHandler(async (req, res) => {
     await ClassSubjectStudent.bulkUnenroll(+classSubjectId, studentIds.map(Number));
     res.status(200).json({ status: 'success', message: `${studentIds.length} students unenrolled` });
 });
+
+// GET /api/v1/class-subject-students/overview/:academicYearId?term=First
+// Every course for the year with class size, enrolments and marks entered per sequence of the term.
+exports.getOverviewCtrl = asyncHandler(async (req, res) => {
+    const yearId = Number(req.params.academicYearId);
+    const term = req.query.term || 'First';
+    if (!Number.isInteger(yearId) || yearId <= 0) throw httpError(422, 'Choose an academic year.');
+    if (!['First', 'Second', 'Third'].includes(term)) throw httpError(422, 'Choose a term (First, Second or Third).');
+    const rows = await ClassSubjectStudent.overview(yearId, term);
+    res.status(200).json({ status: 'success', results: rows.length, data: { yearId, term, courses: rows } });
+});
