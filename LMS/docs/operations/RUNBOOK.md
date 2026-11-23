@@ -130,4 +130,4 @@ Take a backup immediately before `migrate.js` on every upgrade.
 - [ ] SQL login downgraded from `db_owner` after migrations.
 - [ ] Nightly backup job verified; one restore drill completed.
 - [ ] `config/runtimePolicy.json` reviewed: `parents.enabled` on only if the school wants the guardian portal.
-- [ ] `scripts/seedDemo.js`, `scripts/seedStudents.js`, `scripts/resetPasswords.js` never run against the live database.
+- [ ] `scripts/seedDemo.js` never runs against the live database.

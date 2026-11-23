@@ -4,7 +4,7 @@ const zlib = require('node:zlib');
 const crypto = require('node:crypto');
 
 const ROOTS = ['app', 'config', 'controllers', 'middlewares', 'model', 'public', 'routes', 'scripts', 'utils', 'views', 'tests', 'migrations', 'docs'];
-const ROOT_FILES = ['server.js', 'package.json', 'package-lock.json', '.gitignore', 'README.md', 'AGENT_HANDOFF.md', 'PHASE_STATUS.md', 'IMPLEMENTATION_LOG.md', 'DECISIONS_REQUIRED.md', 'TEST_RESULTS.md', 'LMS_CODEX_IMPLEMENTATION_MASTER_PLAN.md', 'PROJECT_FINDINGS_2026-10-25.md'];
+const ROOT_FILES = ['server.js', 'package.json', 'package-lock.json', '.gitignore', 'README.md'];
 
 function permitted(relative) {
     if (typeof relative !== 'string' || relative.includes('\\') || relative.startsWith('/') ||

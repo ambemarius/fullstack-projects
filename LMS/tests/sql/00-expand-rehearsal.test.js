@@ -22,5 +22,5 @@ test('pending expand migrations rehearse with rollback before the SQL suite appl
         const columns=await db.getPool().request().query("SELECT COL_LENGTH(N'dbo.students',N'school_id') AS length");
         assert.equal(columns.recordset[0].length,null);
     }
-    t.diagnostic(files.length ? `Rolled back ${files.map(f=>f.name).join(', ')}` : 'No pending migrations; original rehearsals are recorded in TEST_RESULTS.md');
+    t.diagnostic(files.length ? `Rolled back ${files.map(f=>f.name).join(', ')}` : 'No pending migrations');
 });

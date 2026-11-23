@@ -2,9 +2,7 @@
 
 A school management system for Cameroonian secondary schools (Anglophone GCE and Francophone Baccalauréat streams). Node.js 20 / Express 5 / EJS server-rendered pages, Microsoft SQL Server, no front-end build step.
 
-**Covers today:** student, teacher and auxiliary-staff registration with photos and documents; classes, subjects, academic years and teacher assignments; timetables; sequence marks with change history; class report cards; end-of-year promotion; a parent/guardian portal (verified by the guardian phone on the student record); staff duties; **financial management** at `/finance` (class fee schedules, batch charges, payments with receipts, reversals, student statements, collection reports and CSV) for administrators and bursars; **attendance** (teachers take registers for their timetabled lessons from their dashboard; administrators and the discipline master use `/attendance` for any class, justification and term totals; absence hours appear on report cards and on student and parent dashboards); **library** at `/library` (catalogue, lending with a per-student loan limit, renewals, returns, lost/damaged review, overdue list by class; students and parents see current loans) and **laboratory** at `/laboratory` for the Physics, Chemistry, Biology, Geology and General laboratories (hazard classes, reorder and expiry warnings, receiving, stock counts and disposal with reasons, usage by subject) with teacher requests at `/lab-requests` (requested before the practical; equipment carries a return-by date, is checked back in as good, damaged or missing, and overdue equipment blocks new equipment requests). Multi-school tenancy remains staged code behind the `model/identity` layer.
-
-Old registration fee checkboxes (`student_fees`) can be copied into the finance ledger once with `node scripts/importLegacyFees.js --year <id> --admin <id>` (dry run; add `--apply` to write).
+**Covers today:** student, teacher and auxiliary-staff registration with photos and documents; classes, subjects, academic years and teacher assignments; timetables; sequence marks with change history; class report cards; end-of-year promotion; a parent/guardian portal (verified by the guardian phone on the student record); staff duties; **financial management** at `/finance` (charging a class or a student, recording what a student paid with one combined receipt, reversals and cancellations, outstanding balances by class, student statements, collection reports and CSV), run by the bursar; **attendance** (teachers take registers for their timetabled lessons from their dashboard; administrators and the discipline master use `/attendance` for justification and term totals, and a discipline master can be limited to chosen classes, which then appear under **Discipline** in their teacher portal; absence hours appear on report cards and on student and parent dashboards); **library** at `/library` (catalogue, lending with a per-student loan limit, renewals, returns, lost/damaged review, overdue list by class; students and parents see current loans) and **laboratory** at `/laboratory` for the Physics, Chemistry, Biology, Geology and General laboratories (hazard classes, reorder and expiry warnings, receiving, stock counts and disposal with reasons, usage by subject) with teacher requests at `/lab-requests` (requested before the practical; equipment carries a return-by date, is checked back in as good, damaged or missing, and overdue equipment blocks new equipment requests). Teachers, students and parents each get a panel with a sidebar of sections; students and parents see results by subject with one column per sequence and the term or year average. Multi-school tenancy remains staged code behind the `model/identity` layer.
 
 ## Install and run a school instance
 
@@ -42,7 +40,7 @@ Five account types, each with its own login endpoint and HttpOnly cookie plus be
 
 ```bash
 npm start            # or npm run server (nodemon)
-npm test             # 170+ isolated tests; no database needed
+npm test             # 250+ isolated tests; no database needed
 npm run test:sql     # optional, against the approved synthetic SQL instance (see docs/implementation/TEST_DATABASE_SETUP.md)
 ```
 
@@ -57,10 +55,11 @@ Code map:
 | `migrations/`, `scripts/migrate.js` | Versioned schema with checksum ledger |
 | `services/` | Notification channels (email/SMS/in-app, flag-gated) |
 | `tests/` | `node:test` suites exercising the real Express app with a synthetic SQL adapter |
-| `docs/operations/` | Runbook. `docs/architecture/` and `docs/design/` hold the review history. |
+| `docs/operations/` | Runbook (install, TLS, backups, restore drill) |
+| `scripts/timetable/` | Timetable scheduler (export inputs, generate, add placeholder teachers) |
 
 ## Architecture note
 
-Between October and November 2026 the project ran as two servers: this application on port 2026 and a "canonical school workspace" (`scripts/canonicalSchool.js`, `model/identity/**`, `routes/identity/**`) on https://localhost:2027 that owned writes behind the `canonical*` policy flags. For a deployable product the owner chose the **single original application**: the flags are off, port 2026 owns all reads and writes, and the identity layer remains in the tree as staged future work (multi-school tenancy, school-local administrators, attendance, finance). See [docs/PRODUCTION_READINESS_REVIEW.md](docs/PRODUCTION_READINESS_REVIEW.md) for the current gap list.
+Between October and November 2026 the project ran as two servers: this application on port 2026 and a "canonical school workspace" (`scripts/canonicalSchool.js`, `model/identity/**`, `routes/identity/**`) on https://localhost:2027 that owned writes behind the `canonical*` policy flags. For a deployable product the owner chose the **single original application**: the flags are off, port 2026 owns all reads and writes, and the identity layer remains in the tree as staged future work (multi-school tenancy, school-local administrators, attendance, finance).
 
-Never run `scripts/seedDemo.js`, `scripts/seedStudents.js` or `scripts/resetPasswords.js` against a real school database.
+Never run `scripts/seedDemo.js` against a real school database.
