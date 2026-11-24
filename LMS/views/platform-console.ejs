@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform console – KodoSchool</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>">
+</head>
+<body class="lms-ui pc-body">
+<header class="pc-top">
+  <div class="pc-brand"><span class="pc-mark" aria-hidden="true">K</span><div><b>KodoSchool</b><small>Platform console</small></div></div>
+  <span class="pc-who" id="pcWho"></span>
+  <button type="button" class="btn btn-secondary btn-sm" id="pcSignOut">Sign out</button>
+</header>
+<main class="pc-main" id="main" hidden>
+  <nav class="pc-tabs" role="tablist" aria-label="Console sections">
+    <button type="button" role="tab" data-tab="schools" aria-selected="true">Schools</button>
+    <button type="button" role="tab" data-tab="signups" aria-selected="false">Sign-ups <span class="pc-count" id="pcPending" hidden></span></button>
+    <button type="button" role="tab" data-tab="audit" aria-selected="false">Activity log</button>
+    <button type="button" role="tab" data-tab="account" aria-selected="false">My account</button>
+  </nav>
+  <p id="pcMsg" class="msg" role="status" aria-live="polite"></p>
+
+  <section class="pc-panel" data-panel="schools" role="tabpanel">
+    <div class="pc-stats" id="pcTotals"></div>
+    <p class="muted pc-note">Counts and dates only: pupils' names, marks and amounts stay inside each school. "Last 30 days" shows whether a school is using KodoSchool.</p>
+    <div class="table-wrap"><table class="pc-table">
+      <thead><tr><th>School</th><th>Status</th><th class="n">Students</th><th class="n">Teachers</th><th class="n">Classes</th>
+        <th class="n">Marks<br><small>30 days</small></th><th class="n">Registers<br><small>30 days</small></th><th class="n">Payments<br><small>30 days</small></th><th>Last activity</th><th></th></tr></thead>
+      <tbody id="pcSchools"><tr><td colspan="10" class="muted">Loading…</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="pc-panel" data-panel="signups" role="tabpanel" hidden>
+    <div class="ps-tabs" role="tablist" aria-label="Sign-up status">
+      <button type="button" data-status="pending" aria-selected="true">Waiting <span data-count="pending">0</span></button>
+      <button type="button" data-status="approved" aria-selected="false">Approved <span data-count="approved">0</span></button>
+      <button type="button" data-status="rejected" aria-selected="false">Rejected <span data-count="rejected">0</span></button>
+      <button type="button" data-status="all" aria-selected="false">All</button>
+    </div>
+    <p class="ps-notice" id="isolationNotice" hidden>Approving is paused until school data is separated on every screen (row-level security). You can review and reject requests meanwhile.</p>
+    <div id="psList" class="ps-list"></div>
+  </section>
+
+  <section class="pc-panel" data-panel="audit" role="tabpanel" hidden>
+    <div class="table-wrap"><table class="pc-table">
+      <thead><tr><th>When</th><th>Who</th><th>What</th><th>School / item</th><th>Detail</th></tr></thead>
+      <tbody id="pcAudit"></tbody>
+    </table></div>
+  </section>
+
+  <section class="pc-panel pc-account" data-panel="account" role="tabpanel" hidden>
+    <h2>Change my password</h2>
+    <form id="pcPasswordForm">
+      <label>Current password <input type="password" id="pcCurrent" autocomplete="current-password" required></label>
+      <label>New password <input type="password" id="pcNext" autocomplete="new-password" minlength="12" maxlength="72" required>
+        <small class="muted">At least 12 characters, with letters and numbers.</small></label>
+      <label>Repeat the new password <input type="password" id="pcNext2" autocomplete="new-password" maxlength="72" required></label>
+      <button type="submit" class="btn">Change password</button>
+    </form>
+  </section>
+</main>
+<script src="/js/platform-console.js"></script>
+</body>
+</html>

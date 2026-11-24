@@ -13,9 +13,13 @@
       <a href="/modules"<%- cur('modules') %>>Modules</a>
       <a href="/pricing"<%- cur('pricing') %>>Pricing</a>
       <a href="/#help">Help</a>
+      <a href="/signup" class="btn btn-gold nav-signin"<%- cur('signup') %>>Register a school</a>
       <a href="/login" class="btn btn-gold nav-signin">Sign in</a>
     </nav>
-    <a href="/login" class="btn btn-gold">Sign in</a>
+    <div class="nav-ctas">
+      <a href="/signup" class="btn btn-gold"<%- cur('signup') %>>Register a school</a>
+      <a href="/login" class="btn btn-gold">Sign in</a>
+    </div>
     <button type="button" class="burger" id="burger" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
   </div>
 </header>

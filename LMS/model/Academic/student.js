@@ -116,11 +116,12 @@ const StudentModel = {
         return result.recordset;
     },
 
-    async findByMatricule(matricule) {
+    async findByMatricule(matricule, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('matricule', sql.NVarChar(50), matricule)
-            .query('SELECT * FROM students WHERE matricule = @matricule');
+            .input('school', sql.Int, schoolId ?? null)
+            .query('SELECT * FROM students WHERE matricule = @matricule AND (@school IS NULL OR school_id = @school)');
         return result.recordset[0] || null;
     },
 

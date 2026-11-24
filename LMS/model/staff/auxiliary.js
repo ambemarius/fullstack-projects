@@ -54,11 +54,12 @@ const AuxiliaryModel = {
     },
 
     // Sign-in only: includes the password hash.
-    async findForLogin(email) {
+    async findForLogin(email, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('email', sql.NVarChar(255), email)
-            .query(`SELECT ${COLUMNS}, password FROM auxiliary_staff WHERE email = @email`);
+            .input('school', sql.Int, schoolId ?? null)
+            .query(`SELECT ${COLUMNS}, password FROM auxiliary_staff WHERE email = @email AND (@school IS NULL OR school_id = @school)`);
         return result.recordset[0] || null;
     },
 

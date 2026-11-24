@@ -14,8 +14,22 @@
   root.querySelectorAll(':scope > details').forEach(box => box.addEventListener('toggle', () => {
     if (!box.open || loaded.has(box.id)) return;
     loaded.add(box.id);
-    ({ rcHeadBox: loadSettings, rcReopenBox: loadYears, rcBandsBox: loadBandsData, rcDiscBox: () => {} })[box.id]?.();
+    ({ rcTemplateBox: loadTemplate, rcHeadBox: loadSettings, rcReopenBox: loadYears, rcBandsBox: loadBandsData, rcDiscBox: () => {} })[box.id]?.();
   }));
+
+  // ---- report card template ----
+  async function loadTemplate() {
+    const res = await api('/report-cards/settings');
+    if (res.ok) $('s_template').value = res.data.data.card_template || 'classic';
+    else fail('templateMsg', res, 'Could not load the template.');
+  }
+  $('templateForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const res = await api('/report-cards/settings/template', { method: 'PUT', body: JSON.stringify({ template: $('s_template').value }) });
+    if (!res.ok) return fail('templateMsg', res, 'Could not save the template.');
+    $('s_template').value = res.data.data.card_template;
+    say('templateMsg', 'Template saved. Bulletins now print with it.', 'ok');
+  });
 
   // ---- heading, logo and signature ----
   function showImage(kind, file) {

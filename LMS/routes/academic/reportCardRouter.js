@@ -9,6 +9,8 @@ const { uploadSingle } = require('../../middlewares/upload');
 const imageKind = (req, res, next) => (['logo', 'signature'].includes(req.params.kind) ? next() : res.status(404).json({ status: 'error', message: 'Resource not found' }));
 reportCardRouter.get('/settings', isLogin, bulletin.getSettings);
 reportCardRouter.put('/settings', isLogin, bulletin.saveSettings);
+reportCardRouter.get('/templates', isLogin, bulletin.templates);
+reportCardRouter.put('/settings/template', isLogin, bulletin.saveTemplate);
 reportCardRouter.post('/settings/:kind', isLogin, imageKind, ...uploadSingle('image', { category: 'image', subDir: 'reportcard' }), bulletin.uploadImage);
 reportCardRouter.delete('/settings/:kind', isLogin, imageKind, bulletin.removeImage);
 reportCardRouter.get('/reopening/:yearId', isLogin, bulletin.getReopening);

@@ -4,6 +4,9 @@ const Student = require('../../model/Academic/student');
 const ClassSubject = require('../../model/Academic/classSubject');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
+const { resolveLoginSchool } = require('../../utils/loginSchool');
+// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
+const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
 const { getPublicUrl } = require('../../middlewares/upload');
 
 const httpError = (status, message) => {
@@ -46,7 +49,8 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
     const { email, password } = req.body || {};
     if (!email || !password) throw httpError(400, 'email and password are required');
 
-    const teacher = await Teacher.findByEmail(email);
+    const school = await loginSchool(req);
+    const teacher = await Teacher.findByEmail(email, school.id);
     const isMatch = teacher && await Teacher.verifyPassword(password, teacher.password);
     if (!teacher || !isMatch) throw httpError(401, 'Invalid login credentials');
 
@@ -55,7 +59,7 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
     }
 
     const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('teacher',teacher.id,undefined,teacher.password) : undefined;
-    const token = generateToken(teacher.id, 'teacher', version);
+    const token = generateToken(teacher.id, 'teacher', version, teacher.school_id || school.id);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = teacher;
     res.status(200).json({ status: 'success', data: safe, token });

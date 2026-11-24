@@ -582,6 +582,8 @@
     if (!classId || !term || !yearId) { toast('Select class, term and year.'); return; }
     const params = { classId, term, yearId };
     if (rcStudent && rcStudent.value) params.studentId = rcStudent.value;
+    const rcTemplate = document.getElementById('rcTemplate');
+    if (rcTemplate && rcTemplate.value) params.template = rcTemplate.value;
     window.open('/report-cards/print?' + new URLSearchParams(params).toString(), '_blank', 'noopener');
   });
 

@@ -919,10 +919,20 @@
               <label>Bulletins to print
                 <select id="rcStudent" disabled><option value="">Whole class (all students)</option></select>
               </label>
+              <label>Template
+                <select id="rcTemplate">
+                  <option value="">School default (Bulletin settings)</option>
+                  <option value="classic">Classic bilingual (English | French)</option>
+                  <option value="anglophone">MINESEC – Anglophone (English)</option>
+                  <option value="francophone">MINESEC – Francophone (French)</option>
+                  <option value="technical">MINESEC – Technical (bilingual)</option>
+                  <option value="auto">Automatic: English for Anglophone classes, French for Francophone classes</option>
+                </select>
+              </label>
             </div>
             <div class="teacher-action-row" style="margin-top:8px">
               <button type="button" class="reg-btn reg-btn-blue" id="rcGenerateBtn">Generate Report Card</button>
-              <button type="button" class="reg-btn reg-btn-blue" id="rcBulletinBtn" title="One A4 bilingual report card per student">Print class bulletins (A4)</button>
+              <button type="button" class="reg-btn reg-btn-blue" id="rcBulletinBtn" title="One A4 report card per student">Print class bulletins (A4)</button>
               <button type="button" class="reg-btn reg-btn-gray" id="rcSettingsBtn">Bulletin settings</button>
             </div>
           </form>

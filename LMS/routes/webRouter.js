@@ -10,6 +10,11 @@ const webRouter = express.Router();
 webRouter.get('/', (req, res) => res.render('landing'));
 webRouter.get('/modules', (req, res) => res.render('modules'));
 webRouter.get('/pricing', (req, res) => res.render('pricing'));
+webRouter.get('/signup', (req, res) => res.render('school-signup'));
+// KodoSchool platform console (KodoSchool's own administrators; the API checks the platform account).
+webRouter.get('/platform/login', (req, res) => res.render('platform-login'));
+webRouter.get('/platform', (req, res) => res.render('platform-console'));
+webRouter.get('/platform/signups', (req, res) => res.redirect('/platform#signups'));
 
 webRouter.get('/health', async (_req, res) => {
     const body = { status: 'ok', version, uptime: Math.round(process.uptime()) };

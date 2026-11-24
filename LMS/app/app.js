@@ -45,6 +45,8 @@ const ROUTES = [
     ['/api/v1/staff-duties', '../routes/staff/staffDutyRouter'],
     ['/api/v1/department', '../routes/academic/departmentRouter'],
     ['/api/v1/class-master', '../routes/academic/classMasterRouter'],
+    ['/api/v1/school-signup', '../routes/platform/schoolSignupRouter'],
+    ['/api/v1/platform', '../routes/platform/platformRouter'],
     ['/finance', '../routes/finance/financeRouter'],
     ['/api/v1/attendance', '../routes/attendance/attendanceRouter'],
     ['/api/v1/library', '../routes/inventory/loansRouter'],
@@ -63,6 +65,8 @@ function createApp({ routes, requestContext, logging = true, legacyPersonnelRead
     // Changes on every start, so browsers fetch new stylesheets after an upgrade.
     app.locals.assetVersion = Date.now().toString(36);
     app.use(require('../middlewares/stagedFeaturesGate').stagedFeaturesGate);
+    // School isolation: each request runs inside the school of its signed sign-in token.
+    app.use(require('../middlewares/tenantContext').tenantContext);
     app.locals.legacyCredentialVersionsEnabled = legacyCredentialVersionsEnabled;
     app.locals.legacyScopedExamResultsEnabled = legacyScopedExamResultsEnabled;
     app.locals.legacyScopedPersonnelReadsEnabled=legacyScopedPersonnelReadsEnabled;

@@ -12,19 +12,21 @@ const Parent = {
         return result.recordset[0] || null;
     },
 
-    async findByEmail(email) {
+    async findByEmail(email, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('email', sql.NVarChar(255), email)
-            .query('SELECT * FROM parents WHERE email = @email');
+            .input('school', sql.Int, schoolId ?? null)
+            .query('SELECT * FROM parents WHERE email = @email AND (@school IS NULL OR school_id = @school)');
         return result.recordset[0] || null;
     },
 
-    async findByPhone(phone) {
+    async findByPhone(phone, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('phone', sql.NVarChar(20), phone)
-            .query('SELECT * FROM parents WHERE phone = @phone');
+            .input('school', sql.Int, schoolId ?? null)
+            .query('SELECT * FROM parents WHERE phone = @phone AND (@school IS NULL OR school_id = @school)');
         return result.recordset[0] || null;
     },
 

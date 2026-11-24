@@ -3,6 +3,30 @@
   <div class="reg-section-divider">Bulletin settings</div>
   <p class="muted rc-intro">Used by <strong>Print bulletins (A4)</strong>. Averages, totals and ranks are calculated from the marks every time, so a corrected mark updates every card.</p>
 
+  <details class="rc-section" id="rcTemplateBox">
+    <summary>Report card template</summary>
+    <p class="muted">The layout <strong>Print bulletins (A4)</strong> uses unless you pick another one when printing. Every template prints the same marks, averages and ranks; they differ in language, layout, remark scale and the class council's decisions.</p>
+    <form id="templateForm" class="rc-row">
+      <label>Template
+        <select id="s_template">
+              <option value="classic">Classic bilingual (English | French)</option>
+              <option value="anglophone">MINESEC – Anglophone (English)</option>
+              <option value="francophone">MINESEC – Francophone (French)</option>
+              <option value="technical">MINESEC – Technical (bilingual)</option>
+              <option value="auto">Automatic: English for Anglophone classes, French for Francophone classes</option>
+        </select>
+      </label>
+      <button type="submit" class="reg-btn reg-btn-blue">Save template</button>
+    </form>
+    <ul class="muted rc-template-notes">
+      <li><strong>Classic bilingual</strong>: the current card, every heading in English and French.</li>
+      <li><strong>MINESEC Anglophone / Francophone</strong>: one language, subject groups with averages, term averages, class results (highest, lowest, pass rate) and the class council's decision (roll of honour, warnings, conduct).</li>
+      <li><strong>MINESEC Technical</strong>: the same layout with English and French side by side, for technical schools.</li>
+      <li><strong>Automatic</strong>: Anglophone classes print in English and Francophone classes in French.</li>
+    </ul>
+    <div id="templateMsg" class="msg" role="status" aria-live="polite"></div>
+  </details>
+
   <details class="rc-section" id="rcHeadBox">
     <summary>School heading, logo and signature</summary>
     <form id="settingsForm">

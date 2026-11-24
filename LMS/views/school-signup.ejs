@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Register your school — KodoSchool</title>
+<meta name="description" content="Register your secondary school on KodoSchool: school details, the school's super administrator, then KodoSchool validates and activates your school.">
+<link rel="stylesheet" href="/css/site-fonts.css">
+<link rel="stylesheet" href="/css/site.css?v=<%= locals.assetVersion || '' %>">
+<style>
+  .su-hero { background: linear-gradient(180deg, var(--g-800), var(--g-900)); color: #fff; padding: 52px 0 120px; }
+  .su-hero .crumbs { font-size: 14px; color: rgba(255,255,255,.7); }
+  .su-hero .crumbs a:hover { color: #fff; }
+  .su-hero h1 { font-size: clamp(34px, 4.4vw, 52px); line-height: 1.04; font-weight: 800; margin: 14px 0 0; max-width: 760px; }
+  .su-hero p { font-size: 18px; color: rgba(255,255,255,.82); max-width: 620px; margin: 16px 0 0; }
+  .su-main { padding: 0 0 96px; margin-top: -84px; }
+  .su-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start; }
+  .su-card { background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 30px 70px -45px rgba(11,46,35,.55); padding: 34px 38px 32px; }
+
+  /* steps: a real sequence, so they are numbered */
+  .su-steps { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 30px; padding: 0; counter-reset: s; }
+  .su-steps li { counter-increment: s; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--muted); padding-bottom: 12px; border-bottom: 3px solid var(--line); }
+  .su-steps li::before { content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; background: var(--g-50); color: var(--g-800); }
+  .su-steps li[aria-current="step"] { color: var(--ink); border-bottom-color: var(--g-700); }
+  .su-steps li[aria-current="step"]::before { background: var(--g-800); color: #fff; }
+  .su-steps li.done { color: var(--g-700); border-bottom-color: var(--g-500); }
+  .su-steps li.done::before { content: "✓"; background: var(--g-100); }
+
+  .su-step h2 { font-size: 26px; }
+  .su-step > p.intro { color: var(--muted); margin: 6px 0 24px; }
+  .su-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+  .su-fields .wide { grid-column: 1 / -1; }
+  .su-field { display: flex; flex-direction: column; gap: 7px; font-size: 14px; font-weight: 600; }
+  .su-field input, .su-field select { font: inherit; font-weight: 400; font-size: 16px; padding: 12px 14px; border: 1px solid #cfdad5; border-radius: 10px; background: #fff; color: var(--ink); min-height: 48px; }
+  .su-field input:focus, .su-field select:focus { outline: none; border-color: var(--g-700); box-shadow: 0 0 0 3px rgba(27,107,82,.16); }
+  .su-field small { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .su-field .err { color: var(--red); font-weight: 600; font-size: 13px; }
+  .su-field.invalid input, .su-field.invalid select { border-color: var(--red); }
+  .su-phone { display: flex; }
+  .su-phone span { display: grid; place-items: center; padding: 0 12px; border: 1px solid #cfdad5; border-right: 0; border-radius: 10px 0 0 10px; background: var(--bg); font-weight: 600; color: var(--muted); }
+  .su-phone input { border-radius: 0 10px 10px 0; flex: 1; min-width: 0; }
+
+  .su-systems { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border: 0; padding: 0; margin: 0; }
+  .su-systems legend { font-size: 14px; font-weight: 600; margin-bottom: 7px; padding: 0; }
+  .su-systems label { position: relative; display: block; border: 1px solid #cfdad5; border-radius: 12px; padding: 12px 14px; cursor: pointer; font-weight: 600; font-size: 15px; }
+  .su-systems label small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .su-systems input { position: absolute; opacity: 0; pointer-events: none; }
+  .su-systems label:has(input:checked) { border-color: var(--g-700); background: var(--g-50); box-shadow: inset 0 0 0 1px var(--g-700); }
+  .su-systems label:has(input:focus-visible) { outline: 3px solid var(--gold-d); outline-offset: 2px; }
+
+  .su-review { display: grid; gap: 14px; margin-bottom: 22px; }
+  .su-review section { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: var(--bg); }
+  .su-review header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .su-review h3 { font-size: 17px; }
+  .su-review button { background: none; border: 0; font: inherit; font-weight: 700; color: var(--g-700); cursor: pointer; padding: 6px; border-radius: 8px; }
+  .su-review dl { display: grid; grid-template-columns: 150px 1fr; gap: 6px 14px; margin: 0; font-size: 15px; }
+  .su-review dt { color: var(--muted); }
+  .su-review dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
+  .su-check { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; margin-top: 18px; }
+  .su-check input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--g-700); flex: none; }
+
+  .su-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .su-actions [hidden], .su-field[hidden] { display: none; }
+  .su-actions .btn-back { background: #fff; border: 1px solid #cfdad5; color: var(--ink); }
+  .su-actions .btn-back:hover { border-color: var(--g-500); }
+  .su-actions .btn[disabled] { opacity: .6; cursor: progress; }
+  .su-msg { margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; background: #fde8e8; color: #8a1c1c; font-weight: 600; font-size: 14.5px; }
+  .su-msg[hidden] { display: none; }
+  .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+
+  .su-done { text-align: left; }
+  .su-done .tick { width: 56px; height: 56px; border-radius: 16px; background: var(--g-100); color: var(--g-800); display: grid; place-items: center; font-size: 28px; font-weight: 800; }
+  .su-done h2 { margin-top: 18px; }
+  .su-done .ref { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+  .su-done .ref div { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; background: var(--bg); }
+  .su-done .ref small { display: block; color: var(--muted); font-size: 13px; }
+  .su-done .ref b { font-family: var(--display); font-size: 22px; letter-spacing: .01em; overflow-wrap: anywhere; }
+  .su-done ol { padding-left: 20px; color: var(--ink); line-height: 1.7; }
+
+  .su-aside { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 26px; }
+  .su-aside h2 { font-size: 20px; }
+  .su-aside ol { padding-left: 20px; margin: 14px 0 0; color: var(--muted); line-height: 1.6; font-size: 15px; }
+  .su-aside ol b { color: var(--ink); }
+  .su-aside p { color: var(--muted); font-size: 14.5px; margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+  .su-aside a { color: var(--g-700); font-weight: 700; }
+
+  @media (max-width: 960px) { .su-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) {
+    .su-card { padding: 24px 20px; }
+    .su-fields, .su-systems, .su-done .ref { grid-template-columns: 1fr; }
+    .su-steps li { font-size: 12.5px; flex-direction: column; align-items: flex-start; gap: 6px; }
+    .su-review dl { grid-template-columns: 1fr; gap: 2px; }
+    .su-review dd { margin-bottom: 8px; }
+    .su-actions { flex-direction: column-reverse; }
+    .su-actions .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+<%- include('partials/site-icons') %>
+<%- include('partials/site-nav', { current: 'signup' }) %>
+<main id="main" tabindex="-1">
+
+<section class="su-hero">
+  <div class="wrap">
+    <div class="crumbs"><a href="/">Home</a> &nbsp;/&nbsp; Register your school</div>
+    <h1>Register your school</h1>
+    <p>Three short steps: your school, the person who will manage it, then send. KodoSchool checks the details and activates your school.</p>
+  </div>
+</section>
+
+<section class="su-main">
+  <div class="wrap su-grid">
+    <div class="su-card">
+      <form id="signupForm" novalidate>
+        <ol class="su-steps" id="steps">
+          <li data-step="1" aria-current="step">School</li>
+          <li data-step="2">Super administrator</li>
+          <li data-step="3">Review and send</li>
+        </ol>
+
+        <!-- Step 1: the school -->
+        <div class="su-step" data-panel="1">
+          <h2>Your school</h2>
+          <p class="intro">As it should appear on report cards and receipts.</p>
+          <div class="su-fields">
+            <label class="su-field wide" data-for="schoolName">School name
+              <input id="schoolName" name="schoolName" maxlength="200" autocomplete="organization" placeholder="e.g. Government Bilingual High School Bertoua" required>
+            </label>
+            <fieldset class="su-systems wide" data-for="educationSystem">
+              <legend>Language system</legend>
+              <label><input type="radio" name="educationSystem" value="Anglophone">Anglophone<small>English sub-system</small></label>
+              <label><input type="radio" name="educationSystem" value="Francophone">Francophone<small>French sub-system</small></label>
+              <label><input type="radio" name="educationSystem" value="Bilingual">Bilingual<small>Both sections</small></label>
+            </fieldset>
+            <label class="su-field wide" data-for="address">Address
+              <input id="address" name="address" maxlength="255" autocomplete="street-address" placeholder="P.O. Box, town and neighbourhood" required>
+            </label>
+            <label class="su-field" data-for="regionId">Region
+              <select id="regionId" name="regionId" required><option value="">Loading regions…</option></select>
+            </label>
+            <label class="su-field" data-for="divisionId">Division
+              <select id="divisionId" name="divisionId" required disabled><option value="">Choose the region first</option></select>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 2: the super administrator -->
+        <div class="su-step" data-panel="2" hidden>
+          <h2>Super administrator</h2>
+          <p class="intro">The person who will manage KodoSchool for the school: adding staff, classes and students.</p>
+          <div class="su-fields">
+            <label class="su-field wide" data-for="adminName">Full name
+              <input id="adminName" name="adminName" maxlength="200" autocomplete="name" required>
+            </label>
+            <label class="su-field" data-for="adminFunction">Function
+              <select id="adminFunction" name="adminFunction" required>
+                <option value="">Choose…</option>
+                <option>Principal</option><option>Vice-principal</option><option>Head of studies</option><option>Discipline master</option>
+                <option>Bursar</option><option>IT officer</option><option>Proprietor / founder</option><option>Other</option>
+              </select>
+            </label>
+            <label class="su-field" data-for="adminFunctionOther" id="otherFunction" hidden>Which function?
+              <input id="adminFunctionOther" name="adminFunctionOther" maxlength="80">
+            </label>
+            <label class="su-field" data-for="adminPhone">Phone number
+              <span class="su-phone"><span>+237</span><input id="adminPhone" name="adminPhone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="6 77 12 34 56" required></span>
+            </label>
+            <label class="su-field" data-for="adminEmail">Email address
+              <input id="adminEmail" name="adminEmail" type="email" autocomplete="email" maxlength="255" required>
+              <small>Used to sign in once the school is active.</small>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 3: review, password, send -->
+        <div class="su-step" data-panel="3" hidden>
+          <h2>Review and send</h2>
+          <p class="intro">Check the details, choose the super administrator's password, then send the request to KodoSchool.</p>
+          <div class="su-review" id="review"></div>
+          <div class="su-fields">
+            <label class="su-field" data-for="password">Password
+              <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required>
+              <small>At least 8 characters, with letters and numbers.</small>
+            </label>
+            <label class="su-field" data-for="password2">Confirm the password
+              <input id="password2" name="password2" type="password" autocomplete="new-password" maxlength="72" required>
+            </label>
+          </div>
+          <label class="su-check" data-for="acceptTerms"><input type="checkbox" id="acceptTerms" name="acceptTerms">
+            <span>The details are correct and I am allowed to register this school on KodoSchool.</span></label>
+          <label class="hp" aria-hidden="true">Website <input name="website" id="website" tabindex="-1" autocomplete="off"></label>
+        </div>
+
+        <p class="su-msg" id="formMsg" role="alert" hidden></p>
+
+        <div class="su-actions" id="actions">
+          <button type="button" class="btn btn-back" id="backBtn" hidden>Back</button>
+          <span></span>
+          <button type="submit" class="btn btn-dark" id="nextBtn">Continue</button>
+        </div>
+      </form>
+
+      <!-- After sending -->
+      <div class="su-done" id="done" hidden tabindex="-1">
+        <div class="tick" aria-hidden="true">✓</div>
+        <h2>Request sent for validation</h2>
+        <p>Thank you. <b id="doneSchool"></b> is waiting for KodoSchool to check the details.</p>
+        <div class="ref">
+          <div><small>Your reference</small><b id="doneRef"></b></div>
+          <div><small>Your school code, once activated</small><b id="doneCode"></b></div>
+        </div>
+        <ol>
+          <li>KodoSchool checks the school and contacts the super administrator by phone or email.</li>
+          <li>Once the school is activated, sign in at <a href="/login">kodoschool.com/login</a> with the school code above, the email <b id="doneEmail"></b> and the password you chose.</li>
+          <li>Then add your classes, subjects, staff and students.</li>
+        </ol>
+        <p>Keep the reference: quote it if you contact us about this request.</p>
+      </div>
+    </div>
+
+    <aside class="su-aside" aria-labelledby="nextTitle">
+      <h2 id="nextTitle">What happens next</h2>
+      <ol>
+        <li><b>You send the request.</b> Nothing is charged.</li>
+        <li><b>KodoSchool validates it</b> and may call to confirm the school.</li>
+        <li><b>Your school is activated.</b> The super administrator signs in and sets up the school.</li>
+      </ol>
+      <p>Already registered? <a href="/login">Sign in</a>. Questions about price? See <a href="/pricing">pricing</a>.</p>
+    </aside>
+  </div>
+</section>
+
+</main>
+<%- include('partials/site-footer') %>
+<script src="/js/site-nav.js"></script>
+<script src="/js/school-signup.js"></script>
+</body>
+</html>

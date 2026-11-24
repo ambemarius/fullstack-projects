@@ -21,11 +21,12 @@ const Admin = {
     },
 
     // Find a single admin by email, or return null.
-    async findByEmail(email) {
+    async findByEmail(email, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('email', sql.NVarChar(255), email)
-            .query('SELECT * FROM Admins WHERE email = @email');
+            .input('school', sql.Int, schoolId ?? null)
+            .query('SELECT * FROM Admins WHERE email = @email AND (@school IS NULL OR school_id = @school)');
         return result.recordset[0] || null;
     },
 

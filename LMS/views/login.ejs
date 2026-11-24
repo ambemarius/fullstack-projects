@@ -1,8 +1,8 @@
-<%- include('partials/header', { title: 'Login' }) %>
+<%- include('partials/header', { title: 'Login', hideSchoolName: true }) %>
 
 <div class="lms-login-layout">
   <section class="lms-login-intro">
-    <p class="lms-eyebrow">KodoSchool · Lycée Batouri</p>
+    <p class="lms-eyebrow">KodoSchool</p>
     <h1>Welcome to your school workspace</h1>
     <p>Sign in with your school account to access your dashboard, records and tools.</p>
   </section>
@@ -11,6 +11,10 @@
     <h2>Sign in</h2>
     <p style="color:var(--muted);font-size:14px;margin:0 0 4px">Choose your role and enter your credentials.</p>
     <form id="loginForm">
+      <label>School code
+        <input id="schoolCode" autocomplete="organization" autocapitalize="characters" spellcheck="false" maxlength="50" placeholder="e.g. LYCEE_BATOURI" aria-describedby="schoolCodeHint" />
+        <small id="schoolCodeHint" class="field-hint">Given by your school. Remembered on this device.</small>
+      </label>
       <label>Account type
         <select id="role">
           <option value="admin">Administrator</option>

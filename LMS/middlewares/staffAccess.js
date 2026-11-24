@@ -54,7 +54,7 @@ function requireStaff({ duties = [], allowAdmin = true, allowTeacher = false, an
                 duties: Object.freeze(held),
                 disciplineClasses: disciplineClasses ? Object.freeze(disciplineClasses) : null,
             });
-            next();
+            require('./tenantContext').confirmSchool(req, claims, account, next);
         } catch (err) {
             next(err);
         }

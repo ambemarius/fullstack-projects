@@ -10,6 +10,9 @@ const verifyToken = require('../../utils/verifyToken')
 const {isLegacyAdministrator}=require('../../utils/legacyAccountRole');
 const { sql, pool, poolConnect } = require('../../config/database');
 const { setAuthCookie } = require('../../utils/authCookie');
+const { resolveLoginSchool } = require('../../utils/loginSchool');
+// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
+const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
 
 // build an Error carrying an HTTP status (read by the global error handler)
 const httpError = (status, message) => {
@@ -64,8 +67,9 @@ exports.loginadminCtrl = asyncHandler(async (req, res) => {
     }
 
 
-        // find the admin by email
-        const user = await Admin.findByEmail(email);
+        // find the admin by email, inside the school whose code was typed
+        const school = await loginSchool(req);
+        const user = await Admin.findByEmail(email, school.id);
 
         // verify the password against the stored hash
         const isMatch = user && isLegacyAdministrator(user.role) && await Admin.verifyPassword(password, user.password);
@@ -78,7 +82,7 @@ exports.loginadminCtrl = asyncHandler(async (req, res) => {
 
         // issue a JWT and return it (the client sends it back as "Bearer <token>")
         const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('admin',user.id,undefined,user.password) : undefined;
-        const token = generateToken(user.id, 'admin', version);
+        const token = generateToken(user.id, 'admin', version, user.school_id || school.id);
         setAuthCookie(res, token);
 
         // never send the password hash back

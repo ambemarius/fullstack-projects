@@ -3,6 +3,9 @@ const Student = require('../../model/Academic/student');
 const AcademicYear = require('../../model/Academic/academicYear');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
+const { resolveLoginSchool } = require('../../utils/loginSchool');
+// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
+const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
 const { getPublicUrl } = require('../../middlewares/upload');
 
 const httpError = (status, message) => {
@@ -36,13 +39,14 @@ exports.loginStudentCtrl = asyncHandler(async (req, res) => {
     const { matricule, password } = req.body || {};
     if (!matricule || !password) throw httpError(400, 'matricule and password are required');
 
-    const student = await Student.findByMatricule(matricule);
+    const school = await loginSchool(req);
+    const student = await Student.findByMatricule(matricule, school.id);
     const isMatch = student && await Student.verifyPassword(password, student.password);
     if (!student || !isMatch) throw httpError(401, 'Invalid login credentials');
 
     if (student.isWithdrawn) throw httpError(403, 'This account is inactive');
     const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('student',student.id,undefined,student.password) : undefined;
-    const token = generateToken(student.id, 'student', version);
+    const token = generateToken(student.id, 'student', version, student.school_id || school.id);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = student;
     res.status(200).json({ status: 'success', data: safe, token });

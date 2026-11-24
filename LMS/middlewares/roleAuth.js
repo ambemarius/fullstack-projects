@@ -64,7 +64,8 @@ function createRoleAuth({ accountType, findById }) {
                 (accountType === 'teacher' && account.status !== 'active') ||
                 (accountType === 'student' && account.isWithdrawn) ||
                 (accountType === 'parent' && account.status && account.status !== 'active') ||
-                (accountType === 'auxiliary' && (account.status !== 'active' || !account.canSignIn))) {
+                (accountType === 'auxiliary' && (account.status !== 'active' || !account.canSignIn)) ||
+                (accountType === 'platform' && account.status !== 'active')) {
                 const err = new Error('This account is inactive');
                 err.statusCode = 403;
                 return next(err);
@@ -76,7 +77,7 @@ function createRoleAuth({ accountType, findById }) {
             }
             req.userAuth = safe;
             req.auth = { accountType, legacyId: claims.id };
-            next();
+            require('./tenantContext').confirmSchool(req, claims, account, next);
         } catch (err) {
             next(err);
         }

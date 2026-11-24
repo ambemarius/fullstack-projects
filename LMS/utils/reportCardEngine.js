@@ -131,8 +131,15 @@ function buildReportCards(school, classroom, students, marksInput, termInfo, {
     // 2. Terminal averages, overall rank and class average.
     const termAvg = new Map(ids.map(id => [id, termAverage(id, classroom, marks, term, cfg)]));
     const overallRank = competitionRanks(termAvg);
-    const classAverage = mean([...termAvg.values()].filter(v => v !== null));
+    const validAverages = [...termAvg.values()].filter(v => v !== null);
+    const classAverage = mean(validAverages);
     const classSize = students.length;
+    // Highest and lowest term averages, and the share of classified students at or above the pass mark.
+    const classStats = {
+        highest: validAverages.length ? round(Math.max(...validAverages), cfg) : null,
+        lowest: validAverages.length ? round(Math.min(...validAverages), cfg) : null,
+        pass_rate: validAverages.length ? Math.round(1000 * validAverages.filter(v => v >= cfg.passMark).length / validAverages.length) / 10 : null,
+    };
 
     return students.map(st => {
         const groupVms = [];
@@ -232,6 +239,7 @@ function buildReportCards(school, classroom, students, marksInput, termInfo, {
                 subjects_passed: passed,
                 subjects_taken: taken,
             },
+            class_stats: classStats,
             term_history: termHistory,
             annual_average: annual,
             status,

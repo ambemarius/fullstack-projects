@@ -23,6 +23,7 @@ test('auxiliary staff sign in only when active and holding a password; the hash 
     const hash = await bcrypt.hash('synthetic-staff-password', 4);
     let row = { ...auxRow, password: hash };
     const db = syntheticDatabase(statement => {
+        if (statement.includes('FROM schools')) return { recordset: [{ id: 1, code: 'LYCEE_BATOURI', name: 'Synthetic School', status: 'active' }] };
         if (statement.includes('FROM auxiliary_staff WHERE email')) return { recordset: [row] };
         if (statement.includes('FROM staff_duties')) return { recordset: [{ duty: 'bursar' }] };
         throw new Error('unexpected statement: ' + statement);
@@ -34,6 +35,7 @@ test('auxiliary staff sign in only when active and holding a password; the hash 
     assert.equal(ok.status, 200);
     const payload = await ok.json();
     assert.equal(verifyToken(payload.token, 'auxiliary').id, 5);
+    assert.equal(verifyToken(payload.token, 'auxiliary').sid, 1, 'the token carries the school');
     assert.equal(Object.hasOwn(payload.data, 'password'), false);
     assert.deepEqual(payload.data.duties, ['bursar']);
 

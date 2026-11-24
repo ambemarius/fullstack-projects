@@ -10,6 +10,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { sql, pool, poolConnect } = require('../../config/database');
 const { buildReportCards, DEFAULT_CONFIG } = require('../../utils/reportCardEngine');
+const { TEMPLATE_IDS } = require('../../utils/reportCardTemplates');
 
 const TERMS = ['First', 'Second', 'Third'];
 const TERM_NO = { First: 1, Second: 2, Third: 3 };
@@ -70,7 +71,15 @@ function defaultImage(fileName) {
 async function defaultAbsences(schoolId, { classId, yearId, term: tm }) {
     const service = require('../attendance/attendanceService').createAttendanceService();
     const totals = await service.classTotals({ schoolId }, { classId, yearId, term: tm });
-    return new Map([...totals].map(([studentId, t]) => [studentId, t.absentHours || 0]));
+    return new Map([...totals].map(([studentId, t]) => [studentId, {
+        absentHours: t.absentHours || 0, justifiedHours: t.justifiedHours || 0, unjustifiedHours: t.unjustifiedHours || 0, lates: t.lates || 0,
+    }]));
+}
+// Absence totals may be plain hours (older callers and tests) or the detailed object above.
+function hoursOf(v) {
+    if (v && typeof v === 'object') return v;
+    const h = Number(v) || 0;
+    return { absentHours: h, justifiedHours: 0, unjustifiedHours: h, lates: 0 };
 }
 
 function createReportCardService({ read = defaultRead, beginTransaction = defaultTransaction, image = defaultImage, absences = defaultAbsences, config = DEFAULT_CONFIG } = {}) {
@@ -107,6 +116,7 @@ function createReportCardService({ read = defaultRead, beginTransaction = defaul
         for (const field of Object.keys(SETTINGS_FIELDS)) settings[field] = row[field] ?? SETTINGS_DEFAULTS[field] ?? '';
         settings.logo_file = row.logo_file || null;
         settings.signature_file = row.signature_file || null;
+        settings.card_template = TEMPLATE_IDS.includes(row.card_template) ? row.card_template : 'classic';
         return settings;
     }
 
@@ -133,6 +143,22 @@ function createReportCardService({ read = defaultRead, beginTransaction = defaul
             WHEN MATCHED THEN UPDATE SET ${column} = @file, updated_by = @actor, updated_at = SYSUTCDATETIME()
             WHEN NOT MATCHED THEN INSERT (school_id, ${column}, updated_by) VALUES (@school, @file, @actor);`,
         { school: [sql.Int, schoolId], file: [sql.NVarChar(200), fileName], actor: [sql.Int, actor.id] }));
+        return getSettings(schoolId);
+    }
+
+    // The report card template the school prints with by default (migration 020 adds the column).
+    async function saveTemplate(actor, schoolId, template) {
+        if (!TEMPLATE_IDS.includes(template)) throw fail(422, 'Choose a report card template.');
+        await schoolRow(schoolId);
+        try {
+            await writeTx(query => query(`MERGE report_card_settings WITH (HOLDLOCK) AS t USING (SELECT @school AS school_id) AS s ON t.school_id = s.school_id
+                WHEN MATCHED THEN UPDATE SET card_template = @template, updated_by = @actor, updated_at = SYSUTCDATETIME()
+                WHEN NOT MATCHED THEN INSERT (school_id, card_template, updated_by) VALUES (@school, @template, @actor);`,
+            { school: [sql.Int, schoolId], template: [sql.NVarChar(20), template], actor: [sql.Int, actor.id] }));
+        } catch (error) {
+            if (error.number === 207) throw fail(409, 'Saving a default template needs a database update (migration 020). You can still choose a template each time you print.');
+            throw error;
+        }
         return getSettings(schoolId);
     }
 
@@ -247,7 +273,7 @@ function createReportCardService({ read = defaultRead, beginTransaction = defaul
             students: students.map(s => {
                 const r = records.get(s.id) || {};
                 return {
-                    studentId: s.id, name: fullName(s), matricule: s.matricule, absences: absent.get(s.id) || 0,
+                    studentId: s.id, name: fullName(s), matricule: s.matricule, absences: hoursOf(absent.get(s.id)).absentHours,
                     is_repeater: Boolean(r.is_repeater), council_attendance: r.council_attendance || 0, warnings: r.warnings || 0,
                     suspensions: r.suspensions || 0, council_remark: r.council_remark || '',
                 };
@@ -355,7 +381,9 @@ function createReportCardService({ read = defaultRead, beginTransaction = defaul
         const discipline = {}, councilRemarks = {}, owing = {};
         for (const s of students) {
             const r = records.get(s.id) || {};
-            discipline[s.id] = { absences: absent.get(s.id) || 0, council_attendance: r.council_attendance || 0, warnings: r.warnings || 0, suspensions: r.suspensions || 0 };
+            const h = hoursOf(absent.get(s.id));
+            discipline[s.id] = { absences: h.absentHours, justified: h.justifiedHours, unjustified: h.unjustifiedHours, lateness: h.lates,
+                council_attendance: r.council_attendance || 0, warnings: r.warnings || 0, suspensions: r.suspensions || 0 };
             if (r.council_remark) councilRemarks[s.id] = r.council_remark;
         }
         for (const o of owingRows) owing[o.student_id] = Math.max(0, o.owing || 0);
@@ -369,16 +397,19 @@ function createReportCardService({ read = defaultRead, beginTransaction = defaul
         };
         let cards = buildReportCards(school, classroom, engineStudents, marks, { term: TERM_NO[tm], reopening_date: reopening[tm] },
             { discipline, owing, councilRemarks, config });
+        cards = cards.map(c => ({ ...c, council_remark_set: Boolean(councilRemarks[c.student.id]) }));
         if (studentId) cards = cards.filter(c => c.student.id === String(studentId));
-        return { classId, yearId, term: tm, className: classroom.name, yearName: year.name, cards };
+        return { classId, yearId, term: tm, className: classroom.name, yearName: year.name, section: cls.section || '', template: settings.card_template, cards };
     }
 
-    return { getSettings, saveSettings, setImage, getReopening, saveReopening, getGroups, saveGroups, getRecords, saveRecords, classCards };
+    return { getSettings, saveSettings, saveTemplate, setImage, getReopening, saveReopening, getGroups, saveGroups, getRecords, saveRecords, classCards };
 }
 
 // The school an administrator works in (single-school installs fall back to the only active school).
 async function schoolIdFor(user, read = defaultRead) {
     if (Number.isSafeInteger(user?.school_id)) return user.school_id;
+    const fromRequest = require('../../utils/tenant').optionalSchoolId();
+    if (fromRequest) return fromRequest;
     const rows = (await read("SELECT id FROM schools WHERE status = 'active'")).recordset;
     if (rows.length !== 1) throw fail(409, 'This account is not linked to a school.');
     return rows[0].id;

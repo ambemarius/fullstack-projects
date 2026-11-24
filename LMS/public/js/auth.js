@@ -51,6 +51,14 @@ if (reason === 'expired') {
   for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
 }
 
+// School code: from a school's own link (?school=CODE), else the one last used on this device.
+const schoolInput = document.getElementById('schoolCode');
+if (schoolInput) {
+  let remembered = '';
+  try { remembered = localStorage.getItem('schoolCode') || ''; } catch { /* storage unavailable */ }
+  schoolInput.value = new URLSearchParams(window.location.search).get('school') || remembered;
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   msg.textContent = '';
@@ -74,7 +82,7 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch(ENDPOINT[role], {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [cfg.field]: identifier, password }),
+      body: JSON.stringify({ [cfg.field]: identifier, password, schoolCode: schoolInput ? schoolInput.value.trim() : '' }),
     });
     const data = await res.json();
 
@@ -89,6 +97,7 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.data));
     localStorage.setItem('role', role);
+    try { if (schoolInput && schoolInput.value.trim()) localStorage.setItem('schoolCode', schoolInput.value.trim().toUpperCase()); } catch { /* storage unavailable */ }
     // Return to the page that asked for sign-in, but only a same-site path.
     const next = new URLSearchParams(window.location.search).get('next');
     window.location.href = next && /^\/(?!\/)[\w\-/?=&%.]*$/.test(next) ? next : HOME[role];

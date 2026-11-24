@@ -39,6 +39,11 @@ test('fully activated M1 policy has an explicit boundary for every retained auth
   'GET /api/v1/report-cards/settings','PUT /api/v1/report-cards/settings','POST /api/v1/report-cards/settings/:kind','DELETE /api/v1/report-cards/settings/:kind',
   'GET /api/v1/report-cards/reopening/:yearId','PUT /api/v1/report-cards/reopening','GET /api/v1/report-cards/groups','PUT /api/v1/report-cards/groups',
   'GET /api/v1/report-cards/records/:classId/:term/:yearId','PUT /api/v1/report-cards/records/:classId/:term/:yearId','GET /api/v1/report-cards/bulletins/:classId/:term/:yearId',
+  // Report card templates (migration 020).
+  'GET /api/v1/report-cards/templates','PUT /api/v1/report-cards/settings/template',
+  // KodoSchool platform console (migrations 022-023).
+  'GET /api/v1/platform/me','PUT /api/v1/platform/password','GET /api/v1/platform/schools','PUT /api/v1/platform/schools/:id/status',
+  'GET /api/v1/platform/signups','POST /api/v1/platform/signups/:id/approve','POST /api/v1/platform/signups/:id/reject','GET /api/v1/platform/audit',
   // Course review overview.
   'GET /api/v1/class-subject-students/overview/:academicYearId']);
  const postM1Modules=['/api/v1/staff-duties','/api/v1/attendance','/api/v1/library'];

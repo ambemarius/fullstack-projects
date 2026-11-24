@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KodoSchool staff sign-in</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>">
+</head>
+<body class="lms-ui pc-body">
+<main class="pc-login" id="main">
+  <div class="pc-login-card">
+    <div class="pc-brand"><span class="pc-mark" aria-hidden="true">K</span><div><b>KodoSchool</b><small>Platform console</small></div></div>
+    <h1>KodoSchool staff sign-in</h1>
+    <p class="muted">For KodoSchool's own team. Schools sign in at <a href="/login">kodoschool.com/login</a>.</p>
+    <form id="pcLoginForm" novalidate>
+      <label>Email <input id="pcEmail" type="email" autocomplete="username" required></label>
+      <label>Password <input id="pcPassword" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="btn" id="pcLoginBtn">Sign in</button>
+    </form>
+    <p id="pcLoginMsg" class="msg" role="alert"></p>
+  </div>
+</main>
+<script src="/js/platform-console.js"></script>
+</body>
+</html>

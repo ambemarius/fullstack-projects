@@ -3,6 +3,7 @@
 const asyncHandler = require('express-async-handler');
 const { createReportCardService, schoolIdFor } = require('../../model/Academic/reportCardService');
 const { code128Svg } = require('../../utils/code128');
+const { TEMPLATE_CHOICES, TEMPLATE_IDS, resolveTemplate, decorate } = require('../../utils/reportCardTemplates');
 
 let defaultService;
 const serviceFor = req => req.app.locals.reportCardService || (defaultService ||= createReportCardService());
@@ -12,6 +13,9 @@ const ok = (res, data, status = 200) => res.status(status).json({ status: 'succe
 
 exports.getSettings = asyncHandler(async (req, res) => ok(res, await serviceFor(req).getSettings(await schoolOf(req))));
 exports.saveSettings = asyncHandler(async (req, res) => ok(res, await serviceFor(req).saveSettings(actorOf(req), await schoolOf(req), req.body || {})));
+
+exports.templates = (req, res) => ok(res, TEMPLATE_CHOICES);
+exports.saveTemplate = asyncHandler(async (req, res) => ok(res, await serviceFor(req).saveTemplate(actorOf(req), await schoolOf(req), (req.body || {}).template)));
 
 exports.uploadImage = asyncHandler(async (req, res) => {
     if (!req.file) return res.status(422).json({ status: 'error', message: 'Choose a PNG, JPEG or WebP image (up to 5 MB).' });
@@ -50,14 +54,19 @@ const dmy = v => {
     return d && m && y ? `${d}.${m}.${y}` : '';
 };
 
-//@route GET /report-cards/print?classId=&term=&yearId=[&studentId=]   (A4, one page per student)
+//@route GET /report-cards/print?classId=&term=&yearId=[&studentId=][&template=]   (A4, one page per student)
+// template: classic | anglophone | francophone | technical | auto; without it the school's saved choice is used.
 exports.printPage = asyncHandler(async (req, res) => {
     const { classId, term, yearId, studentId } = req.query;
     const data = await serviceFor(req).classCards({ classId, term, yearId, studentId });
+    const asked = TEMPLATE_IDS.includes(req.query.template) ? req.query.template : data.template;
+    const template = resolveTemplate(asked, data.section);
+    const cards = data.cards.map(card => ({ ...card, barcode: code128Svg(card.student.matricule) }));
     res.set('Cache-Control', 'private, no-store');
-    res.render('report-card-print', {
+    res.render(template === 'classic' ? 'report-card-print' : 'report-card-minesec', {
         ...data,
-        cards: data.cards.map(card => ({ ...card, barcode: code128Svg(card.student.matricule) })),
+        template,
+        cards: template === 'classic' ? cards : cards.map(card => decorate(card, template)),
         fmt: { num, coef, money, dmy },
     });
 });

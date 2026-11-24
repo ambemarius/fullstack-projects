@@ -31,6 +31,28 @@ function createDatabase({ driver = sql, configuration = () => databaseConfigurat
     return { getPool, connect, close };
 }
 
+// School isolation: every query first tells SQL Server which school the request works for
+// (SESSION_CONTEXT 'school_id', or NULL when none is set). New rows are stamped from it (migration 021) and
+// row-level security can filter on it. Setting it on every query, NULL included, means a pooled connection
+// never carries one request's school into the next request.
+const { optionalSchoolId } = require('../utils/tenant');
+// Batches whose first statement must be CREATE/ALTER of a view, procedure, function, trigger or schema.
+const OWN_BATCH = /^(?:\s|--[^\n]*\n|\/\*[\s\S]*?\*\/)*(?:CREATE|ALTER)\s+(?:OR\s+ALTER\s+)?(?:PROCEDURE|PROC|VIEW|FUNCTION|TRIGGER|SCHEMA)\b/i;
+function schoolContextPrefix() {
+    const id = optionalSchoolId();
+    return `EXEC sys.sp_set_session_context @key = N'school_id', @value = ${id === null ? 'NULL' : Number(id)};\n`;
+}
+function withSchoolContext(command) {
+    return typeof command === 'string' && !OWN_BATCH.test(command) ? schoolContextPrefix() + command : command;
+}
+if (!sql.Request.prototype.kodoSchoolContext) {
+    const originalQuery = sql.Request.prototype.query;
+    sql.Request.prototype.query = function query(command, ...rest) {
+        return originalQuery.call(this, withSchoolContext(command), ...rest);
+    };
+    Object.defineProperty(sql.Request.prototype, 'kodoSchoolContext', { value: true });
+}
+
 const context = new AsyncLocalStorage();
 const defaultDatabase = createDatabase({
     configuration() { loadEnvironment(); return databaseConfiguration(); },
@@ -53,6 +75,6 @@ function withDatabase(database, operation) {
 }
 
 module.exports = {
-    sql, pool, poolConnect, createDatabase, withDatabase,
+    sql, pool, poolConnect, createDatabase, withDatabase, withSchoolContext,
     connect: () => current().connect(), close: () => current().close(),
 };
