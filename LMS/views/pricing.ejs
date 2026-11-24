@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing · KodoSchool</title>
+<meta name="description" content="KodoSchool pricing: one yearly price per school based on student numbers, everything included. 50,000 XAF per year up to 300 students, then 17 XAF per student per month, never less than 50,000 XAF.">
+<link rel="stylesheet" href="/css/site-fonts.css">
+<link rel="stylesheet" href="/css/site.css?v=<%= locals.assetVersion || '' %>">
+</head>
+<body>
+
+<%- include('partials/site-icons') %>
+
+<!-- ================= NAV ================= -->
+<%- include('partials/site-nav', { current: 'pricing' }) %>
+<main id="main" tabindex="-1">
+
+<!-- ================= PAGE HEADER ================= -->
+<style>
+  .page-hero { position: relative; overflow: hidden; color: #fff; padding: 72px 0 64px;
+               background: radial-gradient(900px 500px at 90% 0%, rgba(47,154,116,.35), transparent 60%), linear-gradient(180deg, var(--g-800), var(--g-900)); }
+  .page-hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .07; background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 22px 22px; }
+  .page-hero .wrap { position: relative; z-index: 1; }
+  .crumbs { font-size: 14px; color: rgba(255,255,255,.7); }
+  .crumbs a:hover { color: #fff; }
+  .page-hero h1 { font-size: clamp(38px, 5vw, 62px); line-height: 1.02; font-weight: 800; margin: 16px 0 0; max-width: 760px; }
+  .page-hero h1 span { color: var(--gold); }
+  .page-hero p { font-size: 19px; color: rgba(255,255,255,.82); max-width: 620px; margin: 20px 0 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .fact { display: inline-flex; align-items: center; gap: 10px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16); border-radius: 999px; padding: 9px 16px; font-size: 14.5px; font-weight: 600; }
+  .fact svg { width: 17px; height: 17px; color: var(--gold); }
+  .fact b { color: var(--gold); }
+</style>
+<section class="page-hero">
+  <div class="wrap">
+    <div class="crumbs"><a href="/">Home</a> &nbsp;/&nbsp; Pricing</div>
+    <h1>Priced per student. <span>Everything included.</span></h1>
+    <p>One yearly price based on how many students your school really has. Every module and every account is included. Pay in one go or in two instalments.</p>
+    <div class="facts">
+      <span class="fact"><svg><use href="#i-wallet"/></svg><span><b>50,000 XAF</b> per year up to 300 students</span></span>
+      <span class="fact"><svg><use href="#i-cal"/></svg>30-day free trial</span>
+      <span class="fact"><svg><use href="#i-users"/></svg>Unlimited accounts</span>
+      <span class="fact"><svg><use href="#i-file"/></svg>Free setup and list import</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<!-- SAMPLE PRICES & PROMISES: edit the PRICING settings in the script below and the promise cards, to match your real offer. -->
+<style>
+  .pricing { background: #fff; }
+  .price-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; margin-top: 40px; border-radius: 22px; overflow: hidden; box-shadow: 0 30px 70px -40px rgba(11,46,35,.6); border: 1px solid var(--line); }
+  .pc-in { background: var(--bg); padding: 34px 36px; }
+  .pc-in h3 { font-size: 20px; }
+  .pc-in .hint { color: var(--muted); font-size: 14.5px; margin: 6px 0 22px; }
+  .pc-label { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 0 0 8px; }
+  .stud { display: flex; align-items: center; gap: 12px; }
+  .stud input[type=number] { width: 140px; height: 56px; border: 1.5px solid var(--line); border-radius: 12px; padding: 0 14px; font: inherit; font-family: var(--display); font-size: 26px; font-weight: 800; color: var(--g-800); background: #fff; text-align: right; }
+  .stud span { font-weight: 600; color: var(--muted); }
+  .stud-step { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font: inherit; font-size: 22px; font-weight: 700; color: var(--g-800); cursor: pointer; }
+  .stud-step:hover { border-color: var(--g-700); }
+  #pcRange { width: 100%; margin: 18px 0 6px; accent-color: var(--g-700); height: 28px; }
+  .ticks { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 5px; margin-top: 24px; }
+  .seg button { border: 0; background: none; font: inherit; font-weight: 700; font-size: 14px; color: var(--muted); padding: 11px 8px; border-radius: 9px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--g-800); color: #fff; }
+  .early { display: flex; align-items: center; gap: 10px; margin-top: 16px; font-size: 14.5px; cursor: pointer; }
+  .early input { width: 20px; height: 20px; accent-color: var(--g-700); }
+  .same { margin-top: 18px; font-size: 13.5px; color: var(--muted); }
+  .pc-in input:focus-visible, .pc-in button:focus-visible { outline: 3px solid rgba(27,107,82,.3); outline-offset: 2px; }
+
+  .pc-out { background: linear-gradient(160deg, var(--g-800), var(--g-950)); color: #fff; padding: 34px 36px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+  .pc-out::after { content: ""; position: absolute; right: -90px; top: -90px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(242,207,122,.22), transparent 70%); }
+  .pc-out .lbl { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.7); }
+  .pc-price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .pc-price b { font-family: var(--display); font-size: clamp(40px, 5vw, 58px); font-weight: 800; line-height: 1; white-space: nowrap; transition: color .2s; }
+  .pc-price span { font-size: 16px; color: rgba(255,255,255,.75); white-space: nowrap; }
+  .pc-basis { margin-top: 10px; font-size: 14px; color: rgba(255,255,255,.85); }
+  .pc-was { font-size: 14px; color: var(--gold); font-weight: 700; min-height: 20px; margin-top: 8px; }
+  .pc-inst { margin-top: 6px; font-size: 15px; color: rgba(255,255,255,.85); }
+  .pc-lines { margin: 22px 0 26px; border-top: 1px solid rgba(255,255,255,.14); }
+  .pc-lines div { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.14); font-size: 15px; }
+  .pc-lines div b { white-space: nowrap; }
+  .pc-lines .free { color: var(--gold); }
+  .pc-out .btn { justify-content: center; position: relative; z-index: 1; }
+  .pc-note { margin-top: 12px; font-size: 13px; color: rgba(255,255,255,.7); text-align: center; }
+
+  .promises { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 28px; }
+  .promise { border: 1px solid var(--line); border-radius: 16px; padding: 22px; background: #fff; }
+  .promise .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--g-50); color: var(--g-800); display: grid; place-items: center; }
+  .promise .ic svg { width: 21px; height: 21px; }
+  .promise b { display: block; font-size: 16px; margin: 14px 0 4px; }
+  .promise p { margin: 0; font-size: 14.5px; color: var(--muted); }
+
+  .incl-faq { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 48px; margin-top: 64px; }
+  .incl h3, .pfaq h3 { font-size: 24px; font-weight: 800; }
+  .incl .tag2 { display: inline-block; margin-top: 6px; font-size: 14px; color: var(--muted); }
+  .incl ul { list-style: none; padding: 0; margin: 22px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 22px; }
+  .incl li { display: flex; gap: 10px; font-size: 15px; }
+  .incl li::before { content: ""; flex: none; width: 20px; height: 20px; border-radius: 50%; margin-top: 1px;
+    background: var(--g-100) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23124d3b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12 5 5 9-10'/%3E%3C/svg%3E") center/11px no-repeat; }
+  .pfaq details { border-bottom: 1px solid var(--line); padding: 15px 0; }
+  .pfaq details:first-of-type { margin-top: 12px; }
+  .pfaq summary { cursor: pointer; font-weight: 700; font-size: 15.5px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+  .pfaq summary::-webkit-details-marker { display: none; }
+  .pfaq summary::after { content: "+"; font-size: 22px; line-height: 1; color: var(--g-700); }
+  .pfaq details[open] summary::after { content: "–"; }
+  .pfaq details p { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
+  .sample-note { margin-top: 26px; font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 1020px) {
+    .price-grid { grid-template-columns: 1fr; }
+    .promises { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .incl-faq { grid-template-columns: 1fr; gap: 40px; }
+  }
+  @media (max-width: 560px) {
+    .pc-in, .pc-out { padding: 26px 20px; }
+    .promises, .incl ul { grid-template-columns: 1fr; }
+    .stud input[type=number] { width: 120px; }
+  }
+</style>
+
+<section class="pricing" id="calculator" style="padding-top:56px">
+  <div class="wrap">
+    <div class="price-grid">
+      <div class="pc-in">
+        <h3>Your school</h3>
+        <p class="hint">Up to 300 students: <b>50,000 XAF per academic year</b>, flat. More than 300 students: 17 XAF per student per month, never less than 50,000 XAF. Public or private, French, English or bilingual: the same price.</p>
+        <label class="pc-label" for="pcNum">Students enrolled</label>
+        <div class="stud">
+          <button type="button" class="stud-step" data-step="-50" aria-label="50 fewer students">−</button>
+          <input type="number" id="pcNum" min="1" max="10000" value="250" inputmode="numeric">
+          <button type="button" class="stud-step" data-step="50" aria-label="50 more students">+</button>
+          <span>students</span>
+        </div>
+        <input type="range" id="pcRange" min="50" max="3000" step="10" value="250" aria-label="Students enrolled">
+        <div class="ticks"><span>50</span><span>1,000</span><span>2,000</span><span>3,000+</span></div>
+
+        <div class="seg" role="group" aria-label="How to pay">
+          <button type="button" aria-pressed="true" data-pay="once">Pay in one go</button>
+          <button type="button" aria-pressed="false" data-pay="inst">2 instalments</button>
+        </div>
+        <label class="early"><input type="checkbox" id="pcEarly"><span>Paid before the school year starts (−<span id="pcEarlyPct">5</span>%)</span></label>
+        <p class="same">One go or two instalments: the yearly total is the same.</p>
+      </div>
+
+      <div class="pc-out" aria-live="polite">
+        <div class="lbl">Your yearly price</div>
+        <div class="pc-price"><b id="pcTotal">120,000 XAF</b><span>/ year</span></div>
+        <div class="pc-basis" id="pcBasis"></div>
+        <div class="pc-was" id="pcWas"></div>
+        <div class="pc-inst" id="pcInst">Paid in one go · all included for 400 students</div>
+        <div class="pc-lines">
+          <div><span>Per student per school month</span><b id="pcMonth">22 XAF</b></div>
+          <div><span>Setup, list import and training</span><b class="free">Free</b></div>
+          <div><span>Parent, student and staff accounts</span><b class="free">Unlimited</b></div>
+        </div>
+        <a class="btn btn-gold" id="pcQuote" href="#" target="_blank" rel="noopener">Get my written quote on WhatsApp <svg><use href="#i-arrow"/></svg></a>
+        <div class="pc-note">A quote for the exact amount. No commitment.</div>
+      </div>
+    </div>
+
+    <div class="promises">
+      <div class="promise"><div class="ic"><svg><use href="#i-cal"/></svg></div><b>30-day free trial</b><p>The whole platform. If you don't subscribe, your school stays readable and nothing is deleted.</p></div>
+      <div class="promise"><div class="ic"><svg><use href="#i-file"/></svg></div><b>Your lists imported</b><p>Send your class lists in Excel or Word. We import them for free.</p></div>
+      <div class="promise"><div class="ic"><svg><use href="#i-shield"/></svg></div><b>Price held at renewal</b><p>Your price per student stays the same when you renew next year.</p></div>
+      <div class="promise"><div class="ic"><svg><use href="#i-users"/></svg></div><b>Recommend a school</b><p>Get one free term for every school you recommend that subscribes.</p></div>
+    </div>
+
+    <div class="incl-faq">
+      <div class="incl">
+        <h3>Everything included.</h3>
+        <span class="tag2">No paid modules, no extras per user.</span>
+        <ul>
+          <li>Marks entry by sequence, on phone or computer</li>
+          <li>Report cards with ranks and council remarks</li>
+          <li>Registers, lateness and absence justifications</li>
+          <li>Discipline record carried onto the bulletin</li>
+          <li>Fees, payments and numbered receipts</li>
+          <li>Outstanding balances class by class</li>
+          <li>Generated timetables for classes and teachers</li>
+          <li>Library loans and laboratory requests</li>
+          <li>Statistics by class, subject, girls and boys</li>
+          <li>Promotion at the end of the year</li>
+          <li>Parent and student accounts</li>
+          <li>Training, updates and support</li>
+        </ul>
+      </div>
+      <div class="pfaq">
+        <h3>Questions about price</h3>
+        <details><summary>How is the price worked out?</summary><p>Schools with up to 300 students pay a flat 50,000 XAF per academic year. Schools with more than 300 students pay 17 XAF per student per month, over the 9 months of the school year, with 50,000 XAF as the minimum. Only students are counted, never teachers, staff or parents.</p></details>
+        <details><summary>One payment or instalments?</summary><p>Pay the whole year at once, or in two equal instalments. The total is the same. Paying the full year before school starts earns a discount.</p></details>
+        <details><summary>What if our enrolment changes during the year?</summary><p>Your price is set on your enrolment at the start of the year. New students who join later are covered at no extra cost until renewal.</p></details>
+        <details><summary>Do parents or students pay anything?</summary><p>No. The school pays one subscription and every account is included.</p></details>
+        <details><summary>Several schools, or more than 3,000 students?</summary><p>Ask for a quote on WhatsApp. Groups of schools get one account and a price that reflects their size.</p></details>
+      </div>
+    </div>
+    <p class="sample-note">Sample prices in XAF, taxes not included.</p>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta" id="help">
+  <div class="wrap">
+    <div class="cta-box">
+      <div style="position:relative;z-index:1">
+        <h2>Your account is waiting.</h2>
+        <p>Accounts are created by your school. If you don't have one yet, or you've forgotten your password, ask your school's administration office. They create accounts and reset passwords.</p>
+      </div>
+      <div class="signin-grid">
+        <a href="/login" class="btn btn-gold">Sign in <svg><use href="#i-arrow"/></svg></a>
+        <a href="/login?as=teacher" class="role-btn"><svg><use href="#i-pen"/></svg>Teachers</a>
+        <a href="/login?as=student" class="role-btn"><svg><use href="#i-book"/></svg>Students</a>
+        <a href="/login?as=parent" class="role-btn"><svg><use href="#i-users"/></svg>Parents</a>
+        <a href="/login?as=auxiliary" class="role-btn"><svg><use href="#i-grid"/></svg>Staff</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+</main>
+
+<%- include('partials/site-footer') %>
+
+<script src="/js/site-nav.js"></script>
+<script src="/js/site-pricing.js"></script>
+</body>
+</html>

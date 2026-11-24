@@ -23,7 +23,7 @@ function twShow(tab, { updateHash = true } = {}) {
     if (panel) panel.hidden = !on;
   });
   document.getElementById('tpTitle').textContent = link.querySelector('span').textContent;
-  document.title = `${link.querySelector('span').textContent} – Teacher – Lycée Batouri`;
+  document.title = `${link.querySelector('span').textContent} – Teacher – KodoSchool`;
   tpCloseMenu();
   if (updateHash && location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
   if (twLoaders[name] && (!twLoaded.has(name) || twReload.has(name))) { twLoaded.add(name); twLoaders[name](); }

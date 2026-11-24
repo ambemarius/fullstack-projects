@@ -23,7 +23,7 @@
     });
     const label = link.querySelector('span').textContent;
     document.getElementById('tpTitle').textContent = label;
-    document.title = `${label} – ${document.body.dataset.panel || 'Student'} – Lycée Batouri`;
+    document.title = `${label} – ${document.body.dataset.panel || 'Student'} – KodoSchool`;
     closeMenu();
     if (updateHash && location.hash !== '#' + link.dataset.tab) history.replaceState(null, '', '#' + link.dataset.tab);
   }

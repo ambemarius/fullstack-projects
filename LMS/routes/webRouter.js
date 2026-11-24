@@ -6,7 +6,10 @@ const { version } = require('../package.json');
 const webRouter = express.Router();
 
 // Server-rendered EJS pages (the frontend)
+// Public KodoSchool site: home, modules and pricing (static pages, no school data).
 webRouter.get('/', (req, res) => res.render('landing'));
+webRouter.get('/modules', (req, res) => res.render('modules'));
+webRouter.get('/pricing', (req, res) => res.render('pricing'));
 
 webRouter.get('/health', async (_req, res) => {
     const body = { status: 'ok', version, uptime: Math.round(process.uptime()) };

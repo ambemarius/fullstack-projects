@@ -2016,3 +2016,6 @@ tr.tw-overdue td { background: #fff6f5; }
 }
 .cm-sub { margin: 18px 0 8px; font-size: 14px; }
 .cm-att-stats { grid-template-columns: repeat(2, minmax(0, 220px)); }
+
+/* sign-in panel: the brand line above the welcome heading, readable on the dark green */
+.lms-ui .lms-login-intro .lms-eyebrow { color: #f2cf7a; text-transform: none; letter-spacing: .02em; font-size: 14px; }

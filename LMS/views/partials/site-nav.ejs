@@ -1,0 +1,21 @@
+<%
+  const here = locals.current || '';
+  const cur = key => key === here ? ' aria-current="page"' : '';
+%>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a href="/" class="logo" aria-label="KodoSchool, home"><span class="mark" aria-hidden="true">K</span><span><b>KodoSchool</b><small>School management</small></span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="/#everyone">Who it's for</a>
+      <a href="/#how">How the school works</a>
+      <a href="/#term">The term</a>
+      <a href="/modules"<%- cur('modules') %>>Modules</a>
+      <a href="/pricing"<%- cur('pricing') %>>Pricing</a>
+      <a href="/#help">Help</a>
+      <a href="/login" class="btn btn-gold nav-signin">Sign in</a>
+    </nav>
+    <a href="/login" class="btn btn-gold">Sign in</a>
+    <button type="button" class="burger" id="burger" aria-label="Open menu" aria-controls="navLinks" aria-expanded="false"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>

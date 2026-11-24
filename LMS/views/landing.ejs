@@ -1,166 +1,718 @@
-<!doctype html>
-<html lang="en-GB">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LYCEE BATOURI &middot; School Management</title>
-  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
-  <%- include('partials/workspace-assets') %>
-  <style>
-    .lms-landing { background: var(--bg); }
-    .lms-landing header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; height: 64px; background: var(--surface);
-      border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100;
-    }
-    .lms-landing header .brand { color: var(--primary); }
-    .lms-landing header .brand span { font-weight: 400; font-size: 14px; color: var(--muted); margin-left: 6px; }
-    .lms-landing header .nav a { color: var(--text-secondary); }
-    .lms-landing header .nav a:hover { background: var(--primary-light); color: var(--primary); }
-    .lms-landing header .nav a:focus-visible { box-shadow: var(--focus-ring); }
-
-    .lms-hero {
-      max-width: 960px; margin: 0 auto; padding: 64px 24px 48px;
-      text-align: center;
-    }
-    .lms-hero h1 {
-      font-size: clamp(28px, 5vw, 44px); font-weight: 800; line-height: 1.15;
-      margin: 0 0 16px; color: var(--text);
-    }
-    .lms-hero p { font-size: 18px; color: var(--text-secondary); max-width: 560px; margin: 0 auto 32px; }
-    .lms-hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .lms-hero-actions .btn { padding: 14px 28px; font-size: 16px; }
-
-    .lms-features {
-      max-width: 960px; margin: 0 auto; padding: 0 24px 56px;
-    }
-    .lms-features-header { text-align: center; margin-bottom: 36px; }
-    .lms-features-header h2 { font-size: 24px; margin: 0 0 8px; }
-    .lms-features-header p { color: var(--muted); font-size: 15px; margin: 0; }
-
-    .lms-features-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
-    .lms-features-grid .card {
-      padding: 28px; text-align: center;
-      transition: box-shadow var(--transition), transform 0.1s ease;
-    }
-    .lms-features-grid .card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
-    .lms-features-grid h3 { font-size: 17px; margin: 14px 0 8px; }
-    .lms-features-grid p { font-size: 14px; color: var(--text-secondary); margin: 0; line-height: 1.5; }
-    .lms-feature-icon { font-size: 36px; display: block; margin-bottom: 4px; }
-
-    .lms-steps {
-      background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-      padding: 48px 24px;
-    }
-    .lms-steps-inner { max-width: 720px; margin: 0 auto; text-align: center; }
-    .lms-steps h2 { font-size: 22px; margin: 0 0 28px; }
-    .lms-steps-row { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
-    .lms-step { flex: 1; min-width: 180px; max-width: 240px; }
-    .lms-step-num {
-      width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 16px; margin-bottom: 10px;
-    }
-    .lms-step h3 { font-size: 15px; margin: 0 0 4px; }
-    .lms-step p { font-size: 13px; color: var(--muted); margin: 0; }
-
-    .lms-support-section {
-      max-width: 600px; margin: 0 auto; padding: 48px 24px; text-align: center;
-    }
-    .lms-support-section h2 { font-size: 22px; margin: 0 0 10px; }
-    .lms-support-section p { color: var(--muted); font-size: 15px; margin: 0; }
-
-    .lms-landing footer {
-      text-align: center; padding: 24px; color: var(--muted); font-size: 13px;
-      border-top: 1px solid var(--border);
-    }
-
-    @media (max-width: 600px) {
-      .lms-landing header { flex-wrap: wrap; height: auto; padding: 12px 20px; gap: 8px; }
-      .lms-landing .nav { gap: 12px; }
-      .lms-landing .nav a { margin-left: 0; font-size: 14px; }
-      .lms-hero { padding: 40px 20px 32px; }
-      .lms-steps-row { flex-direction: column; align-items: center; gap: 24px; }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KodoSchool — The whole school, in one place</title>
+<meta name="description" content="KodoSchool is a school management app for secondary schools: registers, marks, report cards, fees, library and laboratory, for administrators, teachers, parents and students.">
+<link rel="stylesheet" href="/css/site-fonts.css">
+<link rel="stylesheet" href="/css/site.css?v=<%= locals.assetVersion || '' %>">
 </head>
-<body class="lms-ui lms-landing">
-  <a class="skip-link" href="#main-content">Skip to content</a>
+<body>
 
-  <header>
-    <a class="brand" href="/">LMS <span>LYCEE BATOURI</span></a>
-    <nav class="nav" aria-label="Main navigation">
-      <a href="#features">Features</a>
-      <a href="#contact">Support</a>
-      <a href="/login">Sign in</a>
-    </nav>
-  </header>
+<%- include('partials/site-icons') %>
 
-  <main id="main-content">
-    <section class="lms-hero">
-      <h1>A clear view of your school day.</h1>
-      <p>Access school records, manage academic work and find the tools you need &mdash; all from one place.</p>
-      <div class="lms-hero-actions">
-        <a class="btn" href="/login">Sign in to your account</a>
+<!-- ================= NAV ================= -->
+<%- include('partials/site-nav', { current: 'home' }) %>
+<main id="main" tabindex="-1">
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <span class="pill"><i>New</i> Built for Cameroonian secondary schools</span>
+      <h1>Your whole school, in <span class="hl">every pocket.<svg viewBox="0 0 300 14" preserveAspectRatio="none"><path d="M2 10 C 80 2, 200 2, 298 8" stroke="#f2cf7a" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/></svg></span></h1>
+      <p class="sub">Teachers take the register and enter marks once. Report cards, class councils, fee balances and parent updates follow on their own, on a computer in the office or a phone at home.</p>
+      <div class="ctas">
+        <a href="/login" class="btn btn-gold">Sign in to your account <svg><use href="#i-arrow"/></svg></a>
+        <a href="#roles" class="btn btn-ghost">See it in action</a>
       </div>
-    </section>
-
-    <section id="features" class="lms-features">
-      <div class="lms-features-header">
-        <h2>Built for your school</h2>
-        <p>Your account type determines which tools and records you can access.</p>
+      <div class="roles-line">
+        <span><svg><use href="#i-grid"/></svg>Administration</span>
+        <span><svg><use href="#i-pen"/></svg>Teachers</span>
+        <span><svg><use href="#i-users"/></svg>Parents</span>
+        <span><svg><use href="#i-book"/></svg>Students</span>
       </div>
-      <div class="lms-features-grid">
-        <article class="card">
-          <%- include('partials/hub-icon', { icon: 'people' }) %>
-          <h3>People &amp; Registration</h3>
-          <p>Manage student, teacher and support-staff records with role-based access control.</p>
-        </article>
-        <article class="card">
-          <%- include('partials/hub-icon', { icon: 'book' }) %>
-          <h3>Academics &amp; Timetables</h3>
-          <p>Set up courses, manage teaching assignments and view timetables for any class.</p>
-        </article>
-        <article class="card">
-          <%- include('partials/hub-icon', { icon: 'shield' }) %>
-          <h3>School Administration</h3>
-          <p>Staff access management, analytics dashboards and administrator reports.</p>
-        </article>
-      </div>
-    </section>
+    </div>
 
-    <section class="lms-steps">
-      <div class="lms-steps-inner">
-        <h2>Get started in three steps</h2>
-        <div class="lms-steps-row">
-          <div class="lms-step">
-            <span class="lms-step-num">1</span>
-            <h3>Sign in</h3>
-            <p>Use your existing school account credentials.</p>
+    <!-- Illustrated scene: school building + phone with the app.
+         To use a real photo of the school instead, replace the <svg class="building"> with:
+         <img class="building" src="images/school.jpg" alt="Your school" style="border-radius:16px;object-fit:cover;height:400px"> -->
+    <div class="scene" aria-hidden="true">
+      <svg class="building" viewBox="0 0 620 420" fill="none">
+  <defs>
+    <!-- materials -->
+    <linearGradient id="b-wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f4ead0"/><stop offset="1" stop-color="#e6d6b0"/></linearGradient>
+    <linearGradient id="b-wall2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbf3dc"/><stop offset="1" stop-color="#eadcb8"/></linearGradient>
+    <linearGradient id="b-side" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c9b88f"/><stop offset="1" stop-color="#b3a179"/></linearGradient>
+    <linearGradient id="b-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f8264"/><stop offset=".35" stop-color="#b5a682"/><stop offset="1" stop-color="#c8b994"/></linearGradient>
+    <linearGradient id="b-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cfe3ec"/><stop offset=".45" stop-color="#7fa5b7"/><stop offset="1" stop-color="#3f6272"/></linearGradient>
+    <linearGradient id="b-door" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f5a45"/><stop offset="1" stop-color="#123b2d"/></linearGradient>
+    <linearGradient id="b-col" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fffaf0"/><stop offset=".6" stop-color="#efe4c8"/><stop offset="1" stop-color="#cdbf9b"/></linearGradient>
+    <linearGradient id="b-earth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b8693d"/><stop offset="1" stop-color="#8a4424"/></linearGradient>
+    <linearGradient id="b-rust" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a0522d" stop-opacity=".25"/><stop offset=".5" stop-color="#a0522d" stop-opacity=".05"/><stop offset="1" stop-color="#a0522d" stop-opacity=".3"/></linearGradient>
+    <linearGradient id="b-roofshade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#000" stop-opacity=".15"/></linearGradient>
+    <pattern id="b-corr" width="5" height="60" patternUnits="userSpaceOnUse">
+      <rect width="5" height="60" fill="#a3abae"/><rect width="1.6" height="60" fill="#d5dadc"/><rect x="3.4" width="1.6" height="60" fill="#7f888c"/>
+    </pattern>
+    <pattern id="b-corrSide" width="5" height="60" patternUnits="userSpaceOnUse" patternTransform="skewY(-30)">
+      <rect width="5" height="60" fill="#8d9598"/><rect width="1.6" height="60" fill="#b8bec0"/><rect x="3.4" width="1.6" height="60" fill="#6c7477"/>
+    </pattern>
+    <pattern id="b-grain" width="6" height="6" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r=".6" fill="#6e3218" opacity=".35"/><circle cx="4" cy="4" r=".5" fill="#d8905f" opacity=".35"/>
+    </pattern>
+    <filter id="b-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>
+
+    <!-- louvred window -->
+    <symbol id="b-win" viewBox="0 0 30 42">
+      <rect x="0" y="0" width="30" height="42" rx="1" fill="#f8f2e2"/>
+      <rect x="2.5" y="2.5" width="25" height="37" fill="url(#b-glass)"/>
+      <g stroke="#e8f2f6" stroke-opacity=".75" stroke-width=".9">
+        <path d="M2.5 7h25M2.5 11.5h25M2.5 16h25M2.5 20.5h25M2.5 25h25M2.5 29.5h25M2.5 34h25"/>
+      </g>
+      <path d="M15 2.5v37" stroke="#f8f2e2" stroke-width="1.6"/>
+      <path d="M4 4 L12 4 L4 18Z" fill="#fff" opacity=".25"/>
+      <rect x="-2" y="42" width="34" height="3" fill="#d9cba6"/>
+      <rect x="-2" y="-4" width="34" height="3" fill="#cdbd96"/>
+    </symbol>
+    <!-- ground-floor classroom door + window under the verandah -->
+    <symbol id="b-bay" viewBox="0 0 40 70">
+      <rect x="3" y="14" width="14" height="56" fill="url(#b-door)"/>
+      <rect x="5" y="17" width="10" height="20" fill="#2b6b54" opacity=".6"/>
+      <circle cx="14" cy="44" r="1" fill="#e2b54a"/>
+      <rect x="22" y="20" width="15" height="26" fill="#55707a"/>
+      <g stroke="#9bb3bc" stroke-width=".8"><path d="M22 25h15M22 30h15M22 35h15M22 40h15"/></g>
+    </symbol>
+    <!-- student in uniform -->
+    <symbol id="b-kid" viewBox="0 0 12 30">
+      <ellipse cx="6" cy="29.3" rx="5" ry="1" fill="#000" opacity=".25"/>
+      <circle cx="6" cy="4" r="3.2" fill="#5b3a26"/>
+      <path d="M2 9.5 Q6 7.5 10 9.5 L10.5 17 L1.5 17Z" fill="#cfe2f5"/>
+      <path d="M2.2 17 h7.6 l.6 7 h-8.8z" fill="#1f3354"/>
+      <path d="M3.6 24 v5 M8.4 24 v5" stroke="#3b2618" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M1.8 10 l-1 7 M10.2 10 l1 7" stroke="#5b3a26" stroke-width="1.4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="b-girl" viewBox="0 0 12 30">
+      <ellipse cx="6" cy="29.3" rx="5" ry="1" fill="#000" opacity=".25"/>
+      <circle cx="6" cy="4" r="3.2" fill="#4a2e1e"/><path d="M3 2.5 Q6 -0.5 9 2.5" stroke="#1d120b" stroke-width="1.6"/>
+      <path d="M2 9.5 Q6 7.5 10 9.5 L10.3 15 L1.7 15Z" fill="#cfe2f5"/>
+      <path d="M1.7 15 h8.6 l1.4 8.5 h-11.4z" fill="#1f3354"/>
+      <path d="M4 23.5 v5.5 M8 23.5 v5.5" stroke="#4a2e1e" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M1.8 10 l-1 6 M10.2 10 l1 6" stroke="#4a2e1e" stroke-width="1.4" stroke-linecap="round"/>
+    </symbol>
+    <clipPath id="b-flagclip"><path d="M0 0 Q12 -3 24 0 T48 0 V30 Q36 27 24 30 T0 30Z"/></clipPath>
+  </defs>
+
+  <!-- distant hills and haze -->
+  <path d="M0 330 C 80 290, 150 300, 220 315 S 380 280, 460 300 S 580 290, 620 305 V390 H0Z" fill="#0b2e23" opacity=".55"/>
+  <path d="M0 350 C 120 325, 220 340, 320 330 S 520 330, 620 340 V390 H0Z" fill="#164f3c" opacity=".7"/>
+
+  <!-- background trees -->
+  <g opacity=".9">
+    <circle cx="560" cy="300" r="34" fill="#1f6e50"/><circle cx="590" cy="315" r="26" fill="#195d44"/>
+    <circle cx="20" cy="318" r="22" fill="#195d44"/>
+  </g>
+
+  <!-- ground: red laterite courtyard -->
+  <path d="M0 382 H620 V420 H0Z" fill="url(#b-earth)"/>
+  <path d="M0 382 H620 V420 H0Z" fill="url(#b-grain)"/>
+  <path d="M0 382 C 60 378, 120 386, 170 383 L 140 420 H0Z" fill="#3f7d3a" opacity=".85"/>
+  <path d="M430 384 C 500 379, 560 385, 620 381 V420 H470Z" fill="#3f7d3a" opacity=".85"/>
+  <!-- cast shadow of the building -->
+  <path d="M38 386 L540 386 L566 370 L570 392 L60 400Z" fill="#2a1408" opacity=".28" filter="url(#b-soft)"/>
+
+  <!-- ===== MAIN BLOCK ===== -->
+  <!-- right side wall (perspective) -->
+  <path d="M528 198 L566 178 L566 364 L528 386Z" fill="url(#b-side)"/>
+  <path d="M528 290 L566 272 L566 278 L528 296Z" fill="#9c8d6a"/>
+  
+  <!-- first floor wall -->
+  <rect x="38" y="198" width="490" height="92" fill="url(#b-wall)"/>
+  <!-- windows first floor -->
+  <g>
+    <use href="#b-win" x="50"  y="220" width="30" height="42"/>
+    <use href="#b-win" x="98"  y="220" width="30" height="42"/>
+    <use href="#b-win" x="146" y="220" width="30" height="42"/>
+    <use href="#b-win" x="342" y="220" width="30" height="42"/>
+    <use href="#b-win" x="390" y="220" width="30" height="42"/>
+    <use href="#b-win" x="438" y="220" width="30" height="42"/>
+    <use href="#b-win" x="486" y="220" width="30" height="42"/>
+  </g>
+  <!-- concrete floor slab -->
+  <rect x="34" y="288" width="496" height="9" fill="#ddd3bd"/>
+  <rect x="34" y="296" width="496" height="4" fill="#9d9274"/>
+  <!-- balcony railing -->
+  <g stroke="#e9e1cc" stroke-width="2">
+    <path d="M38 272h162M320 272h208"/>
+  </g>
+  <g stroke="#d8ceb6" stroke-width="1.4">
+    <path d="M44 272v16M56 272v16M68 272v16M80 272v16M92 272v16M104 272v16M116 272v16M128 272v16M140 272v16M152 272v16M164 272v16M176 272v16M188 272v16"/>
+    <path d="M326 272v16M338 272v16M350 272v16M362 272v16M374 272v16M386 272v16M398 272v16M410 272v16M422 272v16M434 272v16M446 272v16M458 272v16M470 272v16M482 272v16M494 272v16M506 272v16M518 272v16"/>
+  </g>
+
+  <!-- ground floor verandah (in shade) -->
+  <rect x="38" y="300" width="490" height="84" fill="url(#b-shade)"/>
+  <g>
+    <use href="#b-bay" x="52"  y="314" width="40" height="70"/>
+    <use href="#b-bay" x="100" y="314" width="40" height="70"/>
+    <use href="#b-bay" x="148" y="314" width="40" height="70"/>
+    <use href="#b-bay" x="340" y="314" width="40" height="70"/>
+    <use href="#b-bay" x="388" y="314" width="40" height="70"/>
+    <use href="#b-bay" x="436" y="314" width="40" height="70"/>
+    <use href="#b-bay" x="484" y="314" width="40" height="70"/>
+  </g>
+  <!-- painted dado band -->
+  <rect x="38" y="370" width="490" height="14" fill="#2f6a52" opacity=".9"/>
+  <!-- verandah floor edge -->
+  <rect x="34" y="382" width="496" height="5" fill="#d7ccb2"/>
+  <!-- columns -->
+  <g fill="url(#b-col)">
+    <rect x="40" y="300" width="8" height="82"/><rect x="88" y="300" width="8" height="82"/><rect x="136" y="300" width="8" height="82"/><rect x="184" y="300" width="8" height="82"/>
+    <rect x="326" y="300" width="8" height="82"/><rect x="374" y="300" width="8" height="82"/><rect x="422" y="300" width="8" height="82"/><rect x="470" y="300" width="8" height="82"/><rect x="518" y="300" width="8" height="82"/>
+  </g>
+
+  <!-- roof: corrugated iron sheets -->
+  <path d="M540 200 L576 181 L536 153 L506 160Z" fill="url(#b-corrSide)"/>
+  <path d="M26 200 L540 200 L506 160 L62 160Z" fill="url(#b-corr)"/>
+  <path d="M26 200 L540 200 L506 160 L62 160Z" fill="url(#b-rust)"/>
+  <path d="M26 200 L540 200 L506 160 L62 160Z" fill="url(#b-roofshade)"/>
+  <path d="M62 160 H506" stroke="#c7cdcf" stroke-width="2.5"/>
+  <rect x="24" y="199" width="518" height="5" fill="#e8dfc8"/>
+  <path d="M540 200 L574 182 L574 186 L542 204Z" fill="#cfc4a8"/>
+  <!-- eave shadow on wall -->
+  <rect x="38" y="204" width="490" height="7" fill="#000" opacity=".12"/>
+
+  <!-- ===== CENTRAL ENTRANCE BLOCK ===== -->
+  <rect x="200" y="180" width="120" height="206" fill="url(#b-wall2)"/>
+  <rect x="320" y="186" width="8" height="200" fill="#c9b88f"/>
+  <!-- pediment -->
+  <path d="M192 184 L260 140 L328 184Z" fill="#f7eed6"/>
+  <path d="M192 184 L260 140 L328 184" stroke="#d8cba8" stroke-width="3"/>
+  <circle cx="260" cy="166" r="9" fill="#fffaf0" stroke="#b9a983" stroke-width="2"/>
+  <path d="M260 160 V166 L264 168" stroke="#4a4030" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- school name -->
+  <rect x="208" y="188" width="104" height="18" fill="#124d3b"/>
+  <text x="260" y="200.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="8.4" letter-spacing=".5" fill="#f2cf7a">LYCÉE BILINGUE</text>
+  <!-- three tall windows -->
+  <use href="#b-win" x="212" y="216" width="26" height="52"/>
+  <use href="#b-win" x="247" y="216" width="26" height="52"/>
+  <use href="#b-win" x="282" y="216" width="26" height="52"/>
+  <rect x="200" y="282" width="128" height="7" fill="#ddd3bd"/>
+  <!-- entrance arch -->
+  <path d="M232 384 V320 a28 28 0 0 1 56 0 V384Z" fill="#7a6e52"/>
+  <path d="M237 384 V322 a23 23 0 0 1 46 0 V384Z" fill="url(#b-door)"/>
+  <path d="M260 299 V384" stroke="#0d2c21" stroke-width="2"/>
+  <path d="M241 330 h38" stroke="#2f7a60" stroke-width="1.2" opacity=".6"/>
+  <circle cx="256" cy="352" r="1.4" fill="#e2b54a"/><circle cx="264" cy="352" r="1.4" fill="#e2b54a"/>
+  <!-- pilasters -->
+  <rect x="204" y="290" width="10" height="94" fill="url(#b-col)"/>
+  <rect x="306" y="290" width="10" height="94" fill="url(#b-col)"/>
+  <!-- steps -->
+  <rect x="218" y="384" width="84" height="5" fill="#e3dac4"/>
+  <rect x="210" y="389" width="100" height="5" fill="#d4c9af"/>
+  <rect x="202" y="394" width="116" height="5" fill="#c4b898"/>
+
+  <!-- flagpole + Cameroon flag -->
+  <rect x="156" y="232" width="3" height="160" fill="#d9dde0"/>
+  <rect x="150" y="390" width="15" height="6" fill="#bfb49a"/>
+  <circle cx="157.5" cy="231" r="2.6" fill="#e2b54a"/>
+  <g transform="translate(159 236)">
+    <g clip-path="url(#b-flagclip)">
+      <rect x="0" y="-4" width="16" height="38" fill="#007a5e"/>
+      <rect x="16" y="-4" width="16" height="38" fill="#ce1126"/>
+      <rect x="32" y="-4" width="16" height="38" fill="#fcd116"/>
+      <path d="M24 9.5 l1.6 4.8 h5 l-4 3 1.5 4.8 -4.1 -3 -4.1 3 1.5 -4.8 -4 -3 h5z" fill="#fcd116"/>
+      <path d="M0 0 Q12 -3 24 0 T48 0 V30 Q36 27 24 30 T0 30Z" fill="url(#b-roofshade)" opacity=".6"/>
+    </g>
+  </g>
+
+  <!-- palm tree (left) -->
+  <g>
+    <path d="M70 392 C 66 350, 74 320, 92 290" stroke="#7a5a3a" stroke-width="7" stroke-linecap="round"/>
+    <path d="M70 392 C 66 350, 74 320, 92 290" stroke="#5e4329" stroke-width="7" stroke-dasharray="2 6" stroke-linecap="butt"/>
+    <g fill="#2f8a52">
+      <path d="M92 290 C 70 280, 50 286, 34 304 C 56 292, 74 292, 92 292Z"/>
+      <path d="M92 290 C 80 268, 60 262, 42 266 C 64 272, 78 280, 92 292Z"/>
+      <path d="M92 290 C 98 266, 116 256, 136 258 C 116 266, 104 278, 93 292Z"/>
+      <path d="M92 290 C 114 282, 136 290, 150 308 C 130 296, 112 294, 92 292Z"/>
+      <path d="M92 290 C 90 270, 96 254, 108 244 C 100 260, 98 274, 93 291Z"/>
+    </g>
+    <g fill="#236b40">
+      <path d="M92 291 C 76 292, 62 302, 56 318 C 70 304, 80 298, 92 293Z"/>
+      <path d="M92 291 C 108 294, 120 304, 124 320 C 112 306, 102 300, 92 293Z"/>
+    </g>
+    <circle cx="90" cy="294" r="3" fill="#6b4a1f"/><circle cx="95" cy="295" r="3" fill="#7a5524"/>
+  </g>
+
+  <!-- bushes along the front -->
+  <g>
+    <ellipse cx="120" cy="388" rx="22" ry="8" fill="#2c7a46"/><ellipse cx="185" cy="390" rx="16" ry="7" fill="#2c7a46"/>
+    <ellipse cx="350" cy="389" rx="18" ry="7" fill="#2c7a46"/><ellipse cx="430" cy="389" rx="22" ry="8" fill="#2c7a46"/>
+    <ellipse cx="116" cy="385" rx="12" ry="5" fill="#3d9a5c"/><ellipse cx="428" cy="385" rx="12" ry="5" fill="#3d9a5c"/>
+  </g>
+
+  <!-- students -->
+  <use href="#b-kid"  x="186" y="384" width="12" height="30"/>
+  <use href="#b-girl" x="200" y="386" width="12" height="30"/>
+  <use href="#b-girl" x="326" y="388" width="12" height="30"/>
+  <use href="#b-kid"  x="110" y="390" width="11" height="28"/>
+</svg>
+
+      <div class="phone">
+        <div class="screen">
+          <div class="app-top">
+            <div class="row"><div><div class="hello">Good evening 👋</div><div class="who">Form 3A · Term 1</div></div><div class="av">SN</div></div>
           </div>
-          <div class="lms-step">
-            <span class="lms-step-num">2</span>
-            <h3>Open your tools</h3>
-            <p>See dashboards and actions available for your role.</p>
+          <div class="app-body">
+            <div class="tile">
+              <h4>Term average</h4>
+              <div class="ring-row">
+                <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="#eef6f2" stroke-width="4"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="#1b6b52" stroke-width="4" stroke-linecap="round" stroke-dasharray="65 100" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle" font-size="8" font-weight="800" fill="#124d3b" font-family="Arial">13.38</text></svg>
+                <div><div class="big" style="font-size:22px">1<span style="font-size:13px;color:#5d6e68"> / 52</span></div><span class="chip">Passed · GOOD</span></div>
+              </div>
+            </div>
+            <div class="tile">
+              <h4>Sequence 2 marks</h4>
+              <div class="kv"><span>Mathematics</span><b>16.00</b></div>
+              <div class="kv"><span>English Language</span><b>17.00</b></div>
+              <div class="kv"><span>Physics</span><b>19.00</b></div>
+              <div class="kv"><span>Biology</span><b class="bad">4.50</b></div>
+            </div>
           </div>
-          <div class="lms-step">
-            <span class="lms-step-num">3</span>
-            <h3>Manage records</h3>
-            <p>Work with live school data securely.</p>
+          <div class="tabbar">
+            <span class="on"><svg><use href="#i-home"/></svg>Home</span>
+            <span><svg><use href="#i-file"/></svg>Results</span>
+            <span><svg><use href="#i-cal"/></svg>Timetable</span>
+            <span><svg><use href="#i-bell"/></svg>Alerts</span>
           </div>
         </div>
       </div>
-    </section>
 
-    <section id="contact" class="lms-support-section">
-      <h2>Need help with access?</h2>
-      <p>Contact your school administrator for account invitations, password recovery or permission changes.</p>
-    </section>
-  </main>
+      <div class="float-card fc-1"><span class="ic" style="background:#eef6f2;color:#124d3b"><svg width="18" height="18"><use href="#i-check"/></svg></span><div><b>Register taken · 08:00</b><small>Mathematics · 41 present, 3 absent</small></div></div>
+      <div class="float-card fc-2"><span class="ic" style="background:#fdf1d3;color:#7a5a10"><svg width="18" height="18"><use href="#i-file"/></svg></span><div><b>Report cards ready</b><small>Form 3A · 52 bulletins</small></div></div>
+      <div class="float-card fc-3"><span class="ic" style="background:#eef6f2;color:#124d3b"><svg width="18" height="18"><use href="#i-wallet"/></svg></span><div><b>Payment received</b><small>25,000 XAF · receipt sent</small></div></div>
+    </div>
+  </div>
+</section>
 
-  <footer>&copy; <%= new Date().getFullYear() %> LYCEE BATOURI &middot; School Management System</footer>
+<!-- ================= STATS ================= -->
+<div class="stats">
+  <div class="wrap">
+    <div class="stat"><div class="n">10</div><div class="l">modules, all included</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">sequences a year, two per term</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">sections, Anglophone and Francophone</div></div>
+    <div class="stat"><div class="n">5</div><div class="l">kinds of account, from principal to parent</div></div>
+    <div class="stat"><div class="n">20</div><div class="l">marks out of 20, with term and annual averages</div></div>
+  </div>
+</div>
+
+<!-- ================= EVERYONE SIGNS IN (animated) ================= -->
+<style>
+  .everyone { background: linear-gradient(180deg, #fff, var(--bg)); overflow: hidden; }
+  .everyone .wrap { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: center; }
+  .who-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .who-chips button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); background: #fff;
+                      font: inherit; font-weight: 700; font-size: 14px; color: var(--muted); padding: 10px 16px; border-radius: 999px;
+                      cursor: pointer; transition: all .2s; }
+  .who-chips button svg { width: 16px; height: 16px; }
+  .who-chips button.on { background: var(--g-800); border-color: var(--g-800); color: #fff; box-shadow: 0 10px 20px -12px rgba(18,77,59,.8); }
+  .who-caption { margin-top: 28px; padding: 18px 20px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+                 display: flex; gap: 14px; align-items: center; min-height: 86px; }
+  .who-caption .crest { width: 44px; height: 50px; flex: none; transition: color .6s; }
+  .who-caption b { display: block; font-size: 16px; }
+  .who-caption small { color: var(--muted); font-size: 14px; }
+  .swatches { display: flex; gap: 6px; margin-top: 8px; }
+  .swatches i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); transition: background .6s; }
+
+  .who-stage { position: relative; height: 560px; }
+  .who-stage::before { content: ""; position: absolute; left: 4%; top: 8%; width: 420px; height: 420px; border-radius: 50%;
+                       background: radial-gradient(circle, var(--g-100), transparent 68%); }
+  .floor { position: absolute; left: 0; right: 30%; bottom: 40px; height: 2px; background: linear-gradient(90deg, transparent, var(--line), transparent); }
+  .actor { position: absolute; left: -2%; bottom: 30px; width: 66%; max-width: 420px; opacity: 0; transform: translateX(-30px);
+           transition: opacity .55s ease, transform .55s ease; pointer-events: none; }
+  .actor.on { opacity: 1; transform: none; }
+  .actor svg { width: 100%; height: auto; overflow: visible; }
+  .actor .u { transition: fill .7s ease, stroke .7s ease, opacity .7s ease; }
+  .actor .body { animation: breathe 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  .actor .eyes { animation: blink 4.5s infinite; transform-box: fill-box; transform-origin: center; }
+  .actor .hold { animation: bob 2.4s ease-in-out infinite; }
+  .actor .thumb { animation: tap .5s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+  .actor .phs { transition: fill .4s; }
+  .actor.ok .phs { fill: #2f9a74; }
+  .actor .kid-head { animation: nod 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  .actor .swap { opacity: 0; }
+  .actor.swapping .swap { animation: sparkle .7s ease-out; }
+  @keyframes breathe { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.008) translateY(-1px); } }
+  @keyframes blink { 0%, 46%, 50%, 100% { transform: scaleY(1); } 48% { transform: scaleY(.1); } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes tap { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+  @keyframes nod { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-4deg); } }
+  @keyframes sparkle { 0% { opacity: 0; transform: scale(.6); } 40% { opacity: 1; } 100% { opacity: 0; transform: scale(1.3); } }
+
+  /* real photos (transparent PNG cut-outs) replace the drawn people when present */
+  .photo { position: absolute; left: -2%; bottom: 30px; width: 64%; max-width: 410px; height: 500px; object-fit: contain; object-position: bottom center;
+           opacity: 0; transform: translateX(-30px); transition: opacity .6s ease, transform .6s ease; pointer-events: none;
+           filter: drop-shadow(0 24px 24px rgba(11,46,35,.22)); }
+  .photo.on { opacity: 1; transform: none; animation: photoFloat 6s ease-in-out infinite; }
+  .photo.framed { overflow: hidden; border-radius: 24px; height: 480px; bottom: 40px; box-shadow: 0 30px 60px -24px rgba(11,46,35,.45);
+                  filter: none; border: 6px solid #fff; background: #fff; }
+  .photo.framed img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 18px; transform: scale(1.12); }
+  .photo.framed.on img { animation: kenburns 9s ease-out forwards; }
+  @keyframes kenburns { from { transform: scale(1.12) translateY(1%); } to { transform: scale(1.0) translateY(0); } }
+  .photo.framed .tag { position: absolute; left: 14px; top: 14px; background: rgba(11,46,35,.82); color: #fff; backdrop-filter: blur(6px);
+                       font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+  @keyframes photoFloat { 0%,100% { translate: 0 0; } 50% { translate: 0 -6px; } }
+  .signed { position: absolute; left: 6%; bottom: 66px; z-index: 5; display: flex; align-items: center; gap: 8px; background: #fff;
+            border-radius: 999px; padding: 8px 14px 8px 8px; font-size: 13px; font-weight: 700; box-shadow: var(--shadow);
+            opacity: 0; transform: translateY(10px) scale(.9); transition: opacity .35s, transform .35s; }
+  .signed i { width: 26px; height: 26px; border-radius: 50%; background: var(--g-700); color: #fff; display: grid; place-items: center; font-style: normal; }
+  .signed.on { opacity: 1; transform: none; }
+
+  /* big phone with the live sign-in */
+  .who-stage .phone { position: absolute; right: 0; top: 0; transform: rotate(3deg); }
+  .lg { position: absolute; inset: 0; padding: 50px 18px 18px; display: flex; flex-direction: column; gap: 12px; transition: opacity .35s, transform .35s; }
+  .lg-head { text-align: center; margin-bottom: 6px; }
+  .lg-head .mark { width: 44px; height: 44px; border-radius: 12px; background: var(--g-800); color: var(--gold); display: grid; place-items: center;
+                   font-family: var(--display); font-weight: 800; font-size: 22px; margin: 0 auto 8px; }
+  .lg-head b { display: block; font-family: var(--display); font-size: 17px; }
+  .lg-head small { color: var(--muted); font-size: 11px; }
+  .fld label { display: block; font-size: 10.5px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+  .fld div { height: 36px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff; display: flex; align-items: center; gap: 7px;
+             padding: 0 10px; font-size: 12.5px; font-weight: 600; white-space: nowrap; overflow: hidden; transition: border-color .2s; }
+  .fld div.focus { border-color: var(--g-700); box-shadow: 0 0 0 3px rgba(27,107,82,.15); }
+  .fld .dotc { width: 10px; height: 10px; border-radius: 50%; flex: none; transition: background .6s; }
+  .caret::after { content: ""; display: inline-block; width: 1.5px; height: 14px; background: var(--g-700); margin-left: 1px; vertical-align: -2px; animation: caret .8s steps(1) infinite; }
+  @keyframes caret { 50% { opacity: 0; } }
+  .lg-btn { margin-top: 4px; height: 40px; border-radius: 10px; background: var(--g-800); color: #fff; font-weight: 700; font-size: 13px;
+            display: grid; place-items: center; transition: transform .15s, background .2s; }
+  .lg-btn.press { transform: scale(.96); background: var(--g-700); }
+  .lg-btn .spin { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .lg-help { text-align: center; font-size: 10.5px; color: var(--muted); }
+  .wl { position: absolute; inset: 0; padding: 60px 18px 18px; display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+        opacity: 0; transform: translateY(16px); transition: opacity .4s, transform .4s; }
+  .screen.done .lg { opacity: 0; transform: translateY(-16px); }
+  .screen.done .wl { opacity: 1; transform: none; }
+  .wl .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--g-100); color: var(--g-800); display: grid; place-items: center; }
+  .wl .tick svg { width: 32px; height: 32px; stroke-dasharray: 30; stroke-dashoffset: 30; }
+  .screen.done .wl .tick svg { animation: draw .5s .25s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .wl h4 { margin: 4px 0 0; font-family: var(--display); font-size: 20px; }
+  .wl .role { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; background: #fdf1d3; color: #7a5a10; }
+  .wl .tile { width: 100%; text-align: left; }
+  .wl-school { font-size: 10.5px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+
+  @media (max-width: 1020px) {
+    .everyone .wrap { grid-template-columns: 1fr; }
+    .who-stage { max-width: 600px; margin: 0 auto; width: 100%; }
+  }
+  @media (max-width: 600px) {
+    .who-stage { height: 380px; }
+    .who-stage::before { width: 300px; height: 300px; }
+    .who-stage .phone { transform: rotate(3deg) scale(.6); transform-origin: top right; }
+    .actor { width: 62%; left: -4%; bottom: 10px; }
+    .photo { width: 60%; height: 340px; left: -4%; bottom: 10px; }
+    .photo.framed { height: 320px; bottom: 20px; border-width: 4px; }
+    .signed { left: 2%; bottom: 34px; font-size: 12px; }
+    .floor { right: 0; bottom: 18px; }
+  }
+</style>
+
+<section class="everyone" id="everyone">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">For every school</span>
+      <h2>Students, teachers, parents, staff.<br>Everyone signs in.</h2>
+      <p class="lead">One app for the whole school community: students in the classroom, teachers in the lab, parents with their children, and the bursar in the office. Each person signs in to their own account and sees their own day, in any school that uses KodoSchool.</p>
+      <div class="who-chips" id="whoChips">
+        <button data-group="student" class="on"><svg><use href="#i-book"/></svg>Students</button>
+        <button data-group="teacher"><svg><use href="#i-flask"/></svg>Teachers</button>
+        <button data-group="parent"><svg><use href="#i-users"/></svg>Parents</button>
+        <button data-group="staff"><svg><use href="#i-wallet"/></svg>Staff</button>
+      </div>
+      <div class="who-caption">
+        <svg class="crest" id="capCrest" viewBox="0 0 44 50"><path d="M22 2 L41 9 V24 C41 37 32 45 22 48 C12 45 3 37 3 24 V9Z" fill="currentColor"/><path d="M22 12 l3 7 h7 l-5.5 4.5 2 7.5 -6.5 -4.5 -6.5 4.5 2 -7.5 -5.5 -4.5 h7z" fill="#fff" opacity=".9"/></svg>
+        <div>
+          <b id="capTitle">Student · Form 1</b>
+          <small id="capSub">Signs in with their matricule</small>
+          <div class="swatches" id="capSw"><i></i><i></i><i></i></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="who-stage" aria-hidden="true">
+      <div class="floor"></div>
+      <div class="actor" id="actStudent"></div>
+      <div class="actor" id="actTeacher"></div>
+      <div class="actor" id="actParent"></div>
+      <div class="actor" id="actLibrarian"></div>
+      <div class="signed" id="whoSigned"><i>✓</i><span>Signed in</span></div>
+
+      <div class="phone">
+        <div class="screen" id="lgScreen">
+          <div class="lg">
+            <div class="lg-head"><div class="mark">K</div><b>Sign in</b><small>KodoSchool</small></div>
+            <div class="fld"><label>School</label><div><span class="dotc" id="lgDot"></span><span id="lgSchool">Lycée Bilingue</span></div></div>
+            <div class="fld"><label id="lgUserLabel">Matricule</label><div id="lgUserBox"><span id="lgUser"></span></div></div>
+            <div class="fld"><label>Password</label><div id="lgPassBox"><span id="lgPass"></span></div></div>
+            <div class="lg-btn" id="lgBtn">Sign in</div>
+            <div class="lg-help">Forgotten password? Ask the administration office.</div>
+          </div>
+          <div class="wl">
+            <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg></div>
+            <h4 id="wlName">Welcome back!</h4>
+            <span class="role" id="wlRole">Student</span>
+            <div class="tile"><div class="wl-school" id="wlT1">Today</div><div id="wlBody"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ROLES (interactive) ================= -->
+<section class="roles" id="roles">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Four ways in</span>
+      <h2>One school.<br>Four points of view.</h2>
+      <p class="lead">Everyone signs in with their own account and sees only what concerns them. The same marks, registers and payments feed every view, so nobody copies anything twice.</p>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-role="parent"><svg><use href="#i-users"/></svg>Parents</button>
+        <button role="tab" aria-selected="false" data-role="student"><svg><use href="#i-book"/></svg>Students</button>
+        <button role="tab" aria-selected="false" data-role="teacher"><svg><use href="#i-pen"/></svg>Teachers</button>
+        <button role="tab" aria-selected="false" data-role="admin"><svg><use href="#i-grid"/></svg>Administration</button>
+      </div>
+
+      <div class="role-panel" data-panel="parent">
+        <h3>Parents and guardians</h3>
+        <p>Follow each child through the term without waiting for the report card.</p>
+        <ul class="checks"><li>Results by subject, every sequence and the term average</li><li>Absences and lateness, including hours missed</li><li>Fee balance and receipts in XAF</li><li>One account for all your children</li></ul>
+        <a href="/login?as=parent" class="link">Sign in as a parent <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="role-panel" data-panel="student" hidden>
+        <h3>Students</h3>
+        <p>Your own results, attendance and timetable, signed in with your matricule.</p>
+        <ul class="checks"><li>Marks for each subject, sequence by sequence</li><li>Term and year averages as on the bulletin</li><li>Your attendance record and library loans</li><li>Your class timetable for the term</li></ul>
+        <a href="/login?as=student" class="link">Sign in as a student <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="role-panel" data-panel="teacher" hidden>
+        <h3>Teachers</h3>
+        <p>A teacher's day in one panel: timetable, registers, marks and classes.</p>
+        <ul class="checks"><li>Take the register for each lesson, with absences in red</li><li>Enter sequence marks out of 20 on a clean mark sheet</li><li>Class masters get their class's end-of-term report</li><li>Request laboratory equipment before a practical</li></ul>
+        <a href="/login?as=teacher" class="link">Sign in as a teacher <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="role-panel" data-panel="admin" hidden>
+        <h3>Administration</h3>
+        <p>The principal and administrators see the whole school and keep it running.</p>
+        <ul class="checks"><li>Register students, teachers and staff; set classes and coefficients</li><li>Generate the timetable and print bulletins for a student or a class</li><li>Results for the whole school, with girls' and boys' pass rates</li><li>Assign duties: bursar, librarian, discipline master, head of department</li></ul>
+        <a href="/login?as=admin" class="link">Sign in as an administrator <svg width="16" height="16"><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="phone">
+        <div class="screen">
+          <!-- PARENT -->
+          <div class="screen-view on" data-view="parent">
+            <div class="app-top"><div class="row"><div><div class="hello">Parent account</div><div class="who">My children</div></div><div class="av">P</div></div></div>
+            <div class="app-body">
+              <div style="display:flex;gap:6px"><span class="chip" style="background:#124d3b;color:#fff">Child 1 · Form 3A</span><span class="chip">Child 2 · 6ème</span></div>
+              <div class="tile"><h4>Latest</h4>
+                <div class="note"><span class="dot" style="background:#fde8e8;color:#c62828"><svg width="14" height="14"><use href="#i-check"/></svg></span><div><b>Absent · 2nd period</b><small>Tuesday · Mathematics</small></div></div>
+                <div class="note"><span class="dot" style="background:#eef6f2;color:#124d3b"><svg width="14" height="14"><use href="#i-file"/></svg></span><div><b>Sequence 2 marks published</b><small>Average 13.38 · 11 of 13 passed</small></div></div>
+                <div class="note"><span class="dot" style="background:#fdf1d3;color:#7a5a10"><svg width="14" height="14"><use href="#i-wallet"/></svg></span><div><b>Fees balance</b><small>15,000 XAF outstanding</small></div></div>
+              </div>
+              <div class="tile"><h4>Term average</h4><div class="big">13.38</div><div class="bar" style="margin-top:8px"><i style="width:67%"></i></div></div>
+            </div>
+          </div>
+          <!-- STUDENT -->
+          <div class="screen-view" data-view="student">
+            <div class="app-top"><div class="row"><div><div class="hello">Matricule AA00016</div><div class="who">My results</div></div><div class="av">S</div></div></div>
+            <div class="app-body">
+              <div class="tile"><h4>First term</h4><div class="ring-row"><div class="big">13.38</div><div><span class="chip">Rank 1 / 52</span><br><span class="chip gold" style="margin-top:4px">Best: Physics</span></div></div></div>
+              <div class="tile"><h4>Subjects</h4>
+                <div class="kv"><span>Physics</span><b>19.00</b></div><div class="bar"><i style="width:95%"></i></div>
+                <div class="kv"><span>English Language</span><b>17.00</b></div><div class="bar"><i style="width:85%"></i></div>
+                <div class="kv"><span>Mathematics</span><b>16.00</b></div><div class="bar"><i style="width:80%"></i></div>
+                <div class="kv"><span>Biology</span><b class="bad">4.50</b></div><div class="bar"><i style="width:22%;background:#c62828"></i></div>
+              </div>
+            </div>
+          </div>
+          <!-- TEACHER -->
+          <div class="screen-view" data-view="teacher">
+            <div class="app-top"><div class="row"><div><div class="hello">Today · 7 lessons</div><div class="who">Mathematics</div></div><div class="av">T</div></div></div>
+            <div class="app-body">
+              <div class="tile"><h4>Next lessons</h4>
+                <div class="note"><div style="flex:1"><b>08:30 · F 1ère</b><small>Register pending</small></div><span class="mini-btn">Register</span></div>
+                <div class="note"><div style="flex:1"><b>09:30 · LowerSixth</b><small>Register pending</small></div><span class="mini-btn">Register</span></div>
+                <div class="note"><div style="flex:1"><b>12:30 · Form 3</b><small>Register pending</small></div><span class="mini-btn">Register</span></div>
+              </div>
+              <div class="tile"><h4>Mark sheets · Seq. 2</h4>
+                <div class="kv"><span>Form 3</span><b>12 / 12</b></div><div class="bar"><i style="width:100%"></i></div>
+                <div class="kv"><span>Form 4 Bilingual</span><b>8 / 12</b></div><div class="bar"><i style="width:66%"></i></div>
+              </div>
+            </div>
+          </div>
+          <!-- ADMIN -->
+          <div class="screen-view" data-view="admin">
+            <div class="app-top"><div class="row"><div><div class="hello">Principal</div><div class="who">School today</div></div><div class="av">A</div></div></div>
+            <div class="app-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="tile"><h4>Students</h4><div class="big" style="font-size:22px">257</div></div>
+                <div class="tile"><h4>Present</h4><div class="big" style="font-size:22px">94%</div></div>
+              </div>
+              <div class="tile"><h4>Fees collected</h4><div class="big" style="font-size:22px">72%</div><div class="bar" style="margin-top:6px"><i style="width:72%;background:#e2b54a"></i></div></div>
+              <div class="tile"><h4>Marks still missing</h4>
+                <div class="kv"><span>Form 4 Bilingual</span><span class="chip red">4 left</span></div>
+                <div class="kv"><span>Upper Sixth Arts</span><span class="chip red">2 left</span></div>
+                <div class="kv"><span>All other classes</span><span class="chip">Complete</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="tabbar"><span class="on"><svg><use href="#i-home"/></svg>Home</span><span><svg><use href="#i-file"/></svg>Results</span><span><svg><use href="#i-cal"/></svg>Timetable</span><span><svg><use href="#i-bell"/></svg>Alerts</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BUILT AROUND HOW THE SCHOOL WORKS ================= -->
+<section class="dark" id="how">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Made for Cameroonian schools</span>
+      <h2>Built around how<br>the school works.</h2>
+      <p class="lead">No translation from a foreign gradebook. Sequences, coefficients, sections and class councils are part of the system.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><h3>6 sequences</h3><p>Two per term, numbered across the year, with term and annual averages.</p></div>
+      <div class="feat"><h3>Marks out of 20</h3><p>Entry is limited to 0–20, and 10 is the pass mark everywhere.</p></div>
+      <div class="feat"><h3>Coefficients</h3><p>Weighted averages and ranks, exactly as printed on the bulletin.</p></div>
+      <div class="feat"><h3>Two sections</h3><p>Anglophone and Francophone, Form 1 to Upper Sixth and 6ème to Terminale.</p></div>
+      <div class="feat"><h3>Class councils</h3><p>Council remarks, warnings and absences carried onto every report card.</p></div>
+      <div class="feat"><h3>Girls and boys</h3><p>Sat, passed and % passed for each, the way end-of-term reports ask for.</p></div>
+      <div class="feat"><h3>Fees in XAF</h3><p>Charges, payments and receipts, with outstanding balances class by class.</p></div>
+      <div class="feat"><h3>Duties</h3><p>Discipline master per class, heads of department per subject, class masters.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE TERM ================= -->
+<section id="term">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">The term</span>
+      <h2>From the first lesson<br>to the class council.</h2>
+      <p class="lead">A term moves through four steps. Each one uses what the step before recorded.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="circle"><svg><use href="#i-cal"/></svg><i>1</i></div><h3>Timetable</h3><p>The administration generates the whole timetable; every teacher and class sees theirs.</p></div>
+      <div class="step"><div class="circle"><svg><use href="#i-check"/></svg><i>2</i></div><h3>Registers</h3><p>Teachers take attendance lesson by lesson; the discipline master follows absences.</p></div>
+      <div class="step"><div class="circle"><svg><use href="#i-pen"/></svg><i>3</i></div><h3>Marks</h3><p>Sequence marks are entered out of 20 for each class and subject.</p></div>
+      <div class="step"><div class="circle"><svg><use href="#i-file"/></svg><i>4</i></div><h3>Report cards</h3><p>Bulletins print with ranks and absences; class masters and heads of department get their reports.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= IN EVERY POCKET ================= -->
+<section class="pocket">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">On the phone</span>
+      <h2>Parents know the same day, not at the end of term.</h2>
+      <p class="lead">An absence, new marks, a payment: parents see it on their phone as soon as the school records it. No more waiting for the report card to find out something went wrong.</p>
+      <div class="store-row">
+        <a href="/login" class="store store-light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg><span>Open in your<b>phone browser</b></span></a>
+      </div>
+    </div>
+    <div class="notif-stack">
+      <div class="notif"><span class="ic" style="background:#fde8e8;color:#c62828"><svg><use href="#i-check"/></svg></span><div><b>Absent from Mathematics</b><small>Form 3A · 2nd period · 1 hour</small></div><time>08:42</time></div>
+      <div class="notif"><span class="ic" style="background:#eef6f2;color:#124d3b"><svg><use href="#i-file"/></svg></span><div><b>Sequence 2 marks published</b><small>11 of 13 subjects passed</small></div><time>Yesterday</time></div>
+      <div class="notif"><span class="ic" style="background:#fdf1d3;color:#7a5a10"><svg><use href="#i-wallet"/></svg></span><div><b>Payment received: 25,000 XAF</b><small>Receipt ready to download</small></div><time>Mon</time></div>
+      <div class="notif"><span class="ic" style="background:#eef6f2;color:#124d3b"><svg><use href="#i-book"/></svg></span><div><b>Library book due Friday</b><small>"Things Fall Apart"</small></div><time>Mon</time></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MODULES ================= -->
+<section id="modules">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Modules</span>
+      <h2>Everything else<br>the school runs.</h2>
+      <p class="lead">Beyond marks and registers, the same accounts and the same records cover the rest of school life.</p>
+    </div>
+    <div class="mod-grid">
+      <a class="mod" href="/modules#report-cards"><div class="ic"><svg><use href="#i-file"/></svg></div><h3>Report cards</h3><p>Bilingual bulletins with ranks, averages and council remarks, for one student or a whole class.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#finance"><div class="ic"><svg><use href="#i-wallet"/></svg></div><h3>Finance</h3><p>Charge a class or a student, record payments, print receipts and see who still owes.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#attendance"><div class="ic"><svg><use href="#i-check"/></svg></div><h3>Attendance &amp; discipline</h3><p>Registers, justifications and term totals, with a discipline master for each group of classes.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#timetables"><div class="ic"><svg><use href="#i-cal"/></svg></div><h3>Timetables</h3><p>Generate a full timetable for every class and teacher, then adjust it.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#library"><div class="ic"><svg><use href="#i-book"/></svg></div><h3>Library</h3><p>Catalogue, loans and due dates, visible to students and their parents.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#laboratory"><div class="ic"><svg><use href="#i-flask"/></svg></div><h3>Laboratory</h3><p>Teachers request equipment ahead of practicals; the lab prepares and tracks it.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#statistics"><div class="ic"><svg><use href="#i-chart"/></svg></div><h3>Statistics</h3><p>Pass rates by class, subject and gender for council meetings and inspections.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#access"><div class="ic"><svg><use href="#i-shield"/></svg></div><h3>Roles &amp; access</h3><p>Everyone sees only what their role allows. Marks lock once a term is published.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+      <a class="mod" href="/modules#promotion"><div class="ic"><svg><use href="#i-users"/></svg></div><h3>Promotion</h3><p>Move students to the next class at year end from their annual averages.</p><span class="more">Learn more <svg><use href="#i-arrow"/></svg></span></a>
+    </div>
+    <div class="mods-more"><a href="/modules" class="btn btn-dark">Explore all modules <svg><use href="#i-arrow"/></svg></a></div>
+  </div>
+</section>
+
+<!-- ================= PRICING TEASER (full pricing lives on pricing.html) ================= -->
+<style>
+  .price-teaser { padding: 0 0 40px; }
+  .pt-box { display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 30px 34px; }
+  .pt-box h3 { font-size: 24px; font-weight: 800; }
+  .pt-box p { margin: 6px 0 0; color: var(--muted); }
+  .pt-price { font-family: var(--display); font-weight: 800; color: var(--g-800); font-size: clamp(28px, 3vw, 36px); white-space: nowrap; }
+  .pt-price small { font-family: var(--body); font-size: 14px; font-weight: 600; color: var(--muted); }
+  .pt-right { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+  .pt-box > div:first-child { flex: 1 1 380px; }
+  .btn-dark { background: var(--g-800); color: #fff; }
+  .btn-dark:hover { background: var(--g-700); }
+</style>
+<section class="price-teaser" id="pricing">
+  <div class="wrap">
+    <div class="pt-box">
+      <div>
+        <span class="eyebrow">Pricing</span>
+        <h3>Priced per student. Everything included.</h3>
+        <p>One yearly price for the whole school, paid in one go or in two instalments.</p>
+      </div>
+      <div class="pt-right">
+        <div class="pt-price">50,000 XAF <small>/ year up to 300 students</small></div>
+        <a href="/pricing" class="btn btn-dark">See pricing <svg><use href="#i-arrow"/></svg></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="cta" id="help">
+  <div class="wrap">
+    <div class="cta-box">
+      <div style="position:relative;z-index:1">
+        <h2>Your account is waiting.</h2>
+        <p>Accounts are created by your school. If you don't have one yet, or you've forgotten your password, ask your school's administration office. They create accounts and reset passwords.</p>
+      </div>
+      <div class="signin-grid">
+        <a href="/login" class="btn btn-gold">Sign in <svg><use href="#i-arrow"/></svg></a>
+        <a href="/login?as=teacher" class="role-btn"><svg><use href="#i-pen"/></svg>Teachers</a>
+        <a href="/login?as=student" class="role-btn"><svg><use href="#i-book"/></svg>Students</a>
+        <a href="/login?as=parent" class="role-btn"><svg><use href="#i-users"/></svg>Parents</a>
+        <a href="/login?as=auxiliary" class="role-btn"><svg><use href="#i-grid"/></svg>Staff</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+</main>
+
+<%- include('partials/site-footer') %>
+
+<script src="/js/site-nav.js"></script>
+<script src="/js/site-home.js"></script>
 </body>
 </html>

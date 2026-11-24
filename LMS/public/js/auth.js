@@ -40,6 +40,9 @@ updateIdentLabel();
 
 const savedRole = localStorage.getItem('role');
 if (savedRole && IDENT_CONFIG[savedRole]) { roleSel.value = savedRole; updateIdentLabel(); }
+// /login?as=teacher (links on the landing page) opens with that account type chosen.
+const askedRole = new URLSearchParams(window.location.search).get('as');
+if (askedRole && IDENT_CONFIG[askedRole]) { roleSel.value = askedRole; updateIdentLabel(); }
 
 const reason = new URLSearchParams(window.location.search).get('reason');
 if (reason === 'expired') {

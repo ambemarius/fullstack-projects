@@ -1,7 +1,7 @@
 {
   "name": "lms",
   "version": "1.0.0",
-  "description": "School Management System for Secondary school",
+  "description": "KodoSchool: school management system for secondary schools",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

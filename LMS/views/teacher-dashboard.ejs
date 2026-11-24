@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teacher Dashboard – Lycée Batouri</title>
+  <title>Teacher Dashboard – KodoSchool</title>
   <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
 <%- include('partials/workspace-assets') %></head>
 <% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
@@ -14,8 +14,8 @@
   <!-- ================= SIDEBAR ================= -->
   <aside class="tp-sidebar" id="tpSidebar" aria-label="Teacher panel">
     <div class="tp-brand">
-      <div class="tp-brand-name">LYCEE<br>BATOURI</div>
-      <div class="tp-brand-panel">Teacher panel</div>
+      <div class="tp-brand-name">KodoSchool</div>
+      <div class="tp-brand-panel">Lycée Batouri · Teacher panel</div>
     </div>
     <nav class="tp-nav" aria-label="Teacher sections">
       <a class="tp-link" href="#dashboard" data-tab="dashboard"><%- icon('grid') %><span>Dashboard</span></a>

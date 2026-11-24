@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title><%= typeof title !== 'undefined' ? title : 'LMS' %></title>
+  <title><%= typeof title !== 'undefined' ? title + ' – KodoSchool' : 'KodoSchool' %></title>
   <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
 <%- include('workspace-assets') %></head>
 <body class="lms-ui">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/">LMS <span>LYCEE BATOURI</span></a>
+    <a class="brand" href="/">KodoSchool <span>Lycée Batouri</span></a>
     <nav class="nav" id="mainNav" aria-label="Main navigation">
       <!-- Admin navigates via the sidebar in the admin panel, so no admin tabs here -->
       <a href="/teacher-dashboard" data-roles="teacher">My dashboard</a>
