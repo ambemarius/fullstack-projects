@@ -123,8 +123,39 @@ test('sign-in looks only inside the chosen school: the same email in two schools
     assert.deepEqual([claims.id, claims.sid], [21, 2], 'school 2\'s teacher, despite school_id: 1 in the body');
     const first = verifyToken((await (await login('LYCEE_BATOURI')).json()).token, 'teacher');
     assert.deepEqual([first.id, first.sid], [11, 1]);
-    assert.equal((await login('')).status, 400, 'with two schools a code is needed');
+    const clash = await login('');
+    assert.equal(clash.status, 409, 'same email and password in two schools: only then is the code asked for');
+    assert.match((await clash.json()).message, /more than one school/);
     assert.equal((await login('NOPE')).status, 401);
+
+    // Different passwords: the teacher is found in the right school without any code.
+    teachers[1] = { ...teachers[1], password: await bcrypt.hash('other-password-2', 4) };
+    const auto = verifyToken((await (await login('')).json()).token, 'teacher');
+    assert.deepEqual([auto.id, auto.sid], [11, 1]);
+});
+
+test('teachers, students, parents and staff sign in without a school code; super administrators must type it', async t => {
+    const hash = await bcrypt.hash('synthetic-password', 4);
+    const db = syntheticDatabase((statement, params) => {
+        if (statement.includes('FROM students WHERE matricule')) return { recordset: [{ id: 5, matricule: params.matricule, school_id: 2, isWithdrawn: false, password: hash }] };
+        if (statement.includes('FROM Admins WHERE email')) return { recordset: [{ id: 3, role: 'Admin', email: params.email, school_id: 2, password: hash }] };
+        throw new Error('unexpected statement: ' + statement);
+    });
+    const app = createApp({ logging: false, requestContext: (_req, _res, next) => withDatabase(db, next) });
+    app.locals.resolveLoginSchool = code => resolveLoginSchool(code, schoolRead(SCHOOLS));
+    const base = await serve(t, app);
+    const post = (p, body) => fetch(base + p, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+    const student = await post('/api/v1/students/login', { matricule: 'GB-001', password: 'synthetic-password' });
+    assert.equal(student.status, 200);
+    assert.equal(verifyToken((await student.json()).token, 'student').sid, 2, 'found in the school that created the account');
+
+    const noCode = await post('/api/v1/admin/login', { email: 'head@example.invalid', password: 'synthetic-password' });
+    assert.equal(noCode.status, 400);
+    assert.match((await noCode.json()).message, /school code/);
+    const admin = await post('/api/v1/admin/login', { email: 'head@example.invalid', password: 'synthetic-password', schoolCode: 'GBHS_BERTOUA' });
+    assert.equal(admin.status, 200);
+    assert.equal(verifyToken((await admin.json()).token, 'admin').sid, 2);
 });
 
 test('migration 021 makes school_id required and stamped from the request, and parents unique per school', () => {
@@ -141,11 +172,16 @@ test('migration 021 makes school_id required and stamped from the request, and p
     assert.equal(/\bDROP TABLE\b|\bDELETE FROM\b|\bTRUNCATE\b/i.test(text), false, 'additive: no data removed');
 });
 
-test('the sign-in page asks for the school code and remembers it on the device', () => {
+test('the sign-in page shows the school code to super administrators, or when the server asks for it', () => {
     const view = fs.readFileSync(path.join(__dirname, '../views/login.ejs'), 'utf8');
     const js = fs.readFileSync(path.join(__dirname, '../public/js/auth.js'), 'utf8');
-    assert.match(view, /<input id="schoolCode"/);
-    assert.match(js, /schoolCode: schoolInput \? schoolInput\.value\.trim\(\) : ''/);
+    assert.match(view, /<div class="school-pick" id="schoolCodeField">\s*<label for="schoolSearch">Your school<\/label>/);
+    assert.match(view, /role="combobox"/);
+    assert.match(view, /<input type="hidden" id="schoolCode" \/>/);
+    assert.match(js, /fetch\('\/api\/v1\/schools\/search'\)/, 'the dropdown lists the schools using KodoSchool');
+    assert.match(js, /function schoolCodeShown\(\) \{ return roleSel\.value === 'admin' \|\| codeAskedByServer; \}/);
+    assert.match(js, /if \(res\.status === 409 && schoolInput\) \{ codeAskedByServer = true;/);
+    assert.match(js, /schoolCode: schoolInput && schoolCodeShown\(\) \? schoolInput\.value\.trim\(\) : ''/);
     assert.match(js, /localStorage\.setItem\('schoolCode'/);
 });
 
@@ -159,4 +195,24 @@ test('migration 024 switches on row-level security: filter and block predicates 
     assert.match(text, /AFTER UPDATE/);
     assert.match(text, /CK_' \+ t\.name \+ N'_school_required/, 'the tables migration 021 made require a school');
     assert.match(text, /WITH \(STATE = ON, SCHEMABINDING = ON\)/);
+});
+
+test('the school directory lists active schools for the sign-in dropdown and tells a signed-in account its own school', async t => {
+    const seen = [];
+    const app = createApp({ logging: false });
+    app.locals.schoolDirectoryQuery = async (statement, params) => {
+        seen.push({ statement, params: Object.fromEntries(Object.entries(params).map(([k, [, v]]) => [k, v])) });
+        if (statement.includes('FROM schools WHERE id = @id')) return { recordset: [{ code: 'GBHS_BERTOUA', name: 'GBHS Bertoua' }] };
+        return { recordset: [{ code: 'LYCEE_BATOURI', name: 'Lycée Batouri', region: 'East', division: 'Kadey' }] };
+    };
+    const base = await serve(t, app);
+    const all = await (await fetch(base + '/api/v1/schools/search')).json();
+    assert.deepEqual(all.data, [{ code: 'LYCEE_BATOURI', name: 'Lycée Batouri', place: 'Kadey · East' }]);
+    assert.match(seen[0].statement, /s\.status = 'active'/, 'only schools in use');
+    await fetch(base + '/api/v1/schools/search?q=' + encodeURIComponent('50%_off'));
+    assert.equal(seen[1].params.like, '%50!%!_off%', 'wildcards typed by a visitor are matched literally');
+    assert.equal((await fetch(base + '/api/v1/schools/mine')).status, 401);
+    const mine = await fetch(base + '/api/v1/schools/mine', { headers: { Authorization: 'Bearer ' + generateToken(4, 'teacher', undefined, 2) } });
+    assert.deepEqual((await mine.json()).data, { code: 'GBHS_BERTOUA', name: 'GBHS Bertoua' });
+    assert.equal(seen.at(-1).params.id, 2, 'the school comes from the signed token');
 });

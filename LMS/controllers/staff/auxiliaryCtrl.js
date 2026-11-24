@@ -3,9 +3,10 @@ const Auxiliary = require('../../model/staff/auxiliary');
 const StaffDuty = require('../../model/staff/staffDuty');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
-const { resolveLoginSchool } = require('../../utils/loginSchool');
-// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
-const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
+const { findLoginAccount } = require('../../utils/loginSchool');
+// The account and school a sign-in opens: super administrators type the school code, other accounts are found
+// in the school whose administrator created them (tests may swap the school resolver).
+const loginAccount = (req, options) => findLoginAccount({ ...options, schoolCode: (req.body || {}).schoolCode, resolveSchool: req.app.locals.resolveLoginSchool });
 
 const STATUSES = ['pending', 'active', 'suspended'];
 const MIN_PASSWORD = 12;
@@ -24,13 +25,13 @@ exports.loginAuxiliaryCtrl = asyncHandler(async (req, res) => {
     if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
         throw httpError(400, 'email and password are required');
     }
-    const school = await loginSchool(req);
-    const staff = await Auxiliary.findForLogin(email.trim(), school.id);
-    const isMatch = staff?.password && await Auxiliary.verifyPassword(password, staff.password);
-    if (!isMatch) throw httpError(401, 'Invalid login credentials');
+    const { account: staff, schoolId } = await loginAccount(req, {
+        identifier: email.trim(), findAll: (e, school) => Auxiliary.findAllForLogin(e, school), verify: hash => Auxiliary.verifyPassword(password, hash),
+    });
+    if (!staff) throw httpError(401, 'Invalid login credentials');
     if (staff.status !== 'active') throw httpError(403, 'Your account is not active. Contact your school administrator.');
 
-    const token = generateToken(staff.id, 'auxiliary', undefined, staff.school_id || school.id);
+    const token = generateToken(staff.id, 'auxiliary', undefined, schoolId);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = staff;
     res.status(200).json({ status: 'success', data: { ...safe, duties: await StaffDuty.forStaff('auxiliary', staff.id) }, token });

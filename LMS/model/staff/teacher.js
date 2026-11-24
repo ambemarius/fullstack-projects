@@ -68,6 +68,16 @@ const TeacherModel = {
         return result.recordset[0] || null;
     },
 
+    // Sign-in: every account with this email in an active school (optionally one school), with its password hash.
+    async findAllForLogin(email, schoolId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('email', sql.NVarChar(255), email)
+            .input('school', sql.Int, schoolId ?? null)
+            .query(`SELECT * FROM teachers WHERE email = @email AND school_id IN (SELECT id FROM schools WHERE status = 'active') AND (@school IS NULL OR school_id = @school)`);
+        return result.recordset;
+    },
+
     async findByEmail(email, schoolId) {
         await poolConnect;
         const result = await pool.request()
@@ -75,6 +85,19 @@ const TeacherModel = {
             .input('school', sql.Int, schoolId ?? null)
             .query('SELECT * FROM teachers WHERE email = @email AND (@school IS NULL OR school_id = @school)');
         return result.recordset[0] || null;
+    },
+
+    // True when the teacher has an active class subject whose subject is marked "Requires practicals".
+    async teachesPracticals(id) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('id', sql.Int, id)
+            .query(`SELECT CASE WHEN EXISTS (
+                SELECT 1 FROM class_subject_teachers cst
+                JOIN class_subjects cs ON cs.id = cst.class_subject_id
+                JOIN subjects s ON s.id = cs.subject_id
+                WHERE cst.teacher_id = @id AND cst.assignment_status = 'active' AND s.has_lab = 1) THEN 1 ELSE 0 END AS yes`);
+        return result.recordset[0].yes === 1;
     },
 
     verifyPassword(plain, hash) {

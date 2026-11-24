@@ -4,9 +4,10 @@ const Student = require('../../model/Academic/student');
 const ClassSubject = require('../../model/Academic/classSubject');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
-const { resolveLoginSchool } = require('../../utils/loginSchool');
-// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
-const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
+const { findLoginAccount } = require('../../utils/loginSchool');
+// The account and school a sign-in opens: super administrators type the school code, other accounts are found
+// in the school whose administrator created them (tests may swap the school resolver).
+const loginAccount = (req, options) => findLoginAccount({ ...options, schoolCode: (req.body || {}).schoolCode, resolveSchool: req.app.locals.resolveLoginSchool });
 const { getPublicUrl } = require('../../middlewares/upload');
 
 const httpError = (status, message) => {
@@ -49,17 +50,17 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
     const { email, password } = req.body || {};
     if (!email || !password) throw httpError(400, 'email and password are required');
 
-    const school = await loginSchool(req);
-    const teacher = await Teacher.findByEmail(email, school.id);
-    const isMatch = teacher && await Teacher.verifyPassword(password, teacher.password);
-    if (!teacher || !isMatch) throw httpError(401, 'Invalid login credentials');
+    const { account: teacher, schoolId } = await loginAccount(req, {
+        identifier: email, findAll: (e, school) => Teacher.findAllForLogin(e, school), verify: hash => Teacher.verifyPassword(password, hash),
+    });
+    if (!teacher) throw httpError(401, 'Invalid login credentials');
 
     if (teacher.status === 'suspended' || teacher.status === 'withdrawn') {
         throw httpError(403, `Your account has been ${teacher.status}`);
     }
 
     const version = req.app.locals.legacyCredentialVersionsEnabled ? await require('../../model/identity/legacyCredentialVersion').legacyCredentialVersion('teacher',teacher.id,undefined,teacher.password) : undefined;
-    const token = generateToken(teacher.id, 'teacher', version, teacher.school_id || school.id);
+    const token = generateToken(teacher.id, 'teacher', version, schoolId);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = teacher;
     res.status(200).json({ status: 'success', data: safe, token });
@@ -77,7 +78,9 @@ exports.getAllTeachersCtrl = asyncHandler(async (req, res) => {
 //@route  GET /api/v1/teachers/profile
 //@access Private (teacher)
 exports.getTeacherProfileCtrl = asyncHandler(async (req, res) => {
-    res.status(200).json({ status: 'success', data: req.app.locals.legacyScopedSelfEnabled ? await require('./scopedLegacySelf').profile(req) : req.userAuth });
+    const profile = req.app.locals.legacyScopedSelfEnabled ? await require('./scopedLegacySelf').profile(req) : req.userAuth;
+    // Laboratory requests appear only for teachers of a subject marked "Requires practicals".
+    res.status(200).json({ status: 'success', data: { ...profile, teachesPracticals: await Teacher.teachesPracticals(req.userAuth.id) } });
 });
 
 //@desc   Teacher updates own profile

@@ -53,14 +53,14 @@ const AuxiliaryModel = {
         return result.recordset[0] || null;
     },
 
-    // Sign-in only: includes the password hash.
-    async findForLogin(email, schoolId) {
+    // Sign-in: every account with this email in an active school (optionally one school), with its password hash.
+    async findAllForLogin(email, schoolId) {
         await poolConnect;
         const result = await pool.request()
             .input('email', sql.NVarChar(255), email)
             .input('school', sql.Int, schoolId ?? null)
-            .query(`SELECT ${COLUMNS}, password FROM auxiliary_staff WHERE email = @email AND (@school IS NULL OR school_id = @school)`);
-        return result.recordset[0] || null;
+            .query(`SELECT ${COLUMNS}, password FROM auxiliary_staff WHERE email = @email AND school_id IN (SELECT id FROM schools WHERE status = 'active') AND (@school IS NULL OR school_id = @school)`);
+        return result.recordset;
     },
 
     async setPassword(id, password) {

@@ -27,7 +27,7 @@
       const subjectMasterName = s.subject_master_name || '';
       const className = s.class_name || '';
       const hoursPerWeek = s.hours_per_week || 4;
-      const hasLab = s.has_lab ? 'Yes' : 'No';
+      const hasLab = s.has_lab ? 'Yes' : '—';
       return `<tr>
         <td>${esc(s.code)}</td>
         <td>${esc(s.name)}</td>
@@ -67,7 +67,7 @@
       msg.className = 'msg error';
       return;
     }
-    const has_lab = document.getElementById('subHasLab').value === 'true';
+    const has_lab = document.getElementById('subHasLab').checked;
     const body = {
       name: document.getElementById('subName').value,
       code: document.getElementById('subCode').value,
@@ -122,7 +122,7 @@
     document.getElementById('subSubjectMaster').value = s.subject_master || '';
     document.getElementById('subClassId').value = s.class_id || '';
     document.getElementById('subHoursPerWeek').value = s.hours_per_week || 4;
-    document.getElementById('subHasLab').value = s.has_lab ? 'true' : 'false';
+    document.getElementById('subHasLab').checked = Boolean(s.has_lab);
     window.LMS.switchTab('registration');
     document.querySelector('.reg-subtab[data-sub="subject"]').click();
     document.getElementById('subjectForm').scrollIntoView({ behavior: 'smooth' });

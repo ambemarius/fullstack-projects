@@ -30,6 +30,16 @@ const Admin = {
         return result.recordset[0] || null;
     },
 
+    // Sign-in: every account with this email in an active school (optionally one school), with its password hash.
+    async findAllForLogin(email, schoolId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('email', sql.NVarChar(255), email)
+            .input('school', sql.Int, schoolId ?? null)
+            .query(`SELECT * FROM Admins WHERE email = @email AND school_id IN (SELECT id FROM schools WHERE status = 'active') AND (@school IS NULL OR school_id = @school)`);
+        return result.recordset;
+    },
+
     // Find a single admin by id, or return null.
     async findById(id) {
         await poolConnect;

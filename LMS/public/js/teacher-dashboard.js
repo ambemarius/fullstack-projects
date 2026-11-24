@@ -57,8 +57,16 @@ const dutyCard = document.getElementById('dutyCard');
 if (dutyCard) new MutationObserver(() => { document.getElementById('tw-tab-duties').hidden = dutyCard.hidden; }).observe(dutyCard, { attributes: true, attributeFilter: ['hidden'] });
 
 // ---------------------------------------------------------------- profile
+// Laboratory requests: only for teachers of a subject marked "Requires practicals" (set from the profile).
+let teachesPracticals = false;
+function applyPracticals() {
+  document.getElementById('tw-tab-lab').hidden = !teachesPracticals;
+  if (!teachesPracticals && location.hash === '#lab') twShow('dashboard');
+}
+
 async function loadProfile() {
   const { ok, data } = await api('/teachers/profile');
+  if (ok) { teachesPracticals = Boolean(data.data.teachesPracticals); applyPracticals(); }
   const el = document.getElementById('profile');
   const welcome = document.getElementById('welcome');
   if (!ok) { welcome.textContent = 'Your profile could not be loaded.'; return; }
@@ -270,7 +278,7 @@ async function loadDashboard() {
     api(`/attendance/my-lessons?date=${todayIso()}&term=${term}`),
     mySubjects.length ? null : loadMySubjects(),
     myStudents.length ? null : api('/teachers/my-students').then(r => { if (r.ok) myStudents = r.data.data || []; }),
-    labCache ? null : (labReady || (labReady = loadLab())),
+    labCache ? null : (labReady || (labReady = profileReady.then(() => (teachesPracticals ? loadLab() : null)))),
   ]);
   const year = ctx.ok ? ctx.data.data.currentYear : null;
   const lessons = tt.ok ? tt.data.data || [] : [];
@@ -288,7 +296,7 @@ async function loadDashboard() {
     [todays.filter(l => !isStudyName(l.subject_name)).length, 'Lessons today', ''],
     [new Set(mySubjects.map(s => s.classId)).size, 'My classes', ''],
     [myStudents.length, 'My students', ''],
-    [labOpen, 'Open lab requests', labOverdue.length ? `${labOverdue.length} overdue` : ''],
+    ...(teachesPracticals ? [[labOpen, 'Open lab requests', labOverdue.length ? `${labOverdue.length} overdue` : '']] : []),
   ].map(([v, label, note]) => `<div class="tp-card tp-stat${note ? ' is-alert' : ''}"><div class="tp-v">${v}</div><div class="tp-l">${label}${note ? `<strong>${esc(note)}</strong>` : ''}</div></div>`).join('');
 
   // Today
@@ -433,10 +441,10 @@ document.getElementById('msForm').addEventListener('submit', async ev => {
 });
 
 // ---------------------------------------------------------------- start
-loadProfile();          // name in the welcome bar (the profile tab reuses it)
+const profileReady = loadProfile();   // name in the welcome bar (the profile tab reuses it), and whether Lab shows
 twLoaded.add('profile');
 loadMarksSubjects();
-labReady = loadLab();   // fills the open-requests count beside "Laboratory requests"
+labReady = profileReady.then(() => (teachesPracticals ? loadLab() : null));   // open-requests count beside "Laboratory requests"
 twLoaded.add('lab');
 refreshAttendanceBadge(); // count of registers to take, beside "Attendance"
 twShow(location.hash.slice(1) || 'dashboard', { updateHash: false });

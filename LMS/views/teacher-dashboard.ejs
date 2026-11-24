@@ -15,7 +15,7 @@
   <aside class="tp-sidebar" id="tpSidebar" aria-label="Teacher panel">
     <div class="tp-brand">
       <div class="tp-brand-name">KodoSchool</div>
-      <div class="tp-brand-panel">Lycée Batouri · Teacher panel</div>
+      <div class="tp-brand-panel"><span data-school-name>Your school</span> · Teacher panel</div>
     </div>
     <nav class="tp-nav" aria-label="Teacher sections">
       <a class="tp-link" href="#dashboard" data-tab="dashboard"><%- icon('grid') %><span>Dashboard</span></a>
@@ -25,8 +25,8 @@
       <h2 class="tp-section">Teaching tools</h2>
       <a class="tp-link" href="#subjects" data-tab="subjects"><%- icon('book') %><span>My subjects</span></a>
       <a class="tp-link" href="#students" data-tab="students"><%- icon('people') %><span>My students</span></a>
-      <a class="tp-link" href="#lab" data-tab="lab"><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
-      <a class="tp-link" href="#myclass" data-tab="myclass" id="tw-tab-myclass" hidden><%- icon('people') %><span>My class</span></a>
+      <a class="tp-link" href="#lab" data-tab="lab" id="tw-tab-lab" hidden><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
+      <a class="tp-link" href="#myclass" data-tab="myclass" id="tw-tab-myclass" hidden><%- icon('people') %><span>Class master</span></a>
       <a class="tp-link" href="#department" data-tab="department" id="tw-tab-department" hidden><%- icon('book') %><span>Department</span></a>
       <a class="tp-link" href="#discipline" data-tab="discipline" id="tw-tab-discipline" hidden><%- icon('shield') %><span>Discipline</span><span class="tp-badge" id="twDiscCount" hidden></span></a>
       <a class="tp-link" href="#duties" data-tab="duties" id="tw-tab-duties" hidden><%- icon('wallet') %><span>My duties</span></a>
@@ -191,12 +191,12 @@
         <p class="muted tw-foot"><a href="/lab-requests">Open the full request page</a> to make, change or return a request.</p>
       </section>
 
-      <!-- ===== My class (only for a class master): end-of-term report of the class ===== -->
+      <!-- ===== Class master (only for a class master): end-of-term report of the class ===== -->
       <section class="tw-panel" id="tw-myclass" aria-labelledby="tpTitle" hidden>
         <div class="tp-card tp-pad hod-controls cm-controls">
           <div class="hod-head">
             <div>
-              <h2 id="cmTitle">My class</h2>
+              <h2 id="cmTitle">Class master</h2>
               <p class="muted" id="cmScope">End-of-term report of the class you are class master of: every subject, the ranking, attendance and the students to watch.</p>
             </div>
             <div class="hod-actions">
@@ -321,6 +321,7 @@
   </div>
 
   <script src="/js/app.js"></script>
+  <script src="/js/school-identity.js"></script>
   <script src="/js/toast.js"></script>
   <script src="/js/mark-sheet.js"></script>
   <script src="/js/teacher-dashboard.js"></script>

@@ -21,6 +21,16 @@ const Parent = {
         return result.recordset[0] || null;
     },
 
+    // Sign-in: every account with this phone in an active school (optionally one school), with its password hash.
+    async findAllForLogin(phone, schoolId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('phone', sql.NVarChar(20), phone)
+            .input('school', sql.Int, schoolId ?? null)
+            .query(`SELECT * FROM parents WHERE phone = @phone AND school_id IN (SELECT id FROM schools WHERE status = 'active') AND (@school IS NULL OR school_id = @school)`);
+        return result.recordset;
+    },
+
     async findByPhone(phone, schoolId) {
         await poolConnect;
         const result = await pool.request()

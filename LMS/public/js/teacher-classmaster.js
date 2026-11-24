@@ -1,4 +1,4 @@
-// Teacher portal: "My class", shown only to a class master.
+// Teacher portal: "Class master" tab, shown only to a class master.
 // End-of-term report of their class: enrolment, results for girls and boys, class average, best and weakest
 // subject, every subject, the ranking, students to watch and attendance. Print / PDF and CSV for the administration.
 (function () {
@@ -53,7 +53,7 @@
   function render() {
     const d = data, R = d.results, e = d.enrolment;
     const me = document.getElementById('tpUserName').textContent || d.classMaster || '';
-    document.getElementById('cmTitle').textContent = 'My class — ' + d.className;
+    document.getElementById('cmTitle').textContent = 'Class master — ' + d.className;
     document.getElementById('cmPrintTitle').textContent = "Class master's report — " + d.className;
     document.getElementById('cmPrintMeta').textContent = d.yearName + ' · ' + d.term + ' term · Class master: ' + (d.classMaster || me) + ' · Printed ' + new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     document.getElementById('cmSignName').textContent = (d.classMaster || me ? (d.classMaster || me) + ', ' : '') + 'Class master';

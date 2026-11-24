@@ -13,7 +13,8 @@
       <span class="sidebar-logo">KodoSchool
         
       </span>
-      <span class="sidebar-sub">Lycée Batouri · Admin panel</span>
+      <span class="sidebar-sub"><span data-school-name>Your school</span> · Admin panel</span>
+      <span class="sidebar-sub sidebar-code" data-school-code-row hidden>School code: <b data-school-code></b></span>
     </div>
     <nav class="sidebar-nav" aria-label="Admin sections">
       <div role="tablist" aria-orientation="vertical" aria-label="Admin panels">
@@ -395,12 +396,8 @@
                       <option value="Compulsory">Compulsory</option>
                     </select>
                   </label>
-                  <label>Has Lab
-                    <select id="subHasLab">
-                      <option value="">-- Select --</option>
-                      <option value="true">Yes</option>
-                      <option value="false">No</option>
-                    </select>
+                  <label class="check-label" title="Teachers of this subject get Laboratory requests in their portal">
+                    <input type="checkbox" id="subHasLab"> Requires practicals (laboratory)
                   </label>
                 </div>
               </div>
@@ -449,7 +446,7 @@
                     <th>Subject Master</th>
                     <th>Class</th>
                     <th>Hours/Week</th>
-                    <th>Has Lab</th>
+                    <th>Practicals</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -1069,6 +1066,7 @@
   <% if (typeof canonicalPersonnelEnabled !== 'undefined' && canonicalPersonnelEnabled) { %><script src="/js/legacy-personnel-handoff.js"></script><% } %>
   <script src="/js/app.js"></script>
   <script src="/js/toast.js"></script>
+  <script src="/js/school-identity.js"></script>
   <script src="/js/admin-layout.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-core.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-students.js?v=<%= Date.now() %>"></script>

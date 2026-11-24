@@ -116,6 +116,16 @@ const StudentModel = {
         return result.recordset;
     },
 
+    // Sign-in: every account with this matricule in an active school (optionally one school), with its password hash.
+    async findAllForLogin(matricule, schoolId) {
+        await poolConnect;
+        const result = await pool.request()
+            .input('matricule', sql.NVarChar(50), matricule)
+            .input('school', sql.Int, schoolId ?? null)
+            .query(`SELECT * FROM students WHERE matricule = @matricule AND school_id IN (SELECT id FROM schools WHERE status = 'active') AND (@school IS NULL OR school_id = @school)`);
+        return result.recordset;
+    },
+
     async findByMatricule(matricule, schoolId) {
         await poolConnect;
         const result = await pool.request()

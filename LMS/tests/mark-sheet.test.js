@@ -110,7 +110,7 @@ test('teacher panel: sidebar of sections, dashboard first, each section keeps th
 test('teacher lab request summary endpoint uses the request page gate (teachers only)', () => {
     const router = fs.readFileSync(path.join(__dirname, '../routes/inventory/inventoryRouter.js'), 'utf8');
     assert.match(router, /router\.get\(PATHS\.requests \+ '\/mine', gate\('requests'\)/);
-    assert.match(router, /requests: requireStaff\(\{ allowTeacher: true, allowAdmin: false \}\)/);
+    assert.match(router, /requests: practicalsOnly\(requireStaff\(\{ allowTeacher: true, allowAdmin: false \}\), teachesPracticals\)/);
 });
 
 test('teacher Enter marks filter: class and subject, term and open button on one row, like the admin filter', () => {

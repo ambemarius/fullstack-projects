@@ -4,17 +4,31 @@ const express = require('express');
 const asyncHandler = require('express-async-handler');
 const { requireStaff } = require('../../middlewares/staffAccess');
 const { createInventoryService } = require('../../model/inventory/inventoryService');
+const Teacher = require('../../model/staff/teacher');
+
+// Teachers make laboratory requests only when they teach a subject marked "Requires practicals".
+function practicalsOnly(staffGate, teachesPracticals) {
+    return (req, res, next) => staffGate(req, res, async err => {
+        if (err) return next(err);
+        try {
+            if (req.actor.type === 'teacher' && !await teachesPracticals(req.actor.id)) {
+                return next(Object.assign(new Error('Laboratory requests are for teachers of subjects with practicals. Ask your administrator to tick "Requires practicals" on your subject.'), { statusCode: 403 }));
+            }
+            next();
+        } catch (e) { next(e); }
+    });
+}
 
 const PATHS = { library: '/library', laboratory: '/laboratory', requests: '/lab-requests' };
 const HOME = { admin: '/admin-dashboard', teacher: '/teacher-dashboard', auxiliary: '/staff-dashboard' };
 const ROLE_LABEL = { library: 'Librarian', laboratory: 'Laboratory attendant', requests: 'Teacher' };
 
-function createInventoryRouter({ service = createInventoryService() } = {}) {
+function createInventoryRouter({ service = createInventoryService(), teachesPracticals = id => Teacher.teachesPracticals(id) } = {}) {
     const router = express.Router();
     const gates = {
         library: requireStaff({ duties: ['librarian'] }),
         laboratory: requireStaff({ duties: ['lab_attendant'] }),
-        requests: requireStaff({ allowTeacher: true, allowAdmin: false }),
+        requests: practicalsOnly(requireStaff({ allowTeacher: true, allowAdmin: false }), teachesPracticals),
     };
 
     const base = (req, area, extra = {}) => ({

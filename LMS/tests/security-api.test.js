@@ -69,7 +69,7 @@ test('all three login endpoints issue role-bound tokens without returning hashes
     });
     const base = await serve(t, fixtureApp(db));
     for (const [group, role, identity] of [
-        ['admin', 'admin', { email: 'admin@example.invalid' }],
+        ['admin', 'admin', { email: 'admin@example.invalid', schoolCode: 'SCHOOL_A' }],
         ['teachers', 'teacher', { email: 'teacher@example.invalid' }],
         ['students', 'student', { matricule: 'SYNTHETIC-1' }],
     ]) {
@@ -97,9 +97,9 @@ test('withdrawn student cannot log in', async t => {
 });
 test('a non-administrator legacy Admins row cannot receive an administrator token',async t=>{
     const hash=await bcrypt.hash('synthetic-login-password',4);
-    const db=syntheticDatabase(()=>({recordset:[{id:1,role:'teacher',password:hash}]}));
+    const db=syntheticDatabase(statement=>statement.includes('UPPER(code) = @code')?{recordset:[{id:1,code:'SCHOOL_A',status:'active'}]}:{recordset:[{id:1,role:'teacher',school_id:1,password:hash}]});
     const base=await serve(t,fixtureApp(db));
-    const response=await fetch(base+'/api/v1/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'synthetic@example.invalid',password:'synthetic-login-password'})});
+    const response=await fetch(base+'/api/v1/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'synthetic@example.invalid',password:'synthetic-login-password',schoolCode:'SCHOOL_A'})});
     assert.equal(response.status,401);assert.equal(Object.hasOwn(await response.json(),'token'),false);
 });
 

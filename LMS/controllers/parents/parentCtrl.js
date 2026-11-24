@@ -3,9 +3,10 @@ const Parent = require('../../model/Academic/parent');
 const Student = require('../../model/Academic/student');
 const generateToken = require('../../utils/generateToken');
 const { setAuthCookie } = require('../../utils/authCookie');
-const { resolveLoginSchool } = require('../../utils/loginSchool');
-// The school a sign-in belongs to (school code typed at sign-in; tests may swap the resolver).
-const loginSchool = req => (req.app.locals.resolveLoginSchool || resolveLoginSchool)((req.body || {}).schoolCode);
+const { findLoginAccount } = require('../../utils/loginSchool');
+// The account and school a sign-in opens: super administrators type the school code, other accounts are found
+// in the school whose administrator created them (tests may swap the school resolver).
+const loginAccount = (req, options) => findLoginAccount({ ...options, schoolCode: (req.body || {}).schoolCode, resolveSchool: req.app.locals.resolveLoginSchool });
 
 const httpError = (status, message) => {
     const err = new Error(message);
@@ -43,13 +44,14 @@ exports.loginParentCtrl = asyncHandler(async (req, res) => {
     if (!phone || !password) throw httpError(400, 'phone and password are required');
 
     const normalizedPhone = phoneOrNull(phone);
-    const school = await loginSchool(req);
-    const parent = normalizedPhone && await Parent.findByPhone(normalizedPhone, school.id);
-    const isMatch = parent && await Parent.verifyPassword(password, parent.password);
-    if (!parent || !isMatch) throw httpError(401, 'Invalid login credentials');
+    if (!normalizedPhone) throw httpError(401, 'Invalid login credentials');
+    const { account: parent, schoolId } = await loginAccount(req, {
+        identifier: normalizedPhone, findAll: (p, school) => Parent.findAllForLogin(p, school), verify: hash => Parent.verifyPassword(password, hash),
+    });
+    if (!parent) throw httpError(401, 'Invalid login credentials');
     if (parent.status && parent.status !== 'active') throw httpError(403, 'This account is inactive');
 
-    const token = generateToken(parent.id, 'parent', undefined, parent.school_id || school.id);
+    const token = generateToken(parent.id, 'parent', undefined, schoolId);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = parent;
     res.status(200).json({ status: 'success', data: safe, token });

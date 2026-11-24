@@ -51,13 +51,98 @@ if (reason === 'expired') {
   for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
 }
 
-// School code: from a school's own link (?school=CODE), else the one last used on this device.
-const schoolInput = document.getElementById('schoolCode');
-if (schoolInput) {
+// School code: only super administrators type it. Other accounts are found in the school whose administrator
+// created them; the code is asked for only if the same details open accounts in two schools (the server says 409).
+// Pre-filled from a school's own link (?school=CODE), else the one last used on this device.
+const schoolInput = document.getElementById('schoolCode');      // hidden: the chosen school's code
+const schoolSearch = document.getElementById('schoolSearch');   // visible: "Your school" dropdown with filter
+const schoolList = document.getElementById('schoolList');
+const schoolField = document.getElementById('schoolCodeField');
+let codeAskedByServer = false;
+let schools = [];          // { code, name, place } from /api/v1/schools/search
+let activeIndex = -1;
+const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function chooseSchool(school) {
+  schoolInput.value = school ? school.code : '';
+  if (school) schoolSearch.value = school.name;
+  closeSchoolList();
+}
+function closeSchoolList() {
+  schoolList.hidden = true;
+  schoolSearch.setAttribute('aria-expanded', 'false');
+  schoolSearch.removeAttribute('aria-activedescendant');
+  activeIndex = -1;
+}
+function renderSchoolList() {
+  const q = schoolSearch.value.trim().toLowerCase();
+  const shown = schools.filter(s => !q || s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q));
+  schoolList.innerHTML = shown.length
+    ? shown.map((s, i) => `<li role="option" id="school-opt-${i}" data-code="${escHtml(s.code)}" aria-selected="${s.code === schoolInput.value}"><b>${escHtml(s.name)}</b>${s.place ? `<small>${escHtml(s.place)}</small>` : ''}</li>`).join('')
+    : '<li class="school-none" role="presentation">No school with that name uses KodoSchool yet.</li>';
+  schoolList.hidden = false;
+  schoolSearch.setAttribute('aria-expanded', 'true');
+  activeIndex = -1;
+}
+function moveActive(step) {
+  const options = [...schoolList.querySelectorAll('[role="option"]')];
+  if (!options.length) return;
+  activeIndex = (activeIndex + step + options.length) % options.length;
+  options.forEach((o, i) => o.classList.toggle('active', i === activeIndex));
+  schoolSearch.setAttribute('aria-activedescendant', options[activeIndex].id);
+  options[activeIndex].scrollIntoView({ block: 'nearest' });
+}
+async function loadSchools() {
+  try {
+    const res = await fetch('/api/v1/schools/search');
+    schools = (await res.json()).data || [];
+  } catch { schools = []; }
+  // A school's own link (?school=CODE), else the school last used on this device.
   let remembered = '';
   try { remembered = localStorage.getItem('schoolCode') || ''; } catch { /* storage unavailable */ }
-  schoolInput.value = new URLSearchParams(window.location.search).get('school') || remembered;
+  const wanted = (new URLSearchParams(window.location.search).get('school') || remembered).toUpperCase();
+  const found = schools.find(s => s.code.toUpperCase() === wanted);
+  if (found) chooseSchool(found);
 }
+if (schoolSearch) {
+  schoolSearch.addEventListener('focus', renderSchoolList);
+  schoolSearch.addEventListener('input', () => { schoolInput.value = ''; renderSchoolList(); });
+  schoolSearch.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown') { e.preventDefault(); if (schoolList.hidden) renderSchoolList(); moveActive(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moveActive(-1); }
+    else if (e.key === 'Enter' && !schoolList.hidden && activeIndex >= 0) {
+      e.preventDefault();
+      const opt = schoolList.querySelectorAll('[role="option"]')[activeIndex];
+      chooseSchool(schools.find(s => s.code === opt.dataset.code));
+    } else if (e.key === 'Escape') closeSchoolList();
+  });
+  schoolList.addEventListener('mousedown', e => {
+    const opt = e.target.closest('[role="option"]');
+    if (!opt) return;
+    e.preventDefault();
+    chooseSchool(schools.find(s => s.code === opt.dataset.code));
+  });
+  document.getElementById('schoolToggle').addEventListener('click', () => {
+    if (schoolList.hidden) { schoolSearch.focus(); renderSchoolList(); } else closeSchoolList();
+  });
+  schoolSearch.addEventListener('blur', () => setTimeout(() => {
+    // A name typed in full (or a school code) counts as choosing that school.
+    if (!schoolInput.value) {
+      const typed = schoolSearch.value.trim().toLowerCase();
+      const exact = schools.find(s => s.name.toLowerCase() === typed || s.code.toLowerCase() === typed);
+      if (exact) chooseSchool(exact);
+    }
+    closeSchoolList();
+  }, 120));
+  loadSchools();
+}
+function schoolCodeShown() { return roleSel.value === 'admin' || codeAskedByServer; }
+function updateSchoolField() {
+  if (!schoolField) return;
+  schoolField.hidden = !schoolCodeShown();
+}
+roleSel.addEventListener('change', () => { codeAskedByServer = false; updateSchoolField(); });
+updateSchoolField();
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -74,6 +159,12 @@ form.addEventListener('submit', async (e) => {
     msg.className = 'msg error';
     return;
   }
+  if (role === 'admin' && schoolInput && !schoolInput.value.trim()) {
+    msg.textContent = schoolSearch && schoolSearch.value.trim() ? 'Choose your school from the list.' : 'Choose your school.';
+    msg.className = 'msg error';
+    schoolSearch.focus();
+    return;
+  }
 
   loginBtn.classList.add('loading');
   loginBtn.textContent = 'Signing in';
@@ -82,13 +173,14 @@ form.addEventListener('submit', async (e) => {
     const res = await fetch(ENDPOINT[role], {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ [cfg.field]: identifier, password, schoolCode: schoolInput ? schoolInput.value.trim() : '' }),
+      body: JSON.stringify({ [cfg.field]: identifier, password, schoolCode: schoolInput && schoolCodeShown() ? schoolInput.value.trim() : '' }),
     });
     const data = await res.json();
 
     if (!res.ok) {
       msg.textContent = data.message || 'Invalid credentials. Please try again.';
       msg.className = 'msg error';
+      if (res.status === 409 && schoolInput) { codeAskedByServer = true; updateSchoolField(); msg.textContent = 'This account exists in more than one school. Choose your school.'; schoolSearch.focus(); }
       loginBtn.classList.remove('loading');
       loginBtn.textContent = 'Sign in';
       return;
@@ -97,7 +189,7 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.data));
     localStorage.setItem('role', role);
-    try { if (schoolInput && schoolInput.value.trim()) localStorage.setItem('schoolCode', schoolInput.value.trim().toUpperCase()); } catch { /* storage unavailable */ }
+    try { if (schoolInput && schoolCodeShown() && schoolInput.value.trim()) localStorage.setItem('schoolCode', schoolInput.value.trim().toUpperCase()); } catch { /* storage unavailable */ }
     // Return to the page that asked for sign-in, but only a same-site path.
     const next = new URLSearchParams(window.location.search).get('next');
     window.location.href = next && /^\/(?!\/)[\w\-/?=&%.]*$/.test(next) ? next : HOME[role];

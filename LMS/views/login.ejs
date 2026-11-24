@@ -11,19 +11,28 @@
     <h2>Sign in</h2>
     <p style="color:var(--muted);font-size:14px;margin:0 0 4px">Choose your role and enter your credentials.</p>
     <form id="loginForm">
-      <label>School code
-        <input id="schoolCode" autocomplete="organization" autocapitalize="characters" spellcheck="false" maxlength="50" placeholder="e.g. LYCEE_BATOURI" aria-describedby="schoolCodeHint" />
-        <small id="schoolCodeHint" class="field-hint">Given by your school. Remembered on this device.</small>
-      </label>
       <label>Account type
         <select id="role">
-          <option value="admin">Administrator</option>
-          <option value="teacher">Teacher</option>
+          <option value="teacher" selected>Teacher</option>
           <option value="student">Student</option>
           <option value="parent">Parent / Guardian</option>
           <option value="auxiliary">Non-teaching staff</option>
+          <option value="admin">Administrator</option>
         </select>
       </label>
+      <div class="school-pick" id="schoolCodeField">
+        <label for="schoolSearch">Your school</label>
+        <div class="school-combo">
+          <input id="schoolSearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="schoolList"
+                 aria-describedby="schoolCodeHint" autocomplete="off" spellcheck="false" maxlength="80" placeholder="Choose or type your school's name" />
+          <button type="button" class="school-combo-toggle" id="schoolToggle" aria-label="Show all schools" tabindex="-1">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <ul id="schoolList" class="school-list" role="listbox" aria-label="Schools" hidden></ul>
+        </div>
+        <input type="hidden" id="schoolCode" />
+        <small id="schoolCodeHint" class="field-hint">Remembered on this device.</small>
+      </div>
       <label id="identLabel">Email
         <input id="identifier" required autocomplete="username" placeholder="Enter your email" />
       </label>

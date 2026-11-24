@@ -2075,3 +2075,26 @@ tr.tw-overdue td { background: #fff6f5; }
 .pc-login-card { width: min(420px, 100%); background: #fff; border-radius: 18px; padding: 30px; box-shadow: 0 30px 70px -30px rgba(0,0,0,.5); }
 .pc-login-card h1 { font-size: 22px; margin: 18px 0 6px; } .pc-login-card form { display: grid; gap: 14px; margin-top: 18px; }
 .pc-login-card label { display: grid; gap: 6px; font-weight: 600; } .pc-login-card .btn { width: 100%; justify-content: center; }
+#schoolCodeField[hidden] { display: none; }
+
+/* Sign-in: "Your school" dropdown with filter (administrators only) */
+.lms-ui .school-pick { display: grid; gap: 6px; }
+.lms-ui .school-pick > label { font-weight: 600; }
+.school-combo { position: relative; }
+.school-combo input { width: 100%; padding-right: 40px; }
+.school-combo-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border: 0; background: none; color: #5d6e68; cursor: pointer; display: grid; place-items: center; border-radius: 8px; }
+.school-list { position: absolute; z-index: 20; left: 0; right: 0; top: calc(100% + 4px); max-height: 260px; overflow-y: auto; margin: 0; padding: 4px; list-style: none;
+  background: #fff; border: 1px solid #d6dee2; border-radius: 10px; box-shadow: 0 16px 34px -18px rgba(11,46,35,.45); }
+.school-list[hidden] { display: none; }
+.school-list li[role="option"] { padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+.school-list li[role="option"] b { display: block; font-weight: 600; font-size: 14.5px; }
+.school-list li[role="option"] small { color: #5d6e68; font-size: 12.5px; }
+.school-list li.active, .school-list li[role="option"]:hover { background: #eef6f2; }
+.school-list li[aria-selected="true"] b::after { content: " ✓"; color: #1b6b52; }
+.school-list .school-none { padding: 10px; color: #5d6e68; font-size: 14px; }
+.sidebar-code[hidden] { display: none; }
+.sidebar-code b { letter-spacing: .02em; }
+
+/* Admin forms: a checkbox with its label on one line */
+.lms-ui label.check-label { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 600; align-self: end; min-height: 42px; }
+.lms-ui label.check-label input { width: 18px; height: 18px; margin: 0; accent-color: #1b6b52; }
