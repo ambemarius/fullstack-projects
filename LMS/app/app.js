@@ -44,6 +44,7 @@ const ROUTES = [
     ['/api/v1/parents', '../routes/parents/parentRouter'],
     ['/api/v1/staff-duties', '../routes/staff/staffDutyRouter'],
     ['/api/v1/department', '../routes/academic/departmentRouter'],
+    ['/api/v1/class-master', '../routes/academic/classMasterRouter'],
     ['/finance', '../routes/finance/financeRouter'],
     ['/api/v1/attendance', '../routes/attendance/attendanceRouter'],
     ['/api/v1/library', '../routes/inventory/loansRouter'],

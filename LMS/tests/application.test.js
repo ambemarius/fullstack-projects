@@ -6,7 +6,7 @@ const { serve } = require('./helpers/http');
 
 test('application creation/imports require no database credentials or connection', async t => {
     const app = createApp({ logging: false });
-    assert.equal(ROUTES.length, 24);
+    assert.equal(ROUTES.length, 25);
     const base = await serve(t, app);
     const landing = await fetch(base);
     assert.equal(landing.status, 200);

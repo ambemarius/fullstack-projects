@@ -26,6 +26,7 @@
       <a class="tp-link" href="#subjects" data-tab="subjects"><%- icon('book') %><span>My subjects</span></a>
       <a class="tp-link" href="#students" data-tab="students"><%- icon('people') %><span>My students</span></a>
       <a class="tp-link" href="#lab" data-tab="lab"><%- icon('flask') %><span>Laboratory requests</span><span class="tp-badge" id="twLabCount" hidden></span></a>
+      <a class="tp-link" href="#myclass" data-tab="myclass" id="tw-tab-myclass" hidden><%- icon('people') %><span>My class</span></a>
       <a class="tp-link" href="#department" data-tab="department" id="tw-tab-department" hidden><%- icon('book') %><span>Department</span></a>
       <a class="tp-link" href="#discipline" data-tab="discipline" id="tw-tab-discipline" hidden><%- icon('shield') %><span>Discipline</span><span class="tp-badge" id="twDiscCount" hidden></span></a>
       <a class="tp-link" href="#duties" data-tab="duties" id="tw-tab-duties" hidden><%- icon('wallet') %><span>My duties</span></a>
@@ -190,6 +191,46 @@
         <p class="muted tw-foot"><a href="/lab-requests">Open the full request page</a> to make, change or return a request.</p>
       </section>
 
+      <!-- ===== My class (only for a class master): end-of-term report of the class ===== -->
+      <section class="tw-panel" id="tw-myclass" aria-labelledby="tpTitle" hidden>
+        <div class="tp-card tp-pad hod-controls cm-controls">
+          <div class="hod-head">
+            <div>
+              <h2 id="cmTitle">My class</h2>
+              <p class="muted" id="cmScope">End-of-term report of the class you are class master of: every subject, the ranking, attendance and the students to watch.</p>
+            </div>
+            <div class="hod-actions">
+              <button type="button" class="btn btn-secondary" id="cmCsv" disabled>Download CSV</button>
+              <button type="button" class="btn" data-print id="cmPrint" disabled>Print / save as PDF</button>
+            </div>
+          </div>
+          <form class="hod-filters cm-filters" id="cmForm">
+            <label>Class<select id="cmClass"></select></label>
+            <label>Academic year<select id="cmYear"></select></label>
+            <label>Term<select id="cmTerm">
+              <option value="First">First term (Seq. 1 &amp; 2)</option><option value="Second">Second term (Seq. 3 &amp; 4)</option><option value="Third">Third term (Seq. 5 &amp; 6)</option>
+            </select></label>
+            <button type="submit" class="btn">Show report</button>
+          </form>
+        </div>
+        <div class="hod-print-head cm-print-head" aria-hidden="true">
+          <div class="hod-print-school">LYCÉE BATOURI</div>
+          <h1 id="cmPrintTitle">Class master's report</h1>
+          <p id="cmPrintMeta"></p>
+        </div>
+        <div id="cmReport"><div class="tp-card tp-pad"><p class="muted">Loading…</p></div></div>
+        <div class="tp-card tp-pad hod-block">
+          <h2>Class master's remarks</h2>
+          <label class="sr-only" for="cmRemarks">Remarks for the class council and the administration</label>
+          <textarea id="cmRemarks" rows="5" maxlength="3000" placeholder="Work and conduct of the class, subjects that need attention, students to follow up, proposals for the class council…"></textarea>
+          <div class="hod-remarks-print" id="cmRemarksPrint"></div>
+          <div class="hod-signatures">
+            <div><span id="cmSignName">Class master</span><br>Signature and date</div>
+            <div>The Principal<br>Signature and date</div>
+          </div>
+        </div>
+      </section>
+
       <!-- ===== Department (only for a head of department): the subject across every class of the section ===== -->
       <section class="tw-panel" id="tw-department" aria-labelledby="tpTitle" hidden>
         <div class="tp-card tp-pad hod-controls">
@@ -289,5 +330,6 @@
   <script src="/js/teacher-discipline.js"></script>
   <script src="/js/department-view.js"></script>
   <script src="/js/teacher-department.js"></script>
+  <script src="/js/teacher-classmaster.js"></script>
 </body>
 </html>

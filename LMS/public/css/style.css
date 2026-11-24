@@ -1990,3 +1990,29 @@ tr.tw-overdue td { background: #fff6f5; }
 .dv .dv-panel { margin-top: 10px; }
 @media (max-width: 640px) { .dv-tab { flex: 1 1 45%; padding: 0 10px; } }
 @media print { .dv-tabs { display: none !important; } .dv .dv-panel { display: block !important; } }
+
+/* ===== Teacher portal: My class (class master's end-of-term report) ===== */
+.cm-filters { grid-template-columns: minmax(200px, 1.4fr) minmax(160px, 1fr) minmax(200px, 1.3fr) auto; max-width: 900px; }
+.cm-highlights { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
+.cm-highlight { padding: 16px 18px; }
+.cm-highlight h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; color: var(--tp-muted); }
+.cm-highlight .cm-big { font-size: 20px; font-weight: 800; }
+.cm-highlight.is-good .cm-big { color: var(--tp-green-900, #14532d); }
+.cm-highlight.is-bad .cm-big { color: #c62828; }
+.cm-panel[hidden] { display: none; }
+.cm-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.cm-tag { padding: 1px 8px; border-radius: 999px; background: #fde8e8; color: #b42318; font-size: 12px; font-weight: 600; }
+.hod-table td.cm-rank { font-weight: 800; }
+@media (max-width: 760px) { .cm-filters { grid-template-columns: 1fr 1fr; } .cm-highlights { grid-template-columns: 1fr; } }
+@media print {
+  body.tp-body:has(#tw-myclass:not([hidden])) .tw-panel:not(#tw-myclass),
+  body.tp-body:has(#tw-myclass:not([hidden])) .cm-controls,
+  body.tp-body:has(#tw-myclass:not([hidden])) #cmRemarks { display: none !important; }
+  #tw-myclass .tp-card { border: 0; box-shadow: none; }
+  #tw-myclass .cm-print-head { display: block; text-align: center; margin-bottom: 12px; }
+  #tw-myclass .hod-remarks-print { display: block; white-space: pre-wrap; min-height: 60px; border: 1px solid #bbb; padding: 8px; font-size: 12.5px; }
+  #tw-myclass .cm-panel[hidden] { display: block !important; }
+  #tw-myclass .hod-block, #tw-myclass table { break-inside: avoid; }
+}
+.cm-sub { margin: 18px 0 8px; font-size: 14px; }
+.cm-att-stats { grid-template-columns: repeat(2, minmax(0, 220px)); }
