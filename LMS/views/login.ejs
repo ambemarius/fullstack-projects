@@ -37,7 +37,7 @@
         <input id="identifier" required autocomplete="username" placeholder="Enter your email" />
       </label>
       <label>Password
-        <input type="password" id="password" required autocomplete="current-password" placeholder="Enter your password" />
+        <input type="password" id="password" required autocomplete="current-password" placeholder="Enter your password" data-reveal />
       </label>
       <button type="submit" class="btn" id="loginBtn" style="width:100%">Sign in</button>
     </form>
@@ -47,5 +47,6 @@
 </div>
 
 <script src="/js/toast.js"></script>
+<script src="/js/password-toggle.js"></script>
 <script src="/js/auth.js"></script>
 <%- include('partials/footer') %>

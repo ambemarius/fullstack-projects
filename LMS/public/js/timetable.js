@@ -72,6 +72,11 @@
     let allClasses = [];
     let allSlots = [];
 
+    // Open on the current term (September–December first, January–March second, April onwards third).
+    const month = new Date().getMonth() + 1;
+    const currentTerm = month >= 9 ? 'First' : month <= 3 ? 'Second' : 'Third';
+    for (const id of ['filterTerm', 'ttTerm', 'sgTerm']) { const el = document.getElementById(id); if (el) el.value = currentTerm; }
+
     // Load form data
     api('/timetables/form-data').then(res => {
       if (!res || !res.data || !res.data.data) return;
@@ -90,6 +95,8 @@
         if (s.is_break) continue;
         slotSel.innerHTML += `<option value="${s.id}">#${s.slot_number} (${s.start_time}-${s.end_time})</option>`;
       }
+      filterYear.innerHTML = '';
+      filterSection.dispatchEvent(new Event('change'));   // list every class straight away
       const sgYearSel = document.getElementById('sgYear');
       for (const y of academicYears) {
         const opt = `<option value="${y.id}"${y.isCurrent ? ' selected' : ''}>${esc(y.name)}${y.isCurrent ? ' (current)' : ''}</option>`;
@@ -114,7 +121,7 @@
       try {
         const res = await api('/timetables', { method: 'POST', body: JSON.stringify(body) });
         if (res.ok) {
-          document.getElementById('ttMsg').textContent = 'Entry added!';
+          document.getElementById('ttMsg').textContent = 'Lesson added.';
           document.getElementById('ttMsg').className = 'msg ok';
           loadGrid();
         } else {
@@ -130,7 +137,7 @@
     // Section filter → populate class filter
     filterSection.addEventListener('change', () => {
       const section = filterSection.value;
-      filterClass.innerHTML = '<option value="">-- Select class --</option>';
+      filterClass.innerHTML = '<option value="">Choose a class…</option>';
       for (const c of allClasses) {
         if (section && c.section !== section) continue;
         filterClass.innerHTML += `<option value="${c.id}">${esc(c.name)}${c.stream ? ' (' + esc(c.stream) + ')' : ''}</option>`;
@@ -149,7 +156,7 @@
       const yearId = filterYear.value;
       const term = filterTerm.value;
       genMsg.textContent = ''; genMsg.className = 'msg';
-      if (!classId || !yearId) { genMsg.textContent = 'Pick a class and year first.'; genMsg.className = 'msg error'; return; }
+      if (!classId || !yearId) { genMsg.textContent = 'Choose a class and year first.'; genMsg.className = 'msg error'; return; }
       if (!confirm('Generate will replace this class\'s timetable for the selected term. Continue?')) return;
 
       genMsg.textContent = 'Generating…';
@@ -306,7 +313,7 @@
       const classId = filterClass.value;
       const container = document.getElementById('ttGrid');
       const summary = document.getElementById('periodSummary');
-      if (!classId) { container.innerHTML = '<p class="muted">Select a class to view timetable.</p>'; summary.innerHTML = ''; return; }
+      if (!classId) { container.innerHTML = '<p class="tt-empty-state">Choose a class above to see its week.</p>'; summary.innerHTML = ''; return; }
 
       const term = filterTerm.value;
       const yearId = filterYear.value;
@@ -322,8 +329,8 @@
 
       // Period summary
       if (allocations && allocations.length) {
-        summary.innerHTML = '<strong>Weekly allocation:</strong> ' +
-          allocations.map(a => `${esc(a.subject_name)}: ${a.periods_week}pw`).join(' | ');
+        summary.innerHTML = '<strong>Periods per week:</strong> ' +
+          allocations.map(a => `${esc(a.subject_name)} ${a.periods_week}`).join(' · ');
       } else {
         summary.innerHTML = '';
       }
@@ -332,7 +339,7 @@
       container.querySelectorAll('.tt-del').forEach(el => {
         el.addEventListener('click', async ev => {
           ev.preventDefault();
-          if (!confirm('Remove this entry?')) return;
+          if (!confirm('Remove this lesson from the timetable?')) return;
           await api(`/timetables/${el.dataset.id}`, { method: 'DELETE' });
           loadGrid();
         });

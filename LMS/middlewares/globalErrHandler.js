@@ -15,7 +15,8 @@ function globalErrHandler(err, req, res, next) {
         console.error(`[${new Date().toISOString()}] ${requestId} ${req.method} ${req.originalUrl.split('?')[0]} -> ${statusCode}: ${err.stack || err.message}`);
     }
     if (wantsErrorPage(req)) return renderErrorPage(res, statusCode, requestId);
-    res.status(statusCode).json({ status: 'failed', message, requestId });
+    // A short machine-readable reason for the few cases the browser acts on (e.g. PASSWORD_CHANGE_REQUIRED).
+    res.status(statusCode).json({ status: 'failed', message, requestId, ...(statusCode < 500 && err.publicCode ? { code: err.publicCode } : {}) });
 }
 
 function notFoundErr(_req, _res, next) {

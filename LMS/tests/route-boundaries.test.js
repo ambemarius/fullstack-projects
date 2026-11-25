@@ -44,6 +44,12 @@ test('fully activated M1 policy has an explicit boundary for every retained auth
   // KodoSchool platform console (migrations 022-023).
   'GET /api/v1/platform/me','PUT /api/v1/platform/password','GET /api/v1/platform/schools','PUT /api/v1/platform/schools/:id/status',
   'GET /api/v1/platform/signups','POST /api/v1/platform/signups/:id/approve','POST /api/v1/platform/signups/:id/reject','GET /api/v1/platform/audit',
+  // Notification bell and school announcements (migration 025).
+  'GET /api/v1/notifications','GET /api/v1/notifications/announcements','POST /api/v1/notifications/announcements','DELETE /api/v1/notifications/announcements/:id',
+  // End-of-year promotion from the bulletin figures.
+  'GET /api/v1/promotion/preview','POST /api/v1/promotion/apply',
+  // First sign-in password change (migration 026).
+  'POST /api/v1/teachers/change-password',
   // Course review overview.
   'GET /api/v1/class-subject-students/overview/:academicYearId']);
  const postM1Modules=['/api/v1/staff-duties','/api/v1/attendance','/api/v1/library'];

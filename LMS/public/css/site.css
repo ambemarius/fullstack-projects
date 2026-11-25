@@ -280,3 +280,73 @@ section[id] { scroll-margin-top: 84px; }
   .stage { height: 600px; }
   .foot-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- compact layout: less vertical space on every public page ----------
+   "body" raises specificity so these win over each page's own <style> block. */
+body section { padding: 60px 0; }
+body h2 { font-size: clamp(26px, 3.2vw, 38px); }
+body .lead { font-size: 17px; margin-top: 10px; }
+body .eyebrow + h2 { margin-top: 8px; }
+
+/* home: hero and figures */
+body .hero { padding: 34px 0 0; }
+body .hero h1 { font-size: clamp(36px, 4.6vw, 58px); margin-top: 16px; }
+body .hero p.sub { font-size: 18px; margin-top: 18px; }
+body .hero .ctas { margin-top: 26px; }
+body .roles-line { margin-top: 22px; }
+body .scene { height: 580px; }
+body .scene .phone { top: 24px; }
+body .stat { padding: 22px 24px; }
+body .stat .n { font-size: 34px; }
+
+/* home: sections */
+body .everyone .wrap, body .roles .wrap, body .pocket .wrap { gap: 40px; }
+body .who-stage { height: 500px; }
+body .who-stage::before { width: 380px; height: 380px; }
+body .photo { height: 450px; }
+body .photo.framed { height: 430px; bottom: 30px; }
+body .stage { height: 570px; }
+body .tabs { margin-top: 20px; }
+body .role-panel { margin-top: 18px; }
+body .feat-grid { margin-top: 30px; }
+body .feat { padding-top: 20px; padding-bottom: 20px; }
+body .steps { margin-top: 30px; gap: 22px; }
+body .step h3 { margin: 14px 0 4px; }
+body .mod-grid { margin-top: 28px; gap: 14px; }
+body .mod { padding: 20px; }
+body .mod h3 { margin: 12px 0 4px; }
+body .mods-more { margin-top: 24px; }
+body .cta { padding: 20px 0 56px; }
+body .cta-box { padding: 36px 40px; }
+
+/* modules and pricing */
+body .page-hero { padding: 40px 0 38px; }
+body .page-hero h1 { font-size: clamp(32px, 4vw, 50px); margin-top: 12px; }
+body .page-hero p { font-size: 17.5px; margin-top: 14px; }
+body .ov { margin-top: 26px; }
+body .mod-sec { padding: 52px 0; }
+body .mod-sec .wrap { gap: 44px; }
+body .mods-cta { padding: 50px 0 20px; }
+body .facts { margin-top: 22px; }
+body .price-grid { margin-top: 26px; }
+body .incl-faq { margin-top: 40px; gap: 36px; }
+
+/* footer */
+body footer { padding: 44px 0 22px; }
+body .foot-bottom { margin-top: 30px; }
+
+@media (max-width: 760px) {
+  body section { padding: 44px 0; }
+  body .mod-sec { padding: 40px 0; }
+  body .scene { height: 560px; }
+  body .stage { height: 560px; }
+  body .cta-box { padding: 28px 22px; }
+}
+
+/* ---------- Language switch on the public site ---------- */
+.lang-switch { display: inline-flex; align-items: center; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; padding: 2px; gap: 2px; flex: none; }
+.lang-switch button { font: inherit; font-size: 12.5px; font-weight: 700; border: 0; background: none; color: rgba(255,255,255,.85); padding: 6px 10px; border-radius: 999px; cursor: pointer; }
+.lang-switch button[aria-pressed="true"] { background: var(--gold); color: var(--g-950); }
+.nav-ctas { align-items: center; }
+.lang-switch-mobile { display: none; margin-left: auto; }
+@media (max-width: 760px) { .lang-switch-mobile { display: inline-flex; } .nav .burger { margin-left: 8px; } }

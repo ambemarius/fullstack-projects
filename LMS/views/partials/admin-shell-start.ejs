@@ -1,0 +1,25 @@
+<%# Start of an admin tool page inside the admin layout (side menu + top bar). Close with admin-shell-end.
+    title: page title; active: the menu entry to highlight. %>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= locals.title %> – KodoSchool</title>
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
+<%- include('workspace-assets') %></head>
+<body class="lms-ui admin-body">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <%- include('admin-sidebar', { active: locals.active }) %>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button id="menuToggle" class="menu-toggle" aria-label="Open menu" aria-controls="sidebar">&#x2630;</button>
+        <h2 class="panel-title"><%= locals.title %></h2>
+      </div>
+      <div class="admin-topbar-right">
+        <span id="adminInfo" class="admin-info"></span>
+        <button id="topLogout" class="btn btn-secondary btn-sm">Sign out</button>
+      </div>
+    </header>
+    <main class="admin-content" id="main-content" tabindex="-1">

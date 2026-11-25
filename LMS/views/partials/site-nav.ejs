@@ -7,12 +7,10 @@
   <div class="wrap">
     <a href="/" class="logo" aria-label="KodoSchool, home"><span class="mark" aria-hidden="true">K</span><span><b>KodoSchool</b><small>School management</small></span></a>
     <nav class="nav-links" id="navLinks" aria-label="Main">
-      <a href="/#everyone">Who it's for</a>
-      <a href="/#how">How the school works</a>
-      <a href="/#term">The term</a>
+      <a href="/"<%- cur('home') %>>Home</a>
+      <a href="/#how">How it works</a>
       <a href="/modules"<%- cur('modules') %>>Modules</a>
       <a href="/pricing"<%- cur('pricing') %>>Pricing</a>
-      <a href="/#help">Help</a>
       <a href="/signup" class="btn btn-gold nav-signin"<%- cur('signup') %>>Register a school</a>
       <a href="/login" class="btn btn-gold nav-signin">Sign in</a>
     </nav>

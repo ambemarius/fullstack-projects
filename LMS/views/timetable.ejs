@@ -1,121 +1,165 @@
-<%- include('partials/header', { title: 'Timetable Management' }) %>
-<div class="page-head"><h1>Timetable Management</h1></div>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timetable – KodoSchool</title>
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
+<%- include('partials/workspace-assets') %></head>
+<body class="lms-ui admin-body">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <%- include('partials/admin-sidebar', { active: 'timetable' }) %>
 
-<div class="grid">
-  <div class="card">
-    <h2>Add Entry</h2>
-    <form id="ttForm">
-      <label>Class
-        <select id="ttClass" required><option value="">-- Select --</option></select>
-      </label>
-      <label>Subject
-        <select id="ttSubject" required><option value="">-- Select --</option></select>
-      </label>
-      <label>Teacher
-        <select id="ttTeacher" required><option value="">-- Select --</option></select>
-      </label>
-      <label>Day
-        <select id="ttDay" required><option value="">-- Select --</option></select>
-      </label>
-      <label>Time Slot
-        <select id="ttSlot" required><option value="">-- Select --</option></select>
-      </label>
-      <label>Room <input type="text" id="ttRoom" placeholder="e.g. Room 12"></label>
-      <label>Term
-        <select id="ttTerm" required>
-          <option value="First">First</option>
-          <option value="Second">Second</option>
-          <option value="Third">Third</option>
-        </select>
-      </label>
-      <label>Academic Year
-        <select id="ttYear" required><option value="">-- Select --</option></select>
-      </label>
-      <button type="submit" class="btn">Add Entry</button>
-    </form>
-    <div id="ttMsg" class="msg" role="status" aria-live="polite"></div>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button id="menuToggle" class="menu-toggle" aria-label="Open menu" aria-controls="sidebar">&#x2630;</button>
+        <h2 class="panel-title">Timetable</h2>
+      </div>
+      <div class="admin-topbar-right">
+        <span id="adminInfo" class="admin-info"></span>
+        <button id="topLogout" class="btn btn-secondary btn-sm">Sign out</button>
+      </div>
+    </header>
+
+    <main class="admin-content tt-page" id="main-content" tabindex="-1">
+      <!-- How it works: the order the school follows -->
+      <section class="card tt-guide" aria-labelledby="ttGuideTitle">
+        <h2 id="ttGuideTitle">How the timetable works</h2>
+        <ol class="tt-steps">
+          <li><b>Set what each class studies.</b> For every class, the subjects and their periods per week (<a href="/allocations">Subject allocations</a>), and the teacher of each subject.</li>
+          <li><b>Generate the whole timetable.</b> KodoSchool places every lesson with no teacher or class in two places at once. Preview it first; nothing changes until you press <em>Replace timetable</em>.</li>
+          <li><b>Check each class and adjust.</b> Open a class below. Remove a lesson with ✕, add one by hand, or regenerate just that class.</li>
+        </ol>
+        <p class="muted">Teachers, students and parents see the timetable in their own accounts as soon as it is saved, and teachers' registers follow it lesson by lesson.</p>
+      </section>
+
+      <!-- Step 3 first in the page: what people come back for most -->
+      <section class="card" aria-labelledby="ttGridTitle">
+        <div class="tt-card-head">
+          <h2 id="ttGridTitle">Class timetable</h2>
+          <button type="button" class="btn btn-secondary btn-sm" id="generateBtn" title="Rebuild only this class's timetable around the other classes">Regenerate this class</button>
+        </div>
+        <div class="tt-filters">
+          <label>Section
+            <select id="filterSection">
+              <option value="">All sections</option>
+              <option value="Anglophone">Anglophone</option>
+              <option value="Francophone">Francophone</option>
+            </select>
+          </label>
+          <label>Class
+            <select id="filterClass"><option value="">Loading classes…</option></select>
+          </label>
+          <label>Term
+            <select id="filterTerm">
+              <option value="First">First term</option>
+              <option value="Second">Second term</option>
+              <option value="Third">Third term</option>
+            </select>
+          </label>
+          <label>Academic year
+            <select id="filterYear"><option value="">Loading…</option></select>
+          </label>
+          <button class="btn btn-secondary" id="refreshBtn" type="button">Refresh</button>
+        </div>
+        <div id="genMsg" class="msg" role="status" aria-live="polite"></div>
+        <div id="periodSummary" class="muted tt-summary"></div>
+        <div id="ttGrid" class="table-wrap"></div>
+
+        <details class="tt-add" id="ttAddBox">
+          <summary>Add a lesson by hand</summary>
+          <p class="muted">For a change the generator does not make, for example a double period or a teacher's fixed day. The lesson is refused if the class or the teacher already has one at that time.</p>
+          <form id="ttForm" class="tt-add-form">
+            <label>Class
+              <select id="ttClass" required><option value="">-- Select --</option></select>
+            </label>
+            <label>Subject
+              <select id="ttSubject" required><option value="">-- Select --</option></select>
+            </label>
+            <label>Teacher
+              <select id="ttTeacher" required><option value="">-- Select --</option></select>
+            </label>
+            <label>Day
+              <select id="ttDay" required><option value="">-- Select --</option></select>
+            </label>
+            <label>Period
+              <select id="ttSlot" required><option value="">-- Select --</option></select>
+            </label>
+            <label>Room (optional) <input type="text" id="ttRoom" placeholder="e.g. Room 12"></label>
+            <label>Term
+              <select id="ttTerm" required>
+                <option value="First">First term</option>
+                <option value="Second">Second term</option>
+                <option value="Third">Third term</option>
+              </select>
+            </label>
+            <label>Academic year
+              <select id="ttYear" required><option value="">-- Select --</option></select>
+            </label>
+            <button type="submit" class="btn">Add lesson</button>
+          </form>
+          <div id="ttMsg" class="msg" role="status" aria-live="polite"></div>
+        </details>
+      </section>
+
+      <section class="card tt-gen" id="schoolGen" aria-labelledby="sgTitle">
+        <h2 id="sgTitle">Generate the whole timetable</h2>
+        <p class="muted">Builds a clash-free timetable for every class from the subject allocations and teacher assignments. Preview it first: nothing changes until you confirm, and the current timetable is backed up.</p>
+        <form id="sgForm" class="tt-gen-controls">
+          <label>Term
+            <select id="sgTerm" required>
+              <option value="First">First term</option>
+              <option value="Second">Second term</option>
+              <option value="Third">Third term</option>
+            </select>
+          </label>
+          <label>Academic year
+            <select id="sgYear" required><option value="">-- Select --</option></select>
+          </label>
+          <label class="inline-label"><input type="checkbox" id="sgStudy" checked> Fill free periods with supervised study</label>
+          <button type="submit" class="btn" id="sgPreviewBtn">Preview timetable</button>
+        </form>
+        <div id="sgMsg" class="msg" role="status" aria-live="polite"></div>
+
+        <div id="sgResult" hidden>
+          <div class="stats-row tt-gen-stats">
+            <div class="stat-card"><div class="stat-num" id="sgPlaced">—</div><div class="stat-label">Required periods placed</div></div>
+            <div class="stat-card"><div class="stat-num" id="sgExact">—</div><div class="stat-label">Subjects at full weekly hours</div></div>
+            <div class="stat-card"><div class="stat-num" id="sgEmpty">—</div><div class="stat-label">Empty class periods</div></div>
+            <div class="stat-card"><div class="stat-num" id="sgStudyCount">—</div><div class="stat-label">Study periods</div></div>
+          </div>
+          <div id="sgVerdict" class="alert" role="status"></div>
+
+          <details id="sgShortfallBox">
+            <summary>Subjects that could not get all their periods (<span id="sgShortfallCount">0</span>)</summary>
+            <div class="table-wrap"><table><thead><tr><th>Class</th><th>Subject</th><th>Needed</th><th>Placed</th><th>Teacher</th></tr></thead><tbody id="sgShortfall"></tbody></table></div>
+          </details>
+          <details>
+            <summary>Teacher loads</summary>
+            <div class="table-wrap"><table><thead><tr><th>Teacher</th><th>Periods needed</th><th>Lessons placed</th><th>Study supervision</th><th>Short by</th></tr></thead><tbody id="sgTeachers"></tbody></table></div>
+          </details>
+
+          <h3>Preview a class</h3>
+          <label class="inline-label">Class <select id="sgClass"></select></label>
+          <div id="sgGrid" class="table-wrap"></div>
+
+          <div class="tt-gen-apply">
+            <button type="button" class="btn btn-danger" id="sgApplyBtn">Replace timetable</button>
+            <span class="muted" id="sgApplyNote"></span>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <div class="card" style="overflow-x:auto">
-    <h2>Timetable Grid</h2>
-    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
-      <label>Section
-        <select id="filterSection">
-          <option value="">All Sections</option>
-          <option value="Anglophone">Anglophone</option>
-          <option value="Francophone">Francophone</option>
-        </select>
-      </label>
-      <label>Class
-        <select id="filterClass"><option value="">-- Select section first --</option></select>
-      </label>
-      <label>Term
-        <select id="filterTerm">
-          <option value="First">First</option>
-          <option value="Second">Second</option>
-          <option value="Third">Third</option>
-        </select>
-      </label>
-      <label>Year
-        <select id="filterYear"><option value="">-- Select --</option></select>
-      </label>
-      <button class="btn btn-secondary" id="refreshBtn">Load</button>
-      <button class="btn btn-secondary" id="generateBtn" title="Rebuild only this class's timetable around the other classes">Generate this class</button>
-    </div>
-    <div id="genMsg" class="msg" role="status" aria-live="polite"></div>
-    <div id="periodSummary" class="muted" style="margin-bottom:12px"></div>
-    <div id="ttGrid"></div>
-  </div>
-</div>
-
-<section class="card tt-gen" id="schoolGen" aria-labelledby="sgTitle">
-  <h2 id="sgTitle">Generate whole timetable</h2>
-  <p class="muted">Builds a clash-free timetable for every class from the subject allocations and teacher assignments. Preview it first: nothing changes until you confirm, and the current timetable is backed up.</p>
-  <form id="sgForm" class="tt-gen-controls">
-    <label>Term
-      <select id="sgTerm" required>
-        <option value="First">First</option>
-        <option value="Second">Second</option>
-        <option value="Third">Third</option>
-      </select>
-    </label>
-    <label>Academic Year
-      <select id="sgYear" required><option value="">-- Select --</option></select>
-    </label>
-    <label class="inline-label"><input type="checkbox" id="sgStudy" checked> Fill free periods with supervised study</label>
-    <button type="submit" class="btn" id="sgPreviewBtn">Preview timetable</button>
-  </form>
-  <div id="sgMsg" class="msg" role="status" aria-live="polite"></div>
-
-  <div id="sgResult" hidden>
-    <div class="stats-row tt-gen-stats">
-      <div class="stat-card"><div class="stat-num" id="sgPlaced">—</div><div class="stat-label">Required periods placed</div></div>
-      <div class="stat-card"><div class="stat-num" id="sgExact">—</div><div class="stat-label">Subjects at full weekly hours</div></div>
-      <div class="stat-card"><div class="stat-num" id="sgEmpty">—</div><div class="stat-label">Empty class periods</div></div>
-      <div class="stat-card"><div class="stat-num" id="sgStudyCount">—</div><div class="stat-label">Study periods</div></div>
-    </div>
-    <div id="sgVerdict" class="alert" role="status"></div>
-
-    <details id="sgShortfallBox">
-      <summary>Subjects that could not get all their periods (<span id="sgShortfallCount">0</span>)</summary>
-      <div class="table-wrap"><table><thead><tr><th>Class</th><th>Subject</th><th>Needed</th><th>Placed</th><th>Teacher</th></tr></thead><tbody id="sgShortfall"></tbody></table></div>
-    </details>
-    <details>
-      <summary>Teacher loads</summary>
-      <div class="table-wrap"><table><thead><tr><th>Teacher</th><th>Periods needed</th><th>Lessons placed</th><th>Study supervision</th><th>Short by</th></tr></thead><tbody id="sgTeachers"></tbody></table></div>
-    </details>
-
-    <h3>Preview a class</h3>
-    <label class="inline-label">Class <select id="sgClass"></select></label>
-    <div id="sgGrid" class="table-wrap"></div>
-
-    <div class="tt-gen-apply">
-      <button type="button" class="btn btn-danger" id="sgApplyBtn">Replace timetable</button>
-      <span class="muted" id="sgApplyNote"></span>
-    </div>
-  </div>
-</section>
-
-<%- include('partials/footer') %>
-<script src="/js/app.js"></script>
-<script src="/js/timetable.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/school-identity.js"></script>
+  <script src="/js/i18n-fr-app.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/notify-bell.js"></script>
+  <script src="/js/admin-shell.js"></script>
+  <script src="/js/timetable.js"></script>
+</body>
+</html>

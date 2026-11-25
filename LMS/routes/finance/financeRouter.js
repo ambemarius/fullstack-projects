@@ -18,6 +18,7 @@ function createFinanceRouter({ service = createFinanceService() } = {}) {
         return {
             base: BASE, formatMoney, methodLabel, uuid: crypto.randomUUID, today: today(),
             actorName: a.name, roleLabel: a.type === 'admin' ? 'Administrator' : 'Bursar', home: HOME[a.type] || '/',
+            isAdmin: a.type === 'admin',   // administrators also get the admin menu (views/partials/admin-tool-nav.ejs)
             ...extra,
         };
     }
@@ -27,7 +28,7 @@ function createFinanceRouter({ service = createFinanceService() } = {}) {
         if (status >= 500) throw err;
         res.status(status).render('finance/error', {
             base: BASE, message: err.message, status,
-            actorName: req.actor?.name || '', roleLabel: '', home: HOME[req.actor?.type] || '/',
+            actorName: req.actor?.name || '', roleLabel: '', home: HOME[req.actor?.type] || '/', isAdmin: req.actor?.type === 'admin',
         });
     }
 

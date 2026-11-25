@@ -190,6 +190,8 @@ form.addEventListener('submit', async (e) => {
     localStorage.setItem('user', JSON.stringify(data.data));
     localStorage.setItem('role', role);
     try { if (schoolInput && schoolCodeShown() && schoolInput.value.trim()) localStorage.setItem('schoolCode', schoolInput.value.trim().toUpperCase()); } catch { /* storage unavailable */ }
+    // First sign-in: the teacher chooses their own password before anything else.
+    if (role === 'teacher' && data.mustChangePassword) { window.location.href = '/change-password'; return; }
     // Return to the page that asked for sign-in, but only a same-site path.
     const next = new URLSearchParams(window.location.search).get('next');
     window.location.href = next && /^\/(?!\/)[\w\-/?=&%.]*$/.test(next) ? next : HOME[role];

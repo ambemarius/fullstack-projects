@@ -43,7 +43,7 @@ document.addEventListener('click', (e) => {
     try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
     for (const key of ['token','role','user']) localStorage.removeItem(key);
     for (const key of ['adminTab','adminSubTab','evalSubTab']) sessionStorage.removeItem(key);
-    window.location.href = '/login';
+    window.location.href = '/';   // signing out lands on the home page
   }
   document.getElementById('sidebarLogout')?.addEventListener('click', doLogout);
   document.getElementById('topLogout')?.addEventListener('click', doLogout);

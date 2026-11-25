@@ -37,6 +37,8 @@ webRouter.post('/logout', (req, res) => {
     res.status(200).json({ status: 'success', message: 'Logged out' });
 });
 webRouter.get('/login', (req, res) => res.render('login'));
+// First sign-in: a teacher replaces the password the administration set (POST /api/v1/teachers/change-password).
+webRouter.get('/change-password', (req, res) => res.render('change-password'));
 webRouter.get('/admin-dashboard', (req, res) => res.render('admin-layout'));
 webRouter.get('/teachers', (req, res) => res.render('teachers'));
 webRouter.get('/students', (req, res) => res.render('students'));
@@ -54,7 +56,12 @@ for (const page of ['timetable-teacher','timetable-student']) {
 webRouter.get('/promotion', (req, res) => res.render('promotion'));
 webRouter.get('/parent-dashboard', (req, res) => res.render('parent-dashboard'));
 webRouter.get('/staff-dashboard', (req, res) => res.render('staff-dashboard'));
-webRouter.get('/attendance', (req, res) => res.render('attendance-register'));
+// Administrators get the page inside the admin layout (side menu); the discipline master keeps the staff layout.
+webRouter.get('/attendance', (req, res) => {
+    let claims = null;
+    try { claims = authenticateRequest(req); } catch { claims = null; }
+    res.render('attendance-register', { adminShell: Boolean(claims && claims.accountType === 'admin') });
+});
 // Printable bulletins: rendered on the server for signed-in administrators (cookie session).
 webRouter.get('/report-cards/print', require('../middlewares/isLogin'), require('../controllers/academic/bulletinCtrl').printPage);
 

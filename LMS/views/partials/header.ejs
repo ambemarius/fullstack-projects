@@ -9,7 +9,7 @@
 <body class="lms-ui">
   <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="topbar">
-    <a class="brand" href="/">KodoSchool<% if (!locals.hideSchoolName) { %> <span>Lycée Batouri</span><% } %></a>
+    <a class="brand" href="/">KodoSchool<% if (!locals.hideSchoolName) { %> <span data-school-name></span><% } %></a>
     <nav class="nav" id="mainNav" aria-label="Main navigation">
       <!-- Admin navigates via the sidebar in the admin panel, so no admin tabs here -->
       <a href="/teacher-dashboard" data-roles="teacher">My dashboard</a>

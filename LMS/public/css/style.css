@@ -2098,3 +2098,101 @@ tr.tw-overdue td { background: #fff6f5; }
 /* Admin forms: a checkbox with its label on one line */
 .lms-ui label.check-label { display: flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 600; align-self: end; min-height: 42px; }
 .lms-ui label.check-label input { width: 18px; height: 18px; margin: 0; accent-color: #1b6b52; }
+
+/* ---------- Language switch (EN | FR) ---------- */
+.lang-switch { display: inline-flex; border: 1px solid rgba(0,0,0,.15); border-radius: 999px; padding: 2px; gap: 2px; background: rgba(255,255,255,.6); flex: none; }
+.lang-switch button { font: inherit; font-size: 12.5px; font-weight: 700; border: 0; background: none; padding: 5px 10px; border-radius: 999px; cursor: pointer; color: inherit; opacity: .75; }
+.lang-switch button[aria-pressed="true"] { background: #124d3b; color: #fff; opacity: 1; }
+header.topbar .lang-switch { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; margin-left: 10px; }
+header.topbar .lang-switch button[aria-pressed="true"] { background: #f2cf7a; color: #0b2e23; }
+
+/* ---------- Notification bell ---------- */
+.notify { position: relative; flex: none; }
+.notify-btn { position: relative; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(0,0,0,.12); background: #fff; color: #124d3b; display: grid; place-items: center; cursor: pointer; }
+.notify-btn:hover { background: #eef6f2; }
+.notify-btn.has-warn { color: #9b6a10; }
+header.topbar .notify-btn { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); color: #fff; margin-left: 8px; }
+.notify-count { position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: #c62828; color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center; border: 2px solid #fff; }
+.notify-count[hidden] { display: none; }
+.notify-panel { position: absolute; right: 0; top: calc(100% + 8px); width: min(380px, calc(100vw - 24px)); max-height: min(70vh, 520px); overflow: auto; background: #fff; color: #13221d;
+  border: 1px solid #dfe7e3; border-radius: 14px; box-shadow: 0 24px 50px -24px rgba(11,46,35,.45); z-index: 60; text-align: left; }
+.notify-panel[hidden] { display: none; }
+.notify-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid #edf2ef; position: sticky; top: 0; background: #fff; }
+.notify-head h2 { margin: 0; font-size: 15px; }
+.notify-close { border: 0; background: none; font-size: 22px; line-height: 1; cursor: pointer; color: #5d6e68; width: 30px; height: 30px; border-radius: 8px; }
+.notify-list { list-style: none; margin: 0; padding: 6px; }
+.notify-list li > a, .notify-list li > div { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: start; padding: 10px 8px; border-radius: 10px; color: inherit; text-decoration: none; }
+.notify-list li > a:hover { background: #f3f7f5; }
+.notify-list li.is-new > a, .notify-list li.is-new > div { background: #f6fbf8; }
+.notify-ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: #eef6f2; color: #124d3b; }
+.notify-ic.is-warn { background: #fdf1d3; color: #7a5a10; }
+.notify-ic.notify-absence.is-warn, .notify-ic.notify-fees { background: #fde8e8; color: #9b1c1c; }
+.notify-txt b { display: block; font-size: 14px; font-weight: 600; line-height: 1.3; }
+.notify-txt small { display: block; color: #5d6e68; font-size: 12.5px; margin-top: 2px; line-height: 1.35; }
+.notify-list time { font-size: 11.5px; color: #7b8a85; white-space: nowrap; }
+.notify-empty { padding: 18px 10px; color: #5d6e68; font-size: 14px; text-align: center; }
+
+/* ---------- Admin home: school announcements ---------- */
+.ann-card { margin-top: 18px; }
+.ann-card h2 { margin: 0 0 4px; font-size: 18px; }
+.ann-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; margin-top: 12px; }
+.ann-form .ann-wide { grid-column: 1 / -1; }
+.ann-form label { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+.ann-form textarea { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid #d6dee2; resize: vertical; }
+.ann-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+.ann-list li { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; border: 1px solid #e1e8e4; border-radius: 12px; padding: 12px 14px; }
+.ann-list li p { margin: 4px 0; font-size: 14px; }
+.ann-list li small { color: #5d6e68; }
+.ann-list .ann-ended { opacity: .6; }
+.ann-state { font-weight: 700; }
+@media (max-width: 760px) { .ann-form { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- Timetable page (inside the admin layout) ---------- */
+.tt-page { display: grid; gap: 18px; }
+.tt-page .card { margin: 0; }
+.tt-guide h2 { margin: 0 0 8px; font-size: 18px; }
+.tt-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; line-height: 1.5; }
+.tt-steps b { color: #124d3b; }
+.tt-guide > .muted { margin: 10px 0 0; font-size: 14px; }
+.tt-card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tt-card-head h2 { margin: 0; }
+.tt-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin: 14px 0 10px; }
+.tt-filters label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; min-width: 150px; }
+.tt-summary { margin: 4px 0 12px; font-size: 14px; }
+.tt-empty-state { padding: 26px; text-align: center; color: #5d6e68; background: #f6f9f7; border: 1px dashed #d6dee2; border-radius: 12px; }
+.tt-add { margin-top: 16px; border-top: 1px solid #e1e8e4; padding-top: 12px; }
+.tt-add summary { cursor: pointer; font-weight: 700; color: #124d3b; }
+.tt-add-form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; align-items: end; margin-top: 10px; }
+.tt-add-form label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; }
+@media (max-width: 900px) { .tt-add-form { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .tt-add-form { grid-template-columns: 1fr; } .tt-filters label { min-width: 100%; } }
+
+/* ---------- Promotion page ---------- */
+.pr-page { display: grid; gap: 18px; }
+.pr-page .card { margin: 0; }
+.pr-guide h2 { margin: 0 0 6px; font-size: 18px; }
+.pr-guide > p { margin: 6px 0; line-height: 1.5; }
+.pr-summary { margin: 6px 0 10px; font-size: 14.5px; }
+.pr-warn { color: #9b6a10; font-weight: 600; }
+.pr-dest { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 10px; }
+.pr-dest label { display: grid; gap: 4px; font-weight: 600; font-size: 14px; }
+.pr-dest[hidden] { display: none; }
+.pr-table td.n, .pr-table th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.pr-table .pr-low { color: #c62828; }
+.pr-table select { min-width: 120px; }
+.pr-apply { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 14px; }
+
+/* ---------- Show / hide password (public/js/password-toggle.js) ---------- */
+.pw-field { position: relative; display: block; }
+.pw-field input { width: 100%; padding-right: 46px; }
+.pw-toggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border: 0; background: none; border-radius: 8px;
+  display: grid; place-items: center; color: #5d6e68; cursor: pointer; }
+.pw-toggle:hover { color: #124d3b; background: #eef6f2; }
+.pw-toggle:focus-visible { outline: 3px solid rgba(27,107,82,.35); outline-offset: 1px; }
+.pw-toggle[aria-pressed="true"] { color: #124d3b; }
+
+/* ---------- First sign-in: choose your own password ---------- */
+.lms-ui .cp-layout { display: grid; place-items: center; grid-template-columns: 1fr; padding: 32px 16px; }
+.lms-ui .cp-card { width: min(480px, 100%); }
+.lms-ui .cp-card form { display: grid; gap: 14px; margin-top: 12px; }
+.lms-ui .cp-card label { display: grid; gap: 6px; font-weight: 600; }

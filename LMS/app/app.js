@@ -48,6 +48,8 @@ const ROUTES = [
     ['/api/v1/school-signup', '../routes/platform/schoolSignupRouter'],
     ['/api/v1/platform', '../routes/platform/platformRouter'],
     ['/api/v1/schools', '../routes/platform/schoolDirectoryRouter'],
+    ['/api/v1/notifications', '../routes/notifications/notificationsRouter'],
+    ['/api/v1/promotion', '../routes/academic/promotionRouter'],
     ['/finance', '../routes/finance/financeRouter'],
     ['/api/v1/attendance', '../routes/attendance/attendanceRouter'],
     ['/api/v1/library', '../routes/inventory/loansRouter'],

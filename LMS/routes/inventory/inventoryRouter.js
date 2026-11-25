@@ -33,7 +33,8 @@ function createInventoryRouter({ service = createInventoryService(), teachesPrac
 
     const base = (req, area, extra = {}) => ({
         area, paths: PATHS, uuid: crypto.randomUUID, actorName: req.actor?.name || '',
-        roleLabel: !req.actor ? '' : req.actor.type === 'admin' ? 'Administrator' : ROLE_LABEL[area], home: HOME[req.actor?.type] || '/', ...extra,
+        roleLabel: !req.actor ? '' : req.actor.type === 'admin' ? 'Administrator' : ROLE_LABEL[area], home: HOME[req.actor?.type] || '/',
+        isAdmin: req.actor?.type === 'admin', ...extra,
     });
 
     function renderError(req, res, area, err) {

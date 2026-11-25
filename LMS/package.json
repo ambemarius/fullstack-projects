@@ -16,7 +16,8 @@
     "seed:demo": "node scripts/seedDemo.js",
     "init": "node scripts/setupAcademic.js && node scripts/seedAdmin.js",
     "timetable:export": "node scripts/timetable/exportInputs.js",
-    "timetable:schedule": "node scripts/timetable/schedule.js"
+    "timetable:schedule": "node scripts/timetable/schedule.js",
+    "qa": "node scripts/qa/preDeployCheck.js"
   },
   "keywords": [
     "lms",

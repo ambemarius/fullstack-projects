@@ -1,22 +1,76 @@
-<%- include('partials/header', { title: 'End-of-year promotion' }) %>
-<div class="page-head"><h1>End-of-year promotion</h1></div>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promotion – KodoSchool</title>
+  <link rel="stylesheet" href="/css/style.css?v=<%= locals.assetVersion || '' %>" />
+<%- include('partials/workspace-assets') %></head>
+<body class="lms-ui admin-body">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <%- include('partials/admin-sidebar', { active: 'promotion' }) %>
 
-<div class="card">
-  <p>Moves every active student in a class to the next level once the year's marks are final. Students below the pass average repeat the year; students in Upper Sixth / Terminale graduate. You will see the counts and confirm before anything changes.</p>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <button id="menuToggle" class="menu-toggle" aria-label="Open menu" aria-controls="sidebar">&#x2630;</button>
+        <h2 class="panel-title">Promotion</h2>
+      </div>
+      <div class="admin-topbar-right">
+        <span id="adminInfo" class="admin-info"></span>
+        <button id="topLogout" class="btn btn-secondary btn-sm">Sign out</button>
+      </div>
+    </header>
 
-  <form id="promoteForm" class="assign-form">
-    <label>Class
-      <select id="promoteClass" required><option value="">Select a class</option></select>
-    </label>
-    <label>Academic year
-      <select id="promoteYear" required><option value="">Select a year</option></select>
-    </label>
-    <button type="submit" class="btn" id="promoteBtn">Preview promotion</button>
-  </form>
-  <p id="promoteMsg" class="msg" role="status" aria-live="polite"></p>
-</div>
+    <main class="admin-content pr-page" id="main-content" tabindex="-1">
+      <section class="card pr-guide" aria-labelledby="prGuideTitle">
+        <h2 id="prGuideTitle">How promotion works</h2>
+        <p>At the end of the school year, each class moves up from its <b>annual average</b>, the same figure as on the third-term report card (the mean of the three term averages, with coefficients).</p>
+        <ol class="tt-steps">
+          <li><b>Before you start:</b> all marks of the three terms are entered, the third-term report cards are printed, and the next academic year exists (<a href="/admin-dashboard#registration/academic-years">Registration → Academic years</a>).</li>
+          <li><b>Open a class.</b> Each student is shown with a proposed decision: <em>Promote</em> at 10/20 or more, <em>Repeat</em> below 10, <em>Graduate</em> in Upper Sixth and Terminale.</li>
+          <li><b>Apply the class council's decisions.</b> Change any decision if the council decided otherwise, check the class they move to, then press <em>Apply promotion</em>.</li>
+        </ol>
+        <p class="muted">Promoted and repeating students are enrolled for the next academic year, so a class can only be promoted once and the classes can be done in any order. Graduates leave the class lists; their records are kept.</p>
+      </section>
 
-<script src="/js/app.js"></script>
-<script src="/js/toast.js"></script>
-<script src="/js/promotion.js"></script>
-<%- include('partials/footer') %>
+      <section class="card" aria-labelledby="prClassTitle">
+        <h2 id="prClassTitle">Promote a class</h2>
+        <form id="prForm" class="tt-filters">
+          <label>Class <select id="prClass" required><option value="">Loading classes…</option></select></label>
+          <label>School year ending <select id="prYear" required><option value="">Loading…</option></select></label>
+          <button type="submit" class="btn" id="prLoad">Show students</button>
+        </form>
+        <p id="prMsg" class="msg" role="status" aria-live="polite"></p>
+
+        <div id="prResult" hidden>
+          <div class="pr-summary" id="prSummary"></div>
+          <div class="pr-dest" id="prDestRow">
+            <label>Promoted students move to <select id="prNext"></select></label>
+            <span class="muted" id="prNextYear"></span>
+          </div>
+          <div class="table-wrap">
+            <table class="pr-table">
+              <thead><tr><th>Rank</th><th>Student</th><th class="n">Term 1</th><th class="n">Term 2</th><th class="n">Term 3</th><th class="n">Annual</th><th>Decision</th></tr></thead>
+              <tbody id="prRows"></tbody>
+            </table>
+          </div>
+          <div class="pr-apply">
+            <button type="button" class="btn" id="prApply">Apply promotion</button>
+            <span class="muted" id="prApplyNote"></span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/school-identity.js"></script>
+  <script src="/js/i18n-fr-app.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/notify-bell.js"></script>
+  <script src="/js/admin-shell.js"></script>
+  <script src="/js/promotion.js"></script>
+</body>
+</html>

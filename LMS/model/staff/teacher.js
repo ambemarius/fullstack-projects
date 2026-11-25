@@ -60,6 +60,48 @@ const TeacherModel = {
         return result.recordset;
     },
 
+    // First sign-in: true while the teacher still has the password the administration set (migration 026).
+    // Before that migration the column does not exist yet, and nobody is asked to change their password.
+    async mustChangePassword(id) {
+        await poolConnect;
+        try {
+            const r = await pool.request().input('id', sql.Int, id).query('SELECT must_change_password AS m FROM teachers WHERE id = @id');
+            return Boolean(r.recordset[0] && r.recordset[0].m);
+        } catch (err) {
+            if (err.number === 207) return false;   // invalid column: migration 026 not run yet
+            throw err;
+        }
+    },
+
+    // Set by the administration (registration, recovery): the teacher chooses their own at the next sign-in.
+    async requirePasswordChange(id) {
+        await poolConnect;
+        try {
+            await pool.request().input('id', sql.Int, id).query('UPDATE teachers SET must_change_password = 1 WHERE id = @id');
+        } catch (err) {
+            if (err.number !== 207) throw err;
+        }
+    },
+
+    // The teacher's own new password; clears the first sign-in requirement.
+    async changeOwnPassword(id, plain) {
+        await poolConnect;
+        const hash = await bcrypt.hash(plain, SALT_ROUNDS);
+        const r = pool.request().input('id', sql.Int, id).input('password', sql.NVarChar(255), hash);
+        try {
+            await r.query('UPDATE teachers SET password = @password, must_change_password = 0 WHERE id = @id');
+        } catch (err) {
+            if (err.number !== 207) throw err;
+            await pool.request().input('id', sql.Int, id).input('password', sql.NVarChar(255), hash).query('UPDATE teachers SET password = @password WHERE id = @id');
+        }
+    },
+
+    async passwordHash(id) {
+        await poolConnect;
+        const r = await pool.request().input('id', sql.Int, id).query('SELECT password FROM teachers WHERE id = @id');
+        return r.recordset[0] ? r.recordset[0].password : null;
+    },
+
     async findById(id) {
         await poolConnect;
         const result = await pool.request()

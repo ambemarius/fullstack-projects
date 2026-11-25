@@ -48,6 +48,8 @@ async function api(path, options = {}) {
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401) endSession('expired');
+  // First sign-in: the server refuses everything until the teacher has chosen their own password.
+  if (res.status === 403 && data && data.code === 'PASSWORD_CHANGE_REQUIRED' && window.location.pathname !== '/change-password') window.location.href = '/change-password';
   return { ok: res.ok, status: res.status, data };
 }
 
@@ -60,7 +62,7 @@ async function logout() {
   try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
   clearSession();
   sessionStorage.clear();
-  window.location.href = '/login';
+  window.location.href = '/';   // signing out lands on the home page
 }
 
 // wire any element with id="logoutBtn" (the header's navLogout is handled by nav.js)

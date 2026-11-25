@@ -1,0 +1,14 @@
+<%# The admin menu inside the tool pages that use the finance-style layout (library, laboratory).
+    active: 'library' | 'laboratory' | 'finance-page' | … %>
+<% const here = locals.active || ''; const icon = name => include('hub-icon', { icon: name });
+   const panels = [['home', 'grid', 'Home'], ['registration', 'people', 'Registration'], ['finance', 'wallet', 'Finance'], ['evaluation', 'book', 'Evaluation'], ['personnel', 'shield', 'Personnel']];
+   const tools = [['timetable', '/timetable', 'calendar', 'Timetable'], ['promotion', '/promotion', 'arrow', 'Promotion'], ['attendance', '/attendance', 'people', 'Attendance'],
+                  ['finance-page', '/finance', 'wallet', 'Finance'], ['library', '/library', 'book', 'Library'], ['laboratory', '/laboratory', 'flask', 'Laboratory']]; %>
+<p class="nav-section">ADMIN PANEL</p>
+<nav aria-label="Admin sections">
+  <% panels.forEach(([tab, ic, label]) => { %><a href="/admin-dashboard#<%= tab %>"><%- icon(ic) %><span><%= label %></span></a><% }) %>
+</nav>
+<p class="nav-section">SCHOOL TOOLS</p>
+<nav aria-label="School tools">
+  <% tools.forEach(([key, href, ic, label]) => { %><a href="<%= href %>"<%- key === here ? ' aria-current="page"' : '' %>><%- icon(ic) %><span><%= label %></span></a><% }) %>
+</nav>

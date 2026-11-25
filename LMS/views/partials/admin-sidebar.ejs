@@ -1,0 +1,41 @@
+<%# Admin side menu, shared by the admin dashboard and the admin tool pages (timetable, …).
+    inDashboard: the dashboard's own panels switch in place (tabs); elsewhere they link back to the dashboard.
+    active: the tool page being shown ('timetable', 'promotion', …). %>
+<% const here = locals.active || ''; const inDash = Boolean(locals.inDashboard);
+   const icon = name => include('hub-icon', { icon: name });
+   const panels = [['home', 'grid', 'Home'], ['registration', 'people', 'Registration'], ['finance', 'wallet', 'Finance'], ['evaluation', 'book', 'Evaluation'], ['personnel', 'shield', 'Personnel']];
+   const tools = [['timetable', '/timetable', 'calendar', 'Timetable'], ['promotion', '/promotion', 'arrow', 'Promotion'], ['attendance', '/attendance', 'people', 'Attendance'],
+                  ['finance-page', '/finance', 'wallet', 'Finance'], ['library', '/library', 'book', 'Library'], ['laboratory', '/laboratory', 'flask', 'Laboratory']]; %>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-logo">KodoSchool</span>
+      <span class="sidebar-sub"><span data-school-name>Your school</span> · Admin panel</span>
+      <span class="sidebar-sub sidebar-code" data-school-code-row hidden>School code: <b data-school-code></b></span>
+    </div>
+    <nav class="sidebar-nav" aria-label="Admin sections">
+      <% if (inDash) { %>
+      <div role="tablist" aria-orientation="vertical" aria-label="Admin panels">
+        <% panels.forEach(([tab, ic, label], i) => { %>
+        <button class="sidebar-tab" role="tab" id="tabbtn-<%= tab %>" data-tab="<%= tab %>" aria-controls="tab-<%= tab %>" aria-selected="<%= i === 0 %>"<%- i ? ' tabindex="-1"' : '' %>>
+          <span class="tab-icon"><%- icon(ic) %></span> <%= label %>
+        </button>
+        <% }) %>
+      </div>
+      <% } else { %>
+      <div class="sidebar-links">
+        <% panels.forEach(([tab, ic, label]) => { %>
+        <a class="sidebar-tab" href="/admin-dashboard#<%= tab %>"><span class="tab-icon"><%- icon(ic) %></span> <%= label %></a>
+        <% }) %>
+      </div>
+      <% } %>
+      <p class="sidebar-section">School tools</p>
+      <% tools.forEach(([key, href, ic, label]) => { %>
+      <a class="sidebar-tab<%= key === here ? ' active' : '' %>" href="<%= href %>"<%- key === here ? ' aria-current="page"' : '' %>>
+        <span class="tab-icon"><%- icon(ic) %></span> <%= label %>
+      </a>
+      <% }) %>
+    </nav>
+    <div class="sidebar-footer">
+      <button id="sidebarLogout" class="sidebar-logout">Sign out</button>
+    </div>
+  </aside>

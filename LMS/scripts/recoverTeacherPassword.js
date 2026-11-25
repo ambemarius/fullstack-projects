@@ -29,6 +29,7 @@ function createTeacherRecovery(database={connect:db.connect,getPool:()=>db.pool}
     .input('binding',db.sql.NVarChar(255),`existing-admin:${row.account_id}:${crypto.createHash('sha256').update(row.login_key).digest('hex')}`).query(`
      UPDATE dbo.teachers SET password=@replacement WHERE id=@id AND school_id=@school AND password COLLATE Latin1_General_100_BIN2=@source COLLATE Latin1_General_100_BIN2;
      IF @@ROWCOUNT<>1 THROW 50050,'Concurrent teacher change',1;
+     IF COL_LENGTH('dbo.teachers','must_change_password') IS NOT NULL EXEC sys.sp_executesql N'UPDATE dbo.teachers SET must_change_password = 1 WHERE id = @i', N'@i INT', @i = @id;
      UPDATE dbo.accounts SET password_hash=@replacement,security_version=security_version+1 WHERE id=@account AND security_version=@version AND password_hash COLLATE Latin1_General_100_BIN2=@canonical COLLATE Latin1_General_100_BIN2;
      IF @@ROWCOUNT<>1 THROW 50050,'Concurrent account change',1;
      UPDATE dbo.account_sessions SET revoked_at=SYSUTCDATETIME() WHERE account_id=@account AND revoked_at IS NULL;DECLARE @revoked INT=@@ROWCOUNT;

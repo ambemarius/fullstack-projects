@@ -33,6 +33,9 @@ function requireStaff({ duties = [], allowAdmin = true, allowTeacher = false, an
             if (!account) return next(fail(401, 'Authentication required'));
             if (!isActive(type, account)) return next(fail(403, 'This account is inactive'));
 
+            const blocked = await require('./firstPassword').firstPasswordBlock(req, type, claims.id);
+            if (blocked) return next(blocked);
+
             const held = await StaffDuty.forStaff(type, claims.id);
             const allowed = anyStaff
                 || (type === 'admin' && allowAdmin)

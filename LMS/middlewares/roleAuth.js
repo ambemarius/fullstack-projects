@@ -77,6 +77,8 @@ function createRoleAuth({ accountType, findById }) {
             }
             req.userAuth = safe;
             req.auth = { accountType, legacyId: claims.id };
+            const blocked = await require('./firstPassword').firstPasswordBlock(req, accountType, claims.id);
+            if (blocked) return next(blocked);
             require('./tenantContext').confirmSchool(req, claims, account, next);
         } catch (err) {
             next(err);

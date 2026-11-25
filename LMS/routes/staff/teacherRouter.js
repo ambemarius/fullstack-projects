@@ -6,6 +6,7 @@ const {
     getAllTeachersCtrl,
     getTeacherProfileCtrl,
     updateTeacherProfileCtrl,
+    changeOwnPasswordCtrl,
     getMySubjectsCtrl,
     getMyStudentsCtrl,
     assignTeacherCtrl,
@@ -31,6 +32,7 @@ teacherRouter.get('/', isLogin, getAllTeachersCtrl);
 // teacher's own profile + scoped views (all declared before '/:id')
 teacherRouter.get('/profile', isTeacherLogin, getTeacherProfileCtrl);
 teacherRouter.put('/profile', isTeacherLogin, updateTeacherProfileCtrl);
+teacherRouter.post('/change-password', isTeacherLogin, changeOwnPasswordCtrl);
 teacherRouter.get('/my-subjects', isTeacherLogin, getMySubjectsCtrl);
 teacherRouter.get('/my-students', isTeacherLogin, getMyStudentsCtrl);
 

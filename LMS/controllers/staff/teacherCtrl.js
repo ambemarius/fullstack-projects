@@ -40,6 +40,8 @@ exports.registerTeacherCtrl = asyncHandler(async (req, res) => {
         employmentType, section, status,
         address, idCardNo, dateOfIssue, gender, civilStatus, noOfChildren, telephone, matriculeFile
     });
+    // The administration chose this password: the teacher picks their own at the first sign-in.
+    await Teacher.requirePasswordChange(teacher.id);
     res.status(201).json({ status: 'success', data: teacher });
 });
 
@@ -63,7 +65,9 @@ exports.loginTeacherCtrl = asyncHandler(async (req, res) => {
     const token = generateToken(teacher.id, 'teacher', version, schoolId);
     setAuthCookie(res, token);
     const { password: _omit, ...safe } = teacher;
-    res.status(200).json({ status: 'success', data: safe, token });
+    let mustChangePassword = false;
+    try { mustChangePassword = await (req.app.locals.mustChangePassword || (id => Teacher.mustChangePassword(id)))(teacher.id); } catch { mustChangePassword = false; }
+    res.status(200).json({ status: 'success', data: safe, token, mustChangePassword });
 });
 
 //@desc   List all teachers
@@ -81,6 +85,20 @@ exports.getTeacherProfileCtrl = asyncHandler(async (req, res) => {
     const profile = req.app.locals.legacyScopedSelfEnabled ? await require('./scopedLegacySelf').profile(req) : req.userAuth;
     // Laboratory requests appear only for teachers of a subject marked "Requires practicals".
     res.status(200).json({ status: 'success', data: { ...profile, teachesPracticals: await Teacher.teachesPracticals(req.userAuth.id) } });
+});
+
+//@desc   Teacher chooses their own password (required at the first sign-in after the administration set it)
+//@route  POST /api/v1/teachers/change-password
+//@access Private (teacher)
+exports.changeOwnPasswordCtrl = asyncHandler(async (req, res) => {
+    const { current, next } = req.body || {};
+    if (typeof current !== 'string' || typeof next !== 'string') throw httpError(400, 'Enter your current password and your new password.');
+    const hash = await Teacher.passwordHash(req.userAuth.id);
+    if (!hash || !await Teacher.verifyPassword(current, hash)) throw httpError(422, 'Your current password is not correct.');
+    if (next.length < 8 || next.length > 72 || !/[A-Za-z]/.test(next) || !/\d/.test(next)) throw httpError(422, 'Choose a password of at least 8 characters with letters and numbers.');
+    if (next === current) throw httpError(422, 'Choose a password different from the one you were given.');
+    await Teacher.changeOwnPassword(req.userAuth.id, next);
+    res.status(200).json({ status: 'success', data: { changed: true } });
 });
 
 //@desc   Teacher updates own profile

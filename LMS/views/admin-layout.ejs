@@ -8,56 +8,7 @@
 <%- include('partials/workspace-assets') %></head>
 <% const wsBase = (typeof workspaceBaseUrl !== 'undefined' && workspaceBaseUrl) ? String(workspaceBaseUrl).replace(/\/+$/, '') : ''; %>
 <body class="lms-ui  admin-body" data-workspace-base="<%= wsBase %>"<% if (typeof canonicalPersonnelEnabled !== 'undefined' && canonicalPersonnelEnabled) { %> data-canonical-personnel="true"<% } %><% if (typeof canonicalAcademicEnabled !== 'undefined' && canonicalAcademicEnabled) { %> data-canonical-academic="true"<% } %><% if (typeof canonicalAuxiliaryEnabled !== 'undefined' && canonicalAuxiliaryEnabled) { %> data-canonical-auxiliary="true"<% } %>>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <span class="sidebar-logo">KodoSchool
-        
-      </span>
-      <span class="sidebar-sub"><span data-school-name>Your school</span> · Admin panel</span>
-      <span class="sidebar-sub sidebar-code" data-school-code-row hidden>School code: <b data-school-code></b></span>
-    </div>
-    <nav class="sidebar-nav" aria-label="Admin sections">
-      <div role="tablist" aria-orientation="vertical" aria-label="Admin panels">
-        <button class="sidebar-tab" role="tab" id="tabbtn-home" data-tab="home" aria-controls="tab-home" aria-selected="true">
-          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'grid'}) %></span> Home
-        </button>
-        <button class="sidebar-tab" role="tab" id="tabbtn-registration" data-tab="registration" aria-controls="tab-registration" aria-selected="false" tabindex="-1">
-          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'people'}) %></span> Registration
-        </button>
-        <button class="sidebar-tab" role="tab" id="tabbtn-finance" data-tab="finance" aria-controls="tab-finance" aria-selected="false" tabindex="-1">
-          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'wallet'}) %></span> Finance
-        </button>
-        <button class="sidebar-tab" role="tab" id="tabbtn-evaluation" data-tab="evaluation" aria-controls="tab-evaluation" aria-selected="false" tabindex="-1">
-          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'book'}) %></span> Evaluation
-        </button>
-        <button class="sidebar-tab" role="tab" id="tabbtn-personnel" data-tab="personnel" aria-controls="tab-personnel" aria-selected="false" tabindex="-1">
-          <span class="tab-icon"><%- include('partials/hub-icon',{icon:'shield'}) %></span> Personnel
-        </button>
-      </div>
-      <p class="sidebar-section">School tools</p>
-      <a class="sidebar-tab" href="/timetable">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'calendar'}) %></span> Timetable
-      </a>
-      <a class="sidebar-tab" href="/promotion">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'arrow'}) %></span> Promotion
-      </a>
-      <a class="sidebar-tab" href="/attendance">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'people'}) %></span> Attendance
-      </a>
-      <a class="sidebar-tab" href="/finance">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'wallet'}) %></span> Finance
-      </a>
-      <a class="sidebar-tab" href="/library">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'book'}) %></span> Library
-      </a>
-      <a class="sidebar-tab" href="/laboratory">
-        <span class="tab-icon"><%- include('partials/hub-icon',{icon:'flask'}) %></span> Laboratory
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <button id="sidebarLogout" class="sidebar-logout">Sign out</button>
-    </div>
-  </aside>
+<%- include('partials/admin-sidebar', { inDashboard: true }) %>
 
   <div class="admin-main">
     <header class="admin-topbar">
@@ -91,6 +42,22 @@
           <div class="stat-card"><div class="stat-num" id="statSubjects">—</div><div class="stat-label">Subjects</div></div>
           <div class="stat-card"><div class="stat-num" id="statClasses">—</div><div class="stat-label">Classes</div></div>
         </div>
+        <section class="card ann-card" aria-labelledby="annTitle">
+          <h2 id="annTitle">School announcements</h2>
+          <p class="muted">Post a short notice to everyone, all staff, teachers, students or parents. It shows in their notification bell between the two dates.</p>
+          <form id="annForm" class="ann-form" novalidate>
+            <label class="ann-wide">Title <input id="annTitleInput" maxlength="150" required placeholder="e.g. Sequence 3 marks due Friday 14 February"></label>
+            <label class="ann-wide">Message (optional) <textarea id="annBody" maxlength="600" rows="2"></textarea></label>
+            <label>Who sees it
+              <select id="annAudience"><option value="everyone">Everyone</option><option value="staff">All staff</option><option value="teachers">Teachers</option><option value="students">Students</option><option value="parents">Parents</option></select>
+            </label>
+            <label>First day <input type="date" id="annStarts" required></label>
+            <label>Last day <input type="date" id="annEnds" required></label>
+            <button type="submit" class="btn">Post announcement</button>
+          </form>
+          <p id="annMsg" class="msg" role="status" aria-live="polite"></p>
+          <ul class="ann-list" id="annList"></ul>
+        </section>
       </section>
 
       <!-- ===== REGISTRATION TAB ===== -->
@@ -1067,6 +1034,10 @@
   <script src="/js/app.js"></script>
   <script src="/js/toast.js"></script>
   <script src="/js/school-identity.js"></script>
+  <script src="/js/i18n-fr-app.js"></script>
+  <script src="/js/i18n.js"></script>
+  <script src="/js/notify-bell.js"></script>
+  <script src="/js/admin-announcements.js"></script>
   <script src="/js/admin-layout.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-core.js?v=<%= Date.now() %>"></script>
   <script src="/js/admin-students.js?v=<%= Date.now() %>"></script>

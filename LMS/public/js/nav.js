@@ -14,6 +14,6 @@
     try { await fetch('/logout', { method: 'POST' }); } catch (_) {}
     for (const key of ['token', 'role', 'user']) localStorage.removeItem(key);
     sessionStorage.clear();
-    window.location.href = '/login';
+    window.location.href = '/';   // signing out lands on the home page
   });
 })();
